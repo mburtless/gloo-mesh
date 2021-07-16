@@ -22,19 +22,19 @@ func (d *deploymentsCheck) GetDescription() string {
 	return "Gloo Mesh pods are running"
 }
 
-func (d *deploymentsCheck) Run(ctx context.Context, checkCtx CheckContext) *Failure {
+func (d *deploymentsCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
 	installNamespace := checkCtx.Environment().Namespace
 	namespaceClient := corev1.NewNamespaceClient(checkCtx.Client())
 	_, err := namespaceClient.GetNamespace(ctx, installNamespace)
 	if err != nil {
-		return &Failure{
+		return &Result{
 			Errors: []error{eris.Wrapf(err, "specified namespace %s doesn't exist", installNamespace)},
 		}
 	}
 	deploymentClient := appsv1.NewDeploymentClient(checkCtx.Client())
 	deployments, err := deploymentClient.ListDeployment(ctx, client.InNamespace(installNamespace))
 	if err != nil {
-		return &Failure{
+		return &Result{
 			Errors: []error{err},
 		}
 	}
@@ -42,9 +42,9 @@ func (d *deploymentsCheck) Run(ctx context.Context, checkCtx CheckContext) *Fail
 	return d.checkDeployments(deployments, checkCtx.Environment())
 }
 
-func (d *deploymentsCheck) checkDeployments(deployments *apps_v1.DeploymentList, env Environment) *Failure {
+func (d *deploymentsCheck) checkDeployments(deployments *apps_v1.DeploymentList, env Environment) *Result {
 	installNamespace := env.Namespace
-	failure := new(Failure)
+	failure := new(Result)
 	if len(deployments.Items) < 1 {
 		failure.AddError(eris.Errorf("no deployments found in namespace %s", installNamespace))
 		if !env.InCluster {

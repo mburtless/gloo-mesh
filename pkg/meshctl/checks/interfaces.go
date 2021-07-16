@@ -42,7 +42,7 @@ type Check interface {
 	GetDescription() string
 
 	// Execute the check, pass in the namespace that Gloo Mesh is installed in
-	Run(ctx context.Context, checkCtx CheckContext) *Failure
+	Run(ctx context.Context, checkCtx CheckContext) *Result
 }
 
 type Category struct {
@@ -50,42 +50,57 @@ type Category struct {
 	Checks []Check
 }
 
-type Failure struct {
+type Result struct {
 	// user-facing error message describing failed check
 	Errors []error
 
-	// an optional suggestion for a next action for the user to take for resolving a failed check
+	// an optional suggestion for a next action for the user to take for resolving a failed check or warning
 	Hints []Hint
 }
 
-func (f *Failure) AddError(err ...error) *Failure {
+func (f *Result) AddError(err ...error) *Result {
 	f.Errors = append(f.Errors, err...)
 	return f
 }
 
-func (f *Failure) OrNil() *Failure {
+// result is a failure if there are any errors
+func (f *Result) IsFailure() bool {
 	if f == nil {
-		return nil
+		return false
 	}
-	if len(f.Errors) == 0 {
-		return nil
-	}
-	return f
+	return len(f.Errors) > 0
 }
 
-func (f *Failure) AddHint(h string, d string) *Failure {
-	if h != "" {
+// result is a warning if there are no errors but there are hints
+func (f *Result) IsWarning() bool {
+	if f == nil {
+		return false
+	}
+	return len(f.Errors) == 0 && len(f.Hints) > 0
+}
+
+// result is a success if nil or no errors and no hints
+func (f *Result) IsSuccess() bool {
+	if f == nil {
+		return true
+	}
+	return len(f.Errors) == 0 && len(f.Hints) == 0
+}
+
+// add a hint with an optional docs link
+func (f *Result) AddHint(hint string, docsLink string) *Result {
+	if hint != "" {
 		var u *url.URL
-		if d != "" {
+		if docsLink != "" {
 			var err error
-			u, err = url.Parse(d)
+			u, err = url.Parse(docsLink)
 			if err != nil {
 				// this should never happen
 				// but we also don't care that much if it does
 				// so we just ignore the error.
 			}
 		}
-		f.Hints = append(f.Hints, Hint{Hint: h, DocsLink: u})
+		f.Hints = append(f.Hints, Hint{Hint: hint, DocsLink: u})
 	}
 	return f
 }

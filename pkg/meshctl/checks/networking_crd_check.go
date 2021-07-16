@@ -21,9 +21,9 @@ func (c *networkingCrdCheck) GetDescription() string {
 	return "Gloo Mesh networking configuration resources are in a valid state"
 }
 
-func (c *networkingCrdCheck) Run(ctx context.Context, checkCtx CheckContext) *Failure {
+func (c *networkingCrdCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
 	client := checkCtx.Client()
-	failure := new(Failure)
+	failure := new(Result)
 	tpList, err := networkingv1.NewTrafficPolicyClient(client).ListTrafficPolicy(ctx)
 	if err != nil {
 		failure.AddError(err)

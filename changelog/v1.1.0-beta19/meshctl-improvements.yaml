@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    description: Emit a warning instead of error for Gloo Mesh server check if no clusters are registered.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1724

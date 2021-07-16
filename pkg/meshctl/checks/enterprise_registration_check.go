@@ -66,21 +66,21 @@ func isEnterpriseVersion(ctx context.Context, c client.Client, installNamespace 
 	return true, nil
 }
 
-func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckContext) *Failure {
+func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
 	shouldRunCheck, err := isEnterpriseVersion(ctx, checkCtx.Client(), checkCtx.Environment().Namespace)
 	if err != nil {
-		return &Failure{
+		return &Result{
 			Errors: []error{err},
 		}
 	}
 
 	if !shouldRunCheck {
-		contextutils.LoggerFrom(ctx).Debugf("skipping relay connectivity check, enterprise not detected")
+		contextutils.LoggerFrom(ctx).Debugf("Skipping relay connectivity check, enterprise not detected.")
 		return nil
 	}
 
 	if checkCtx.Environment().AdminPort == 0 {
-		contextutils.LoggerFrom(ctx).Debugf("skipping relay connectivity check, remote port set to 0")
+		contextutils.LoggerFrom(ctx).Debugf("Skipping relay connectivity check, remote port set to 0.")
 		return nil
 	}
 
@@ -88,21 +88,25 @@ func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckCon
 	// get registered clusters
 	registeredClusters, err := v1alpha1.NewKubernetesClusterClient(checkCtx.Client()).ListKubernetesCluster(ctx, client.InNamespace(installNamespace))
 	if err != nil {
-		return &Failure{
+		return &Result{
 			Errors: []error{err},
 		}
 	}
-	failure := new(Failure)
+
+	result := &Result{}
+
+	// emit a warning that there are no registered clusters
 	if len(registeredClusters.Items) == 0 {
-		failure.AddHint("You don't have any registered clusters. you may want to create a KubernetesCluster CR.", clusterRegDoc)
+		result.AddHint("You don't have any registered clusters. you may want to create a KubernetesCluster CR.", clusterRegDoc)
+		return result
 	}
 
 	// get connected clusters
 	connectedPullAgents, connectedPushAgents, err, hint := d.getConnectedAgents(ctx, checkCtx)
 	if err != nil {
-		failure.AddHint(hint, clusterRegDoc)
-		failure.AddError(err)
-		return failure
+		result.AddHint(hint, clusterRegDoc)
+		result.AddError(err)
+		return result
 	}
 
 	clusterStatuses := calculateClusterStatuses(registeredClusters, connectedPullAgents, connectedPushAgents)
@@ -114,17 +118,17 @@ func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckCon
 		switch {
 		// cluster registered, agents are not pulling or pushing
 		case status.registered && ((status.agentsPulling < 1) || (status.agentsPushing < 1)):
-			failure.AddError(eris.Errorf("cluster %v registered but agent is not connected (pull: %v, push: %v)", status.cluster, status.agentsPulling, status.agentsPushing))
-			failure.AddHint("check the logs of the agent on "+status.cluster+" and investigate whether/why the gRPC connection failed from the agent to the mgmt server. "+
+			result.AddError(eris.Errorf("cluster %v registered but agent is not connected (pull: %v, push: %v)", status.cluster, status.agentsPulling, status.agentsPushing))
+			result.AddHint("check the logs of the agent on "+status.cluster+" and investigate whether/why the gRPC connection failed from the agent to the mgmt server. "+
 				"Additionally, if the pushing value zero and pulling is non-zero, that usually indicates a connected dashboard and an unconnected agent.", clusterRegDoc)
 		// cluster not registered, agents are pushing. Cannot use positive pull status as agent evidence, since it may also be a dashboard connection.
 		case !status.registered && status.agentsPushing > 0:
-			failure.AddError(eris.Errorf("cluster %v is not currently registered but agent is connected (pull: %v, push: %v)", status.cluster, status.agentsPulling, status.agentsPushing))
-			failure.AddHint("create a corresponding KubernetesCluster CR to register the "+status.cluster+".", clusterRegDoc)
+			result.AddError(eris.Errorf("cluster %v is not currently registered but agent is connected (pull: %v, push: %v)", status.cluster, status.agentsPulling, status.agentsPushing))
+			result.AddHint("create a corresponding KubernetesCluster CR to register the "+status.cluster+".", clusterRegDoc)
 		}
 	}
 
-	return failure
+	return result
 }
 
 func printClusterStatuses(clusterStatuses []connectionStatus) {
@@ -216,7 +220,7 @@ func (d *enterpriseRegistrationCheck) getConnectedAgents(ctx context.Context, ch
 
 	connectedPullClientsMetric, ok := parsedMetrics[connectedPullClientsMetricName]
 	if !ok {
-		return nil, nil, eris.Errorf("expected metric %v not present.", connectedPullClientsMetricName), "Try verifying that at least one agent has connected to the management plane."
+		return nil, nil, eris.Errorf("expected metric '%v' not present", connectedPullClientsMetricName), "Try verifying that at least one agent has connected to the management plane."
 	}
 
 	// map of cluster to connection status;
@@ -229,7 +233,7 @@ func (d *enterpriseRegistrationCheck) getConnectedAgents(ctx context.Context, ch
 
 	connectedPushClientsMetric, ok := parsedMetrics[connectedPushClientsMetricName]
 	if !ok {
-		return nil, nil, eris.Errorf("expected metric %v not present", connectedPushClientsMetricName), "Try verifying that at least one agent has connected to the management plane."
+		return nil, nil, eris.Errorf("expected metric '%v' not present", connectedPushClientsMetricName), "Try verifying that at least one agent has connected to the management plane."
 	}
 
 	pushClientsConnected, err, reason := getClientClustersConnected(connectedPushClientsMetric)

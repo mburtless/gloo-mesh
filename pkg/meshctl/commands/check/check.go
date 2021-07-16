@@ -3,6 +3,7 @@ package check
 import (
 	"context"
 
+	"github.com/rotisserie/eris"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/checks"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
@@ -27,6 +28,7 @@ func Command(ctx context.Context) *cobra.Command {
 	opts.addToFlags(cmd.Flags())
 
 	cmd.SilenceUsage = true
+	cmd.SilenceErrors = true
 	return cmd
 }
 
@@ -47,6 +49,8 @@ func (o *options) addToFlags(flags *pflag.FlagSet) {
 
 func runChecks(ctx context.Context, client client.Client, opts *options) error {
 	checkCtx := checks.NewOutOfClusterCheckContext(client, opts.namespace, opts.kubeconfig, opts.kubecontext, opts.localPort, opts.remotePort)
-	checks.RunChecks(ctx, checkCtx, checks.Server, checks.PostInstall)
+	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PostInstall); foundFailure {
+		return eris.New("Encountered failed checks.")
+	}
 	return nil
 }
