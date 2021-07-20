@@ -25,16 +25,41 @@ const (
 )
 
 type Environment struct {
+	// Gloo Mesh management plane metrics port
 	AdminPort uint32
+	// the Gloo Mesh installation namespace
 	Namespace string
+	// true if this validation check is being run from an in-cluster workload
 	InCluster bool
 }
 
 type OperateOnAdminPort = func(ctx context.Context, adminUrl *url.URL) (error, string)
+
+type CommonContext struct {
+	// if true, skip checks
+	SkipChecks bool
+
+	Env Environment
+	Cli client.Client
+	// server install or upgrade parameters
+	ServerParams *ServerParams
+}
+
+func (c *CommonContext) Environment() Environment {
+	return c.Env
+}
+func (c *CommonContext) Client() client.Client {
+	return c.Cli
+}
+
 type CheckContext interface {
 	Environment() Environment
 	Client() client.Client
 	AccessAdminPort(ctx context.Context, deployment string, op OperateOnAdminPort) (error, string)
+	Context() CommonContext
+
+	// execute the checks for the given component and stage, and return true if all checks passed
+	RunChecks(ctx context.Context, c Component, st Stage) bool
 }
 
 type Check interface {

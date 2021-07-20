@@ -1,4 +1,4 @@
-package checks
+package validation
 
 import (
 	"context"
@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 
+	"github.com/rotisserie/eris"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
 	corev1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
 	"github.com/solo-io/go-utils/contextutils"
 	skutils "github.com/solo-io/skv2/pkg/utils"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -18,24 +21,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type CommonContext struct {
-	Env Environment
-	Cli client.Client
-}
-
-func (c *CommonContext) Environment() Environment {
-	return c.Env
-}
-func (c *CommonContext) Client() client.Client {
-	return c.Cli
-}
-
 type InClusterCheckContext struct {
-	CommonContext
+	checks.CommonContext
 }
 
 type OutOfClusterCheckContext struct {
-	CommonContext
+	checks.CommonContext
 
 	mgmtKubeConfig  string
 	mgmtKubeContext string
@@ -43,7 +34,7 @@ type OutOfClusterCheckContext struct {
 	remotePort      uint32
 }
 
-func NewInClusterCheckContext() (CheckContext, error) {
+func NewInClusterCheckContext() (checks.CheckContext, error) {
 	kubeClient, err := utils.BuildClient("", "")
 	if err != nil {
 		return nil, err
@@ -55,33 +46,85 @@ func NewInClusterCheckContext() (CheckContext, error) {
 			return nil, err
 		}
 	}
+
+	var skipChecks bool
+	skipChecksEnv := os.Getenv("SKIP_CHECKS")
+	if skipChecksEnv == "1" || strings.ToLower(skipChecksEnv) == "true" {
+		skipChecks = true
+	}
+
 	return &InClusterCheckContext{
-		CommonContext: CommonContext{
+		CommonContext: checks.CommonContext{
 			Cli: kubeClient,
-			Env: Environment{
+			Env: checks.Environment{
 				AdminPort: defaults.MetricsPort,
 				Namespace: ns,
 				InCluster: true,
-			}},
+			},
+			ServerParams: nil, // TODO pass in install / upgrade parameters, perhaps through CLI var args?
+			SkipChecks:   skipChecks,
+		},
 	}, nil
 }
 
-func NewOutOfClusterCheckContext(cli client.Client, ns, mgmtKubeConfig, mgmtKubeContext string,
-	localPort, remotePort uint32) CheckContext {
+// exposed for testing, allows injecting mock k8s client
+func NewTestCheckContext(
+	client client.Client,
+	gmInstallationNamespace string,
+	localPort, remotePort uint32,
+	serverParams *checks.ServerParams,
+	ignoreChecks bool,
+) (checks.CheckContext, error) {
+	return &OutOfClusterCheckContext{
+		remotePort: remotePort,
+		localPort:  localPort,
+		CommonContext: checks.CommonContext{
+			Cli: client,
+			Env: checks.Environment{
+				AdminPort: remotePort,
+				Namespace: gmInstallationNamespace,
+				InCluster: false,
+			},
+			ServerParams: serverParams,
+			SkipChecks:   ignoreChecks,
+		},
+	}, nil
+}
+
+func NewOutOfClusterCheckContext(
+	mgmtKubeConfig string,
+	mgmtKubeContext string,
+	gmInstallationNamespace string,
+	localPort, remotePort uint32,
+	serverParams *checks.ServerParams,
+	ignoreChecks bool,
+) (checks.CheckContext, error) {
+	kubeClient, err := utils.BuildClient(mgmtKubeConfig, mgmtKubeContext)
+	if err != nil {
+		return nil, eris.Wrapf(err, "failed to construct kube client from provided kubeconfig")
+	}
+
 	return &OutOfClusterCheckContext{
 		remotePort:      remotePort,
 		localPort:       localPort,
 		mgmtKubeConfig:  mgmtKubeConfig,
 		mgmtKubeContext: mgmtKubeContext,
-		CommonContext: CommonContext{
-			Cli: cli,
-			Env: Environment{
+		CommonContext: checks.CommonContext{
+			Cli: kubeClient,
+			Env: checks.Environment{
 				AdminPort: remotePort,
-				Namespace: ns,
+				Namespace: gmInstallationNamespace,
 				InCluster: false,
-			}},
-	}
+			},
+			ServerParams: serverParams,
+			SkipChecks:   ignoreChecks,
+		},
+	}, nil
 
+}
+
+func (c *InClusterCheckContext) Context() checks.CommonContext {
+	return c.CommonContext
 }
 
 func (c *InClusterCheckContext) AccessAdminPort(ctx context.Context, deployment string, op func(ctx context.Context, adminUrl *url.URL) (error, string)) (error, string) {
@@ -130,6 +173,18 @@ func (c *InClusterCheckContext) AccessAdminPort(ctx context.Context, deployment 
 	return op(ctx, adminUrl)
 }
 
+func (c *InClusterCheckContext) RunChecks(ctx context.Context, component checks.Component, st checks.Stage) bool {
+	if c.CommonContext.SkipChecks {
+		return true
+	}
+
+	return checks.RunChecks(ctx, c, component, st)
+}
+
+func (c *OutOfClusterCheckContext) Context() checks.CommonContext {
+	return c.CommonContext
+}
+
 func (c *OutOfClusterCheckContext) AccessAdminPort(ctx context.Context, deployment string, op func(ctx context.Context, adminUrl *url.URL) (error, string)) (error, string) {
 	portFwdContext, cancelPtFwd := context.WithCancel(ctx)
 	defer cancelPtFwd()
@@ -154,4 +209,12 @@ func (c *OutOfClusterCheckContext) AccessAdminPort(ctx context.Context, deployme
 	}
 
 	return op(portFwdContext, adminUrl)
+}
+
+func (c *OutOfClusterCheckContext) RunChecks(ctx context.Context, component checks.Component, st checks.Stage) bool {
+	if c.CommonContext.SkipChecks {
+		return true
+	}
+
+	return checks.RunChecks(ctx, c, component, st)
 }

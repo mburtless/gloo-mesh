@@ -42,7 +42,7 @@ func NewEnterpriseRegistrationCheck() *enterpriseRegistrationCheck {
 }
 
 func (d *enterpriseRegistrationCheck) GetDescription() string {
-	return "Gloo Mesh agents are connected for each registered KubernetesCluster."
+	return "Gloo Mesh agents are connected for each registered cluster"
 }
 
 type connectionStatus struct {

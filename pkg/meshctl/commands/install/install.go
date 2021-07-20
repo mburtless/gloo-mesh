@@ -15,6 +15,8 @@ import (
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/registration"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -170,10 +172,6 @@ func (o CommunityOptions) getRegistrationOptions() registration.Options {
 }
 
 func InstallCommunity(ctx context.Context, opts CommunityOptions) error {
-	const (
-		repoURI   = "https://storage.googleapis.com/gloo-mesh"
-		chartName = "gloo-mesh"
-	)
 	if opts.Version == "" {
 		opts.Version = cliversion.Version
 	}
@@ -210,6 +208,26 @@ func enterpriseCommand(ctx context.Context, installOpts *Options) *cobra.Command
   # Don't install the UI
   meshctl install enterprise --license=<my_license> --skip-ui`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+
+			checkCtx, err := validation.NewOutOfClusterCheckContext(
+				installOpts.KubeCfgPath,
+				installOpts.KubeContext,
+				installOpts.Namespace,
+				0, // ports not needed
+				0,
+				&checks.ServerParams{
+					RelayServerAddress: opts.RelayServerAddress,
+				},
+				opts.SkipChecks,
+			)
+			if err != nil {
+				return err
+			}
+
+			if foundFailure := checkCtx.RunChecks(ctx, checks.Server, checks.PreInstall); foundFailure {
+				return eris.New("encountered failed pre-install checks")
+			}
+
 			return InstallEnterprise(ctx, opts)
 		},
 	}
@@ -225,12 +243,12 @@ type EnterpriseOptions struct {
 	SkipUI             bool
 	IncludeRBAC        bool
 	RelayServerAddress string
+	SkipChecks         bool
 }
 
 func (o *EnterpriseOptions) addToFlags(flags *pflag.FlagSet) {
 	flags.StringVar(&o.ReleaseName, "release-name", gloomesh.GlooMeshReleaseName, "Helm release name")
 	flags.StringVar(&o.LicenseKey, "license", "", "Gloo Mesh Enterprise license key (required)")
-	cobra.MarkFlagRequired(flags, "license")
 	flags.BoolVar(&o.SkipUI, "skip-ui", false, "Skip installation of the Gloo Mesh UI")
 	flags.BoolVar(&o.IncludeRBAC, "include-rbac", false, "Install the RBAC Webhook")
 	flags.StringVar(&o.AgentChartPath, "enterprise-agent-chart-file", "",
@@ -242,6 +260,10 @@ func (o *EnterpriseOptions) addToFlags(flags *pflag.FlagSet) {
 			"If unset, this command will install the Enterprise Agent with default Helm values.",
 	)
 	flags.StringVar(&o.RelayServerAddress, "relay-server-address", "", "The address that the enterprise agent will communicate with the relay server via.")
+	flags.BoolVar(&o.SkipChecks, "skip-checks", false, "If true, skip the pre-install checks.")
+
+	cobra.MarkFlagRequired(flags, "license")
+	cobra.MarkFlagRequired(flags, "relay-server-address")
 }
 
 func (o EnterpriseOptions) getInstaller() helm.Installer {

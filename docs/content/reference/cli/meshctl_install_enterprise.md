@@ -35,6 +35,7 @@ meshctl install enterprise [flags]
       --license string                         Gloo Mesh Enterprise license key (required)
       --relay-server-address string            The address that the enterprise agent will communicate with the relay server via.
       --release-name string                    Helm release name (default "gloo-mesh")
+      --skip-checks                            If true, skip the pre-install checks.
       --skip-ui                                Skip installation of the Gloo Mesh UI
 ```
 

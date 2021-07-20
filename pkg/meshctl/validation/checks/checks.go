@@ -21,7 +21,8 @@ func toKey(Component Component, Stage Stage) mapKey {
 	return mapKey{Stage: Stage, Component: Component}
 }
 
-func constructChecks() map[mapKey][]Category {
+// checks for all components and stages are defined here
+func allChecks() map[mapKey][]Category {
 	managementPlane := Category{
 		Name: "Gloo Mesh Installation",
 		Checks: []Check{
@@ -37,7 +38,17 @@ func constructChecks() map[mapKey][]Category {
 		},
 	}
 
+	serverParams := Category{
+		Name: "Server Parameters",
+		Checks: []Check{
+			NewServerParametersCheck(),
+		},
+	}
+
 	return map[mapKey][]Category{
+		toKey(Server, PreInstall): {
+			serverParams,
+		},
 		toKey(Server, PostInstall): {
 			managementPlane,
 			configuration,
@@ -45,10 +56,11 @@ func constructChecks() map[mapKey][]Category {
 	}
 }
 
+// invoked by either meshctl or Helm hooks
 func RunChecks(ctx context.Context, checkCtx CheckContext, c Component, st Stage) bool {
 	var foundFailure bool
 
-	for _, category := range constructChecks()[toKey(c, st)] {
+	for _, category := range allChecks()[toKey(c, st)] {
 		fmt.Println(category.Name)
 		fmt.Printf(strings.Repeat("-", len(category.Name)+3) + "\n")
 		for _, check := range category.Checks {

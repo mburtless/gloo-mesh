@@ -5,11 +5,11 @@ import (
 
 	"github.com/rotisserie/eris"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/checks"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func Command(ctx context.Context) *cobra.Command {
@@ -18,11 +18,7 @@ func Command(ctx context.Context) *cobra.Command {
 		Use:   "check",
 		Short: "Perform health checks on the Gloo Mesh system",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			kubeClient, err := utils.BuildClient(opts.kubeconfig, opts.kubecontext)
-			if err != nil {
-				return err
-			}
-			return runChecks(ctx, kubeClient, opts)
+			return runChecks(ctx, opts)
 		},
 	}
 	opts.addToFlags(cmd.Flags())
@@ -47,8 +43,20 @@ func (o *options) addToFlags(flags *pflag.FlagSet) {
 	flags.Uint32Var(&o.remotePort, "remote-port", defaults.MetricsPort, "remote port used to open port-forward to enterprise mgmt pod (enterprise only). set to 0 to disable checks on the mgmt server")
 }
 
-func runChecks(ctx context.Context, client client.Client, opts *options) error {
-	checkCtx := checks.NewOutOfClusterCheckContext(client, opts.namespace, opts.kubeconfig, opts.kubecontext, opts.localPort, opts.remotePort)
+func runChecks(ctx context.Context, opts *options) error {
+	checkCtx, err := validation.NewOutOfClusterCheckContext(
+		opts.kubeconfig,
+		opts.kubecontext,
+		opts.namespace,
+		opts.localPort,
+		opts.remotePort,
+		nil, // server post install check doesn't require validating install parameters
+		false,
+	)
+	if err != nil {
+		return eris.Wrapf(err, "invalid kubeconfig")
+	}
+
 	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PostInstall); foundFailure {
 		return eris.New("Encountered failed checks.")
 	}

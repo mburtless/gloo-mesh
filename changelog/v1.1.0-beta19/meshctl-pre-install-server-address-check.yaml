@@ -1,0 +1,5 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Add a pre-install check that relay-server-address exists and is a valid IP address.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720
+    resolvesIssue: false
