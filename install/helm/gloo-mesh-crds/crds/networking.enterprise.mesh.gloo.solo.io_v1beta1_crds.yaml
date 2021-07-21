@@ -2787,6 +2787,13 @@ spec:
                         minimum: 0
                         type: integer
                     type: object
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Specify labels for this route, which are used by other resources (e.g. TrafficPolicy) to
+                      select specific routes within a given gateway object.
+                    type: object
                   matchers:
                     description: |-
                       Matchers contain parameters for matching requests (i.e., based on HTTP path, headers, etc.).
@@ -4036,6 +4043,14 @@ spec:
           type: object
         status:
           properties:
+            appliedTrafficPolicies:
+              description: |-
+                The set of TrafficPolicies that have been applied to this Destination.
+                {{/* Note: validation of this field disabled because it slows down cue tremendously*/}}
+              items:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              type: array
             attachedVirtualGateways:
               description: List of each VirtualGateway which has selected this VirtualHost
               items:
@@ -4256,6 +4271,13 @@ spec:
                         minimum: 0
                         type: integer
                     type: object
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      Specify labels for this route, which are used by other resources (e.g. TrafficPolicy) to
+                      select specific routes within a given gateway object.
+                    type: object
                   matchers:
                     description: |-
                       Matchers contain parameters for matching requests (i.e., based on HTTP path, headers, etc.).
@@ -5505,6 +5527,14 @@ spec:
           type: object
         status:
           properties:
+            appliedTrafficPolicies:
+              description: |-
+                The set of TrafficPolicies that have been applied to this Destination.
+                {{/* Note: validation of this field disabled because it slows down cue tremendously*/}}
+              items:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              type: array
             errors:
               description: Any errors found while processing this generation of the
                 resource.
