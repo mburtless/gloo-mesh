@@ -24,6 +24,10 @@ message RouteTableSpec {
     // this virtual host. If the request matches more than one Route in the list, the first Route matched will be selected.
     // If the list of Routes is empty, the virtual host will be ignored by Gloo.
     repeated .networking.enterprise.mesh.gloo.solo.io.Route routes = 1;
+
+    // Weight is used when sorting route tables in delegate action or routes when sorted by specificity.
+    // Higher integer values are considered higher priority. The default value is 0.
+    int32 weight = 2;
 }
 
 message RouteTableStatus {

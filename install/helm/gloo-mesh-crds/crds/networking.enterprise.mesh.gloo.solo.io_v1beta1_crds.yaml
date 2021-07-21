@@ -2718,8 +2718,9 @@ spec:
                           type: object
                         type: array
                       selector:
-                        description: Delegate to the RouteTables that match the given
-                          selector.
+                        description: |-
+                          Delegate to the RouteTables that match the given selector.
+                          Selected route tables are ordered by creation time stamp in ascending order to guarantee consistent ordering.
                         properties:
                           expressions:
                             description: |-
@@ -2768,6 +2769,12 @@ spec:
                               type: string
                             type: array
                         type: object
+                      sortMethod:
+                        description: How routes should be sorted
+                        enum:
+                        - TABLE_WEIGHT
+                        - ROUTE_SPECIFICITY
+                        type: string
                     type: object
                   directResponseAction:
                     description: Return an arbitrary HTTP response directly, without
@@ -4202,8 +4209,9 @@ spec:
                           type: object
                         type: array
                       selector:
-                        description: Delegate to the RouteTables that match the given
-                          selector.
+                        description: |-
+                          Delegate to the RouteTables that match the given selector.
+                          Selected route tables are ordered by creation time stamp in ascending order to guarantee consistent ordering.
                         properties:
                           expressions:
                             description: |-
@@ -4252,6 +4260,12 @@ spec:
                               type: string
                             type: array
                         type: object
+                      sortMethod:
+                        description: How routes should be sorted
+                        enum:
+                        - TABLE_WEIGHT
+                        - ROUTE_SPECIFICITY
+                        type: string
                     type: object
                   directResponseAction:
                     description: Return an arbitrary HTTP response directly, without
@@ -5524,6 +5538,12 @@ spec:
                     type: object
                 type: object
               type: array
+            weight:
+              description: |-
+                Weight is used when sorting route tables in delegate action or routes when sorted by specificity.
+                Higher integer values are considered higher priority. The default value is 0.
+              format: int32
+              type: integer
           type: object
         status:
           properties:

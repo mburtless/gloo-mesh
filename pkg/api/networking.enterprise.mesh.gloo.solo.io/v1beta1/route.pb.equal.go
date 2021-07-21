@@ -307,6 +307,10 @@ func (m *DelegateAction) Equal(that interface{}) bool {
 		}
 	}
 
+	if m.GetSortMethod() != target.GetSortMethod() {
+		return false
+	}
+
 	return true
 }
 

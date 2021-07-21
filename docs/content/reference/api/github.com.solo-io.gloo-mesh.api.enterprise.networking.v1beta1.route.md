@@ -25,6 +25,7 @@ title: "route.proto"
   - [Route.LabelsEntry](#networking.enterprise.mesh.gloo.solo.io.Route.LabelsEntry)
   - [Route.RouteAction](#networking.enterprise.mesh.gloo.solo.io.Route.RouteAction)
 
+  - [DelegateAction.SortMethod](#networking.enterprise.mesh.gloo.solo.io.DelegateAction.SortMethod)
   - [RedirectAction.RedirectResponseCode](#networking.enterprise.mesh.gloo.solo.io.RedirectAction.RedirectResponseCode)
 
 
@@ -41,7 +42,8 @@ Note: This message needs to be at this level (rather than nested) due to cue res
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | refs | [][core.skv2.solo.io.ObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectRef" >}}) | repeated | Delegate to the RouteTable resources with matching `name` and `namespace`. |
-  | selector | [core.skv2.solo.io.ObjectSelector]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectSelector" >}}) |  | Delegate to the RouteTables that match the given selector. |
+  | selector | [core.skv2.solo.io.ObjectSelector]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectSelector" >}}) |  | Delegate to the RouteTables that match the given selector. Selected route tables are ordered by creation time stamp in ascending order to guarantee consistent ordering. |
+  | sortMethod | [networking.enterprise.mesh.gloo.solo.io.DelegateAction.SortMethod]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.route#networking.enterprise.mesh.gloo.solo.io.DelegateAction.SortMethod" >}}) |  | How routes should be sorted |
   
 
 
@@ -137,6 +139,18 @@ RouteActions are used to route matched requests to upstreams.
 
 
  <!-- end messages -->
+
+
+<a name="networking.enterprise.mesh.gloo.solo.io.DelegateAction.SortMethod"></a>
+
+### DelegateAction.SortMethod
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| TABLE_WEIGHT | 0 | Routes are kept in the order that they appear relative to their tables, but tables are sorted by weight. Tables that have the same weight will stay in the same order that they are listed in, which is the list order when given as a reference and by creation timestamp when selected. |
+| ROUTE_SPECIFICITY | 1 | After processing all routes, including additional route tables delegated to, the resulting routes are sorted by specificity to reduce the chance that a more specific route will be short-circuited by a general route. Matchers with exact path matchers are considered more specific than regex path patchers, which are more specific than prefix path matchers. Matchers of the same type are sorted by length of the path in descending order. Only the most specific matcher on each route is used. |
+
 
 
 <a name="networking.enterprise.mesh.gloo.solo.io.RedirectAction.RedirectResponseCode"></a>

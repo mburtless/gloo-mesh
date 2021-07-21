@@ -135,10 +135,27 @@ message DirectResponseAction {
 // Note: This message needs to be at this level (rather than nested) due to cue restrictions.
 // DelegateActions are used to delegate routing decisions to other resources, for example RouteTables.
 message DelegateAction {
-    
     // Delegate to the RouteTable resources with matching `name` and `namespace`.
     repeated .core.skv2.solo.io.ObjectRef refs = 1;
 
     // Delegate to the RouteTables that match the given selector.
+    // Selected route tables are ordered by creation time stamp in ascending order to guarantee consistent ordering.
     .core.skv2.solo.io.ObjectSelector selector = 2;
+
+    enum SortMethod {
+        // Routes are kept in the order that they appear relative to their tables, but tables are sorted by weight.
+        // Tables that have the same weight will stay in the same order that they are listed in, which is the list
+        // order when given as a reference and by creation timestamp when selected.
+        TABLE_WEIGHT = 0;
+
+        // After processing all routes, including additional route tables delegated to, the resulting routes are sorted
+        // by specificity to reduce the chance that a more specific route will be short-circuited by a general route.
+        // Matchers with exact path matchers are considered more specific than regex path patchers, which are more
+        // specific than prefix path matchers. Matchers of the same type are sorted by length of the path in descending
+        // order. Only the most specific matcher on each route is used.
+        ROUTE_SPECIFICITY = 1;
+    }
+
+    // How routes should be sorted
+    SortMethod sort_method = 3;
 }

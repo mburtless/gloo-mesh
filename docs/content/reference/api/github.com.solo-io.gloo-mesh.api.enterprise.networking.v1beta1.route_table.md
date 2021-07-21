@@ -37,6 +37,7 @@ RouteTable is a resource which can be referenced either from the top level Virtu
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | routes | [][networking.enterprise.mesh.gloo.solo.io.Route]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.route#networking.enterprise.mesh.gloo.solo.io.Route" >}}) | repeated | The list of HTTP Routes define routing actions to be taken for incoming HTTP requests whose host header matches this virtual host. If the request matches more than one Route in the list, the first Route matched will be selected. If the list of Routes is empty, the virtual host will be ignored by Gloo. |
+  | weight | int32 |  | Weight is used when sorting route tables in delegate action or routes when sorted by specificity. Higher integer values are considered higher priority. The default value is 0. |
   
 
 
