@@ -3,6 +3,7 @@ package reconciliation
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
@@ -74,7 +75,11 @@ type networkingReconciler struct {
 	reconciler                 skinput.InputReconciler
 	remoteResourceVerifier     verifier.ServerResourceVerifier
 	disallowIntersectingConfig bool
-	lastSnapshot               input.LocalSnapshot
+
+	// Lock for the lastSnapshot
+	snapshotLock sync.RWMutex
+	// This snap must be accessed using the lock to ensure no data races
+	lastSnapshot input.LocalSnapshot
 }
 
 var (
@@ -203,7 +208,9 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 	}
 
 	// Set last input snapshot for predicates
+	r.snapshotLock.Lock()
 	r.lastSnapshot = inputSnap
+	r.snapshotLock.Unlock()
 
 	if err := r.syncSettings(&ctx, inputSnap); err != nil {
 		// fail early if settings failed to sync
@@ -289,6 +296,8 @@ func (r *networkingReconciler) isIgnoredSecret(obj metav1.Object) bool {
 		return false
 	}
 
+	r.snapshotLock.RLock()
+	defer r.snapshotLock.RUnlock()
 	if r.lastSnapshot == nil {
 		return true
 	}
