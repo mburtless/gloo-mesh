@@ -21,6 +21,7 @@ var _ = Describe("CertGen workflow", func() {
 		csr, err := utils.GenerateCertificateSigningRequest(
 			hosts,
 			"gloo-mesh",
+			"mesh-name",
 			privateKey,
 		)
 		Expect(err).NotTo(HaveOccurred())
@@ -37,6 +38,8 @@ var _ = Describe("CertGen workflow", func() {
 		cert, err := x509.ParseCertificate(pemByt.Bytes)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(cert.IsCA).To(BeTrue())
+		Expect(cert.Subject.OrganizationalUnit).To(ConsistOf("mesh-name"))
+		Expect(cert.Subject.Organization).To(ConsistOf("gloo-mesh"))
 	}
 
 	It("generates a certificate using generated self signed cert, private key, and certificate signing request", func() {

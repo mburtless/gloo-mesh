@@ -48,7 +48,11 @@ const (
 	certificateRequest = "CERTIFICATE REQUEST"
 )
 
-func GenerateCertificateSigningRequest(hosts []string, org string, privateKey []byte) (csr []byte, err error) {
+func GenerateCertificateSigningRequest(
+	hosts []string,
+	org, meshName string,
+	privateKey []byte,
+) (csr []byte, err error) {
 
 	// Attempt to decode the key from the PEM format, currently only one format is supported (PKCS1)
 	block, _ := pem.Decode(privateKey)
@@ -66,6 +70,14 @@ func GenerateCertificateSigningRequest(hosts []string, org string, privateKey []
 		return nil, eris.Wrap(err, "CSR template creation failed")
 	}
 
+	// We add the cluster name to the new CSR template subject.
+	// This is extremely important to identify this new certificate as different from it's parent,
+	// and others it's communicating with.
+	if meshName == "" {
+		return nil, eris.New("meshName argument is required")
+	}
+	template.Subject.OrganizationalUnit = append(template.Subject.OrganizationalUnit, meshName)
+
 	csr, err = x509.CreateCertificateRequest(rand.Reader, template, priv)
 	if err != nil {
 		return nil, err
@@ -81,29 +93,31 @@ func GenerateCertificateSigningRequest(hosts []string, org string, privateKey []
 }
 
 /*
-	AppendRootCerts appends the root virtual mesh cert to the generated CaCert, It is yanked from the following Mesh
-	function:
+	AppendParentCerts appends 2 certs and/or cert chains together.
+
+	child is the child cert/chain.
+	parent is the parent cert/chain
 
 	https://github.com/istio/istio/blob/5218a80f97cb61ff4a02989b7d9f8c4fda50780f/security/pkg/pki/util/generate_csr.go#L95
 
 	Certificate chains are necessary to verify the authenticity of a certificate, in this case the authenticity of
 	the generated Ca Certificate against the VirtualMesh root cert
 */
-func AppendRootCerts(caCert, rootCert []byte) []byte {
-	var caCertCopy []byte
-	if len(caCert) > 0 {
+func AppendParentCerts(child, parent []byte) []byte {
+	var childCopy []byte
+	if len(child) > 0 {
 		// Copy the input certificate
-		caCertCopy = make([]byte, len(caCert))
-		copy(caCertCopy, caCert)
+		childCopy = make([]byte, len(child))
+		copy(childCopy, child)
 	}
-	if len(rootCert) > 0 {
-		if len(caCertCopy) > 0 {
+	if len(parent) > 0 {
+		if len(childCopy) > 0 {
 			// Append a newline after the last cert
 			// Certs are very fooey, this is copy pasted from Mesh, plz do not touch
 			// Love, eitan
-			caCertCopy = []byte(strings.TrimSuffix(string(caCertCopy), "\n") + "\n")
+			childCopy = []byte(strings.TrimSuffix(string(childCopy), "\n") + "\n")
 		}
-		caCertCopy = append(caCertCopy, rootCert...)
+		childCopy = append(childCopy, parent...)
 	}
-	return caCertCopy
+	return childCopy
 }

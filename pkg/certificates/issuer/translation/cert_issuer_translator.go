@@ -6,6 +6,7 @@ import (
 	"github.com/rotisserie/eris"
 	corev1clients "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	utils2 "github.com/solo-io/gloo-mesh/pkg/certificates/agent/utils"
 	"github.com/solo-io/gloo-mesh/pkg/certificates/common/secrets"
 	"github.com/solo-io/gloo-mesh/pkg/certificates/issuer/utils"
 	"github.com/solo-io/go-utils/contextutils"
@@ -21,6 +22,8 @@ type Output struct {
 	SignedCertificate []byte
 	// Root CA used to sign this certificate
 	SigningRootCa []byte
+	// Cert chain for the signing CA
+	CertChain []byte
 }
 
 //go:generate mockgen -source ./cert_issuer_translator.go -destination mocks/translator.go
@@ -72,14 +75,22 @@ func (s *secretTranslator) Translate(
 		return nil, eris.Wrapf(err, "failed to find issuer's signing certificate matching issued request %v", sets.Key(issuedCertificate))
 	}
 
-	signingCA := secrets.RootCADataFromSecretData(signingCertificateSecret.Data)
+	signingCA := secrets.CADataFromSecretData(signingCertificateSecret.Data)
+	if err := signingCA.Verify(); err != nil {
+		return nil, eris.Wrapf(
+			err,
+			"Provided CA (%s) is invalid",
+			sets.Key(signingCertificateSecret),
+		)
+
+	}
 
 	// generate the issued cert PEM encoded bytes
 	signedCert, err := utils.GenCertForCSR(
 		issuedCertificate.Spec.Hosts,
 		certificateRequest.Spec.GetCertificateSigningRequest(),
-		signingCA.RootCert,
-		signingCA.PrivateKey,
+		signingCA.CaCert,
+		signingCA.CaPrivateKey,
 		issuedCertificate.Spec.GetCertOptions().GetTtlDays(),
 	)
 	if err != nil {
@@ -87,6 +98,7 @@ func (s *secretTranslator) Translate(
 	}
 
 	return &Output{
+		CertChain:         utils2.AppendParentCerts(signedCert, signingCA.CertChain),
 		SignedCertificate: signedCert,
 		SigningRootCa:     signingCA.RootCert,
 	}, nil

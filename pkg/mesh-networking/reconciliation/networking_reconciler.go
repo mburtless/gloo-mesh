@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
+
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/skv2/pkg/stats"
 
@@ -21,7 +23,6 @@ import (
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/extensions"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/reporting"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation"
-	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/metautils"
 	"github.com/solo-io/go-utils/contextutils"
 	skinput "github.com/solo-io/skv2/contrib/pkg/input"
@@ -73,20 +74,13 @@ type networkingReconciler struct {
 	reconciler                 skinput.InputReconciler
 	remoteResourceVerifier     verifier.ServerResourceVerifier
 	disallowIntersectingConfig bool
+	lastSnapshot               input.LocalSnapshot
 }
 
 var (
 	// pushNotificationId is a special identifier for a reconcile event triggered by an extension server pushing a notification
 	pushNotificationId = &v1.ObjectRef{
 		Name: "push-notification-event",
-	}
-
-	// predicates use by the networking reconciler.
-	// exported for use in Enterprise.
-	NetworkingReconcilePredicates = []predicate.Predicate{
-		skv2predicate.SimplePredicate{
-			Filter: skv2predicate.SimpleEventFilterFunc(isIgnoredSecret),
-		},
 	}
 )
 
@@ -169,7 +163,11 @@ func Start(
 		r.reconcile,
 		input.ReconcileOptions{
 			Local: input.LocalReconcileOptions{
-				Predicates: NetworkingReconcilePredicates,
+				Predicates: []predicate.Predicate{
+					skv2predicate.SimplePredicate{
+						Filter: skv2predicate.SimpleEventFilterFunc(r.isIgnoredSecret),
+					},
+				},
 			},
 			Remote:            remoteReconcileOpts,
 			ReconcileInterval: time.Second / 2,
@@ -203,6 +201,9 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 		// failed to read from cache; should never happen
 		return false, err
 	}
+
+	// Set last input snapshot for predicates
+	r.lastSnapshot = inputSnap
 
 	if err := r.syncSettings(&ctx, inputSnap); err != nil {
 		// fail early if settings failed to sync
@@ -281,6 +282,34 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 	return false, errs
 }
 
+// returns true if the passed object is a secret which is ignored by gloo mesh
+func (r *networkingReconciler) isIgnoredSecret(obj metav1.Object) bool {
+	secret, ok := obj.(*corev1.Secret)
+	if !ok {
+		return false
+	}
+
+	if r.lastSnapshot == nil {
+		return true
+	}
+
+	// Search virtual meshes for secret reference
+	for _, v := range r.lastSnapshot.VirtualMeshes().List() {
+		rootCaSecret := v.Spec.MtlsConfig.GetShared().GetRootCertificateAuthority().GetSecret()
+		// If the secret reference is nil we can break out.
+		if rootCaSecret == nil {
+			continue
+		}
+		// If the secret is being referenced, we should handle this event
+		if rootCaSecret.GetName() == secret.Name &&
+			rootCaSecret.GetNamespace() == secret.Namespace {
+			return false
+		}
+	}
+	// Check if generated secret type
+	return !mtls.IsSigningCert(secret)
+}
+
 func (r *networkingReconciler) applyTranslation(ctx context.Context, in input.LocalSnapshot, userSupplied input.RemoteSnapshot) error {
 
 	outputSnap, err := r.translator.Translate(ctx, in, userSupplied, r.reporter)
@@ -320,16 +349,6 @@ func (r *networkingReconciler) syncSettings(ctx *context.Context, in input.Local
 		// ignore error because underlying impl should never error here
 		_, _ = r.reconciler.ReconcileLocalGeneric(pushNotificationId)
 	})
-}
-
-// returns true if the passed object is a secret which is of a type that is ignored by GlooMesh
-// TODO: this limits us to using our secret type, so products like cert-manager won't work.
-func isIgnoredSecret(obj metav1.Object) bool {
-	secret, ok := obj.(*corev1.Secret)
-	if !ok {
-		return false
-	}
-	return !mtls.IsSigningCert(secret)
 }
 
 // returns true if the passed object is a configmap which is of a type that is ignored by GlooMesh

@@ -55,7 +55,6 @@ type Translator interface {
 
 	// This function is called when the IssuedCertiticate is first created, it is meant to create the CSR
 	// and return the bytes directly
-	// If both return values are nil, it signals to the reconciler to ignore this resource.
 	IssuedCertiticatePending(
 		ctx context.Context,
 		issuedCertificate *certificatesv1.IssuedCertificate,
@@ -68,14 +67,14 @@ type Translator interface {
 	// IssuedCertificate
 	// This function may be called multiple times in a row, as long as the IssuedCertificate is in a
 	// REQUESTED state
-	// If err == nil, and continueIterating == false it signals to the reconciler to ignore this resource.
+	// If waitForCondition is true, than the reconciler will not update the status
 	IssuedCertificateRequested(
 		ctx context.Context,
 		issuedCertificate *certificatesv1.IssuedCertificate,
 		certificateRequest *certificatesv1.CertificateRequest,
 		inputs input.Snapshot,
 		outputs certagent.Builder,
-	) error
+	) (waitForCondition bool, err error)
 
 	// This function is called when the IssuedCertiticate has been ISSUED, this means that the
 	// CertificateRequest has been fulfilled by the relevant party. By this stage the intermediate
@@ -130,20 +129,19 @@ func (c *certAgentTranslator) IssuedCertiticatePending(
 	})
 
 	// Use deprecated field if present
-	if issuedCertificate.Spec.GetCertOptions().GetOrgName() != "" {
-		issuedCertificate.Spec.Org = issuedCertificate.Spec.GetCertOptions().GetOrgName()
+	org := issuedCertificate.Spec.GetCertOptions().GetOrgName()
+	if org == "" {
+		org = issuedCertificate.Spec.Org
 	}
+	// Use deprecated field if present
 
 	// create certificate request for private key
-	csrBytes, err := utils.GenerateCertificateSigningRequest(
+	return utils.GenerateCertificateSigningRequest(
 		issuedCertificate.Spec.Hosts,
-		issuedCertificate.Spec.Org,
+		org,
+		issuedCertificate.Name,
 		privateKey,
 	)
-	if err != nil {
-		return nil, err
-	}
-	return csrBytes, err
 }
 
 func (c *certAgentTranslator) IssuedCertificateRequested(
@@ -152,17 +150,17 @@ func (c *certAgentTranslator) IssuedCertificateRequested(
 	certificateRequest *certificatesv1.CertificateRequest,
 	inputs input.Snapshot,
 	outputs certagent.Builder,
-) error {
+) (bool, error) {
 
 	// retrieve private key
 	privateKeySecret, err := inputs.Secrets().Find(issuedCertificate)
 	if err != nil {
-		return err
+		return false, err
 	}
 	privateKey := privateKeySecret.Data[privateKeySecretKey]
 
 	if len(privateKey) == 0 {
-		return eris.Errorf("invalid private key found, no data provided")
+		return false, eris.Errorf("invalid private key found, no data provided")
 	}
 
 	switch certificateRequest.Status.State {
@@ -175,19 +173,19 @@ func (c *certAgentTranslator) IssuedCertificateRequested(
 
 		// if the certificate signing request has not been
 		// fulfilled, return and wait for the next reconcile
-		return nil
+		// return true to not update status
+		return true, nil
 	case certificatesv1.CertificateRequestStatus_FAILED:
-		return eris.Errorf("certificate request %v failed to be signed by Issuer: %v", sets.Key(certificateRequest), certificateRequest.Status.Error)
+		return false, eris.Errorf("certificate request %v failed to be signed by Issuer: %v", sets.Key(certificateRequest), certificateRequest.Status.Error)
 	}
 
 	signedCert := certificateRequest.Status.SignedCertificate
 	signingRootCA := certificateRequest.Status.SigningRootCa
+	signingCaChain := certificateRequest.Status.CertChain
 
-	issuedCertificateData := secrets.IntermediateCAData{
-		RootCAData: secrets.RootCAData{
-			RootCert: signingRootCA,
-		},
-		CertChain:    utils.AppendRootCerts(signedCert, signingRootCA),
+	issuedCertificateData := secrets.CAData{
+		RootCert:     signingRootCA,
+		CertChain:    signingCaChain,
 		CaCert:       signedCert,
 		CaPrivateKey: privateKey,
 	}
@@ -203,7 +201,7 @@ func (c *certAgentTranslator) IssuedCertificateRequested(
 		Type: IssuedCertificateSecretType(),
 	}
 	outputs.AddSecrets(issuedCertificateSecret)
-	return nil
+	return false, nil
 }
 
 func (c *certAgentTranslator) IssuedCertificateIssued(

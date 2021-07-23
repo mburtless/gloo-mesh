@@ -145,7 +145,7 @@ var _ = Describe("CertAgentTranslator", func() {
 
 			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
 
-			err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
+			_, err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -175,7 +175,7 @@ var _ = Describe("CertAgentTranslator", func() {
 						},
 					}))
 					Expect(secret.Type).To(Equal(translation.IssuedCertificateSecretType()))
-					intCaData := secrets.IntermediateCADataFromSecretData(secret.Data)
+					intCaData := secrets.CADataFromSecretData(secret.Data)
 					Expect(intCaData.CaPrivateKey).To(Equal([]byte("hello")))
 					Expect(intCaData.RootCert).To(Equal([]byte("I'm a root ca")))
 					Expect(intCaData.CaCert).To(Equal([]byte("I'm a signing cert")))
@@ -183,7 +183,7 @@ var _ = Describe("CertAgentTranslator", func() {
 
 			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
 
-			err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
+			_, err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 

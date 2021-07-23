@@ -94,5 +94,9 @@ func (m *CertificateRequestStatus) Equal(that interface{}) bool {
 		return false
 	}
 
+	if bytes.Compare(m.GetCertChain(), target.GetCertChain()) != 0 {
+		return false
+	}
+
 	return true
 }

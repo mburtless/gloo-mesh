@@ -60,4 +60,7 @@ message CertificateRequestStatus {
 
     // The root CA used by the issuer to sign the certificate.
     bytes signing_root_ca = 5;
+
+    // The cert chain of signing CA.
+    bytes cert_chain = 6;
 }

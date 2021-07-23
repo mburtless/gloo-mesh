@@ -503,6 +503,10 @@ spec:
           type: object
         status:
           properties:
+            certChain:
+              description: The cert chain of signing CA.
+              format: binary
+              type: string
             error:
               description: |-
                 Any error observed which prevented the CertificateRequest from being processed.

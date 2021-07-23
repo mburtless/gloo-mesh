@@ -130,6 +130,7 @@ func (r *certIssuerReconciler) reconcileCertificateRequest(certificateRequest *c
 		State:              certificatesv1.CertificateRequestStatus_FINISHED,
 		SignedCertificate:  output.SignedCertificate,
 		SigningRootCa:      output.SigningRootCa,
+		CertChain:          output.CertChain,
 	}
 
 	return nil

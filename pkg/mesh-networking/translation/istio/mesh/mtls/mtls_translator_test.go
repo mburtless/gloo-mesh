@@ -2,6 +2,9 @@ package mtls_test
 
 import (
 	"context"
+	"time"
+
+	"istio.io/istio/security/pkg/pki/util"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -114,7 +117,9 @@ var _ = Describe("MtlsTranslator", func() {
 		mockLocalBuilder.EXPECT().AddSecrets(gomock.Any()).Do(func(secret *corev1.Secret) {
 			// Make sure the name is the same, maybe decode the cert and check the data?
 			Expect(secret.GetName()).To(Equal(vm.GetRef().GetName() + "." + vm.GetRef().GetNamespace()))
-			Expect(mtls.IsSigningCert(secret)).To(BeTrue())
+			certData := secrets.CADataFromSecretData(secret.Data)
+			err := certData.Verify()
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		mockIstioBuilder.EXPECT().
@@ -163,12 +168,28 @@ var _ = Describe("MtlsTranslator", func() {
 	})
 
 	It("provided root CA", func() {
+		// Generate cert for the provided secret
+		cert, key, err := util.GenCertKeyFromOptions(util.CertOptions{
+			RSAKeySize:   2048,
+			IsSelfSigned: true,
+			IsCA:         true,
+			TTL:          time.Minute,
+		})
+		Expect(err).NotTo(HaveOccurred())
+
+		rootCaData := &secrets.CAData{
+			CaPrivateKey: key,
+			CaCert:       cert,
+			RootCert:     cert,
+			CertChain:    cert,
+		}
 
 		generatedSecret := &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-secret",
 				Namespace: "my-namespace",
 			},
+			Data: rootCaData.ToSecretData(),
 		}
 
 		vm := &discoveryv1.MeshStatus_AppliedVirtualMesh{
