@@ -54,6 +54,11 @@ var GlooMeshEnterpriseRbacGroup = makeGroup("rbac.enterprise", "v1", []ResourceT
 	{Kind: "RoleBinding", ShortNames: []string{"gmrolebinding", "gmrolebindings"}},
 })
 
+var GlooMeshEnterpriseAdminGroup = makeGroup("admin.enterprise", "v1alpha1", []ResourceToGenerate{
+	// TODO: Add short names for this resource
+	{Kind: "IstioInstallation"},
+})
+
 var GlooMeshGroups = []model.Group{
 	GlooMeshEnterpriseNetworkingGroup,
 	GlooMeshNetworkingGroup,
@@ -61,6 +66,7 @@ var GlooMeshGroups = []model.Group{
 	GlooMeshDiscoveryGroup,
 	GlooMeshEnterpriseObservabilityGroup,
 	GlooMeshEnterpriseRbacGroup,
+	GlooMeshEnterpriseAdminGroup,
 }
 
 var CertAgentGroups = []model.Group{

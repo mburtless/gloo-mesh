@@ -1,0 +1,79 @@
+syntax = "proto3";
+package admin.enterprise.mesh.gloo.solo.io;
+
+option go_package = "github.com/solo-io/gloo-mesh/pkg/api/admin.enterprise.mesh.gloo.solo.io/v1alpha1";
+
+import "github.com/solo-io/skv2/api/core/v1/core.proto";
+
+/*
+    The IstioInstallation API and it's associated features are undergoing development so
+    this API is not currently supported.
+*/
+message IstioInstallationSpec {
+    // The clusters where the IstioOperators should be installed.
+    repeated string cluster_names = 1;
+
+    // Selector for the IstioOperator CRs that should be installed on the managed clusters.
+    .core.skv2.solo.io. ObjectSelector istio_operator_selector = 2;
+}
+
+message IstioInstallationStatus {
+    // The most recent generation observed in the the IstioInstallation metadata.
+    // If the `observedGeneration` does not match `metadata.generation`,
+    // Gloo Mesh has not processed the most recent version of this resource.
+    int64 observed_generation = 1;
+
+    // The current state of the IstioOperator.
+    State state = 2;
+
+    // A human readable message about the current state of the IstioInstallation.
+    string message = 3;
+
+    // The status of each IstioOperator that should be installed by Gloo Mesh, where the
+    // key is the concatenation of the IstioOperator's name, namespace, and cluster and
+    // the value is the operator's status.
+    map<string, IstioOperatorStatus> istio_operator_statuses = 4;
+
+    // The state of the IstioInstallation.
+    enum State {
+        // Waiting for the Istio installation to be processed.
+        PENDING = 0;
+
+        // Finished processing the Istio installation successfully.
+        ACCEPTED = 1;
+
+        // Failed while processing the Istio installation parameters.
+        FAILED = 2;
+    }
+
+    message IstioOperatorStatus {
+        // The most recent generation observed in the the IstioOperator metadata.
+        // If the `observedGeneration` does not match `metadata.generation`,
+        // Gloo Mesh has not processed the most recent version of this resource.
+        int64 observed_generation = 1;
+
+        // The current state of the IstioOperator.
+        State state = 2;
+
+        // A human readable message about the current state of the IstioOperator.
+        string message = 3;
+
+        // The revision tag for the associated Istio components.
+        string revision = 4;
+
+        // The state of a IstioOperator installation.
+        enum State {
+            // Waiting for resources to be installed.
+            PENDING = 0;
+
+            // In the process of installing Istio resources on to the managed cluster.
+            INSTALLING = 1;
+
+            // All Istio components were installed successfully and they are healthy.
+            HEALTHY = 2;
+
+            // This Istio installation is in an error state.
+            ERROR = 3;
+        }
+    }
+}

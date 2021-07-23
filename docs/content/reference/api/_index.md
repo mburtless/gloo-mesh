@@ -10,6 +10,12 @@ These docs describe Gloo Mesh CRDs.
 
 
 
+### admin.enterprise.mesh.gloo.solo.io
+
+  - [IstioInstallation]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.admin.v1alpha1.istio_installation#admin.enterprise.mesh.gloo.solo.io.IstioInstallationSpec" >}})
+
+
+
 ### certificates.mesh.gloo.solo.io
 
   - [CertificateRequest]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.certificates.v1.certificate_request#certificates.mesh.gloo.solo.io.CertificateRequestSpec" >}})
