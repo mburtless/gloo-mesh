@@ -144,6 +144,16 @@ func (m *IdentitySelector) Equal(that interface{}) bool {
 		}
 	}
 
+	if h, ok := interface{}(m.GetRequestIdentityMatcher()).(equality.Equalizer); ok {
+		if !h.Equal(target.GetRequestIdentityMatcher()) {
+			return false
+		}
+	} else {
+		if !proto.Equal(m.GetRequestIdentityMatcher(), target.GetRequestIdentityMatcher()) {
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -427,6 +437,52 @@ func (m *IdentitySelector_KubeServiceAccountRefs) Equal(that interface{}) bool {
 			if !proto.Equal(v, target.GetServiceAccounts()[idx]) {
 				return false
 			}
+		}
+
+	}
+
+	return true
+}
+
+// Equal function
+func (m *IdentitySelector_RequestIdentityMatcher) Equal(that interface{}) bool {
+	if that == nil {
+		return m == nil
+	}
+
+	target, ok := that.(*IdentitySelector_RequestIdentityMatcher)
+	if !ok {
+		that2, ok := that.(IdentitySelector_RequestIdentityMatcher)
+		if ok {
+			target = &that2
+		} else {
+			return false
+		}
+	}
+	if target == nil {
+		return m == nil
+	} else if m == nil {
+		return false
+	}
+
+	if len(m.GetRequestPrincipals()) != len(target.GetRequestPrincipals()) {
+		return false
+	}
+	for idx, v := range m.GetRequestPrincipals() {
+
+		if strings.Compare(v, target.GetRequestPrincipals()[idx]) != 0 {
+			return false
+		}
+
+	}
+
+	if len(m.GetNotRequestPrincipals()) != len(target.GetNotRequestPrincipals()) {
+		return false
+	}
+	for idx, v := range m.GetNotRequestPrincipals() {
+
+		if strings.Compare(v, target.GetNotRequestPrincipals()[idx]) != 0 {
+			return false
 		}
 
 	}

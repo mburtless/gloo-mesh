@@ -92,6 +92,10 @@ message IdentitySelector {
     // Match request identities based on the Kubernetes service account of the request.
     KubeServiceAccountRefs kube_service_account_refs = 2;
 
+    // Match requests based on the identity of the request. If multiple fields are set, they are ANDed together.
+    // More information about the individual values can be found here: https://istio.io/latest/docs/reference/config/security/authorization-policy/#Source
+    RequestIdentityMatcher request_identity_matcher = 3;
+
     message KubeIdentityMatcher {
 
         /*
@@ -107,6 +111,7 @@ message IdentitySelector {
             When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any cluster.
         */
         repeated string clusters = 2;
+
     }
 
     message KubeServiceAccountRefs {
@@ -116,6 +121,20 @@ message IdentitySelector {
             When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any value for the given field.
         */
         repeated .core.skv2.solo.io.ClusterObjectRef service_accounts = 1;
+    }
+
+    message RequestIdentityMatcher {
+
+        /*
+            Optional. A list of identities to match the request identity ("iss/sub" from the JWT).
+            If omitted all request identity values will be accepted.
+         */
+        repeated string requestPrincipals = 3;
+
+        /*
+            Optional. A list of identities to negative match the request identity.
+         */
+        repeated string notRequestPrincipals = 4;
     }
 }
 

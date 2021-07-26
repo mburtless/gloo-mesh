@@ -25,6 +25,7 @@ title: "selectors.proto"
   - [IdentitySelector](#common.mesh.gloo.solo.io.IdentitySelector)
   - [IdentitySelector.KubeIdentityMatcher](#common.mesh.gloo.solo.io.IdentitySelector.KubeIdentityMatcher)
   - [IdentitySelector.KubeServiceAccountRefs](#common.mesh.gloo.solo.io.IdentitySelector.KubeServiceAccountRefs)
+  - [IdentitySelector.RequestIdentityMatcher](#common.mesh.gloo.solo.io.IdentitySelector.RequestIdentityMatcher)
   - [IngressGatewaySelector](#common.mesh.gloo.solo.io.IngressGatewaySelector)
   - [WorkloadSelector](#common.mesh.gloo.solo.io.WorkloadSelector)
   - [WorkloadSelector.KubeWorkloadMatcher](#common.mesh.gloo.solo.io.WorkloadSelector.KubeWorkloadMatcher)
@@ -110,6 +111,7 @@ Select Destination identities using one or more platform-specific selectors.
 | ----- | ---- | ----- | ----------- |
 | kubeIdentityMatcher | [common.mesh.gloo.solo.io.IdentitySelector.KubeIdentityMatcher]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.IdentitySelector.KubeIdentityMatcher" >}}) |  | Match request identities based on the Kubernetes namespace and cluster. |
   | kubeServiceAccountRefs | [common.mesh.gloo.solo.io.IdentitySelector.KubeServiceAccountRefs]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.IdentitySelector.KubeServiceAccountRefs" >}}) |  | Match request identities based on the Kubernetes service account of the request. |
+  | requestIdentityMatcher | [common.mesh.gloo.solo.io.IdentitySelector.RequestIdentityMatcher]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.IdentitySelector.RequestIdentityMatcher" >}}) |  | Match requests based on the identity of the request. If multiple fields are set, they are ANDed together. More information about the individual values can be found here: https://istio.io/latest/docs/reference/config/security/authorization-policy/#Source |
   
 
 
@@ -141,6 +143,22 @@ Select Destination identities using one or more platform-specific selectors.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | serviceAccounts | [][core.skv2.solo.io.ClusterObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ClusterObjectRef" >}}) | repeated | Match Kubernetes service accounts by direct reference. When used in a networking policy, omission of any field (name, namespace, or clusterName) allows matching any value for that field. When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any value for the given field. |
+  
+
+
+
+
+
+<a name="common.mesh.gloo.solo.io.IdentitySelector.RequestIdentityMatcher"></a>
+
+### IdentitySelector.RequestIdentityMatcher
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| requestPrincipals | []string | repeated | Optional. A list of identities to match the request identity ("iss/sub" from the JWT). If omitted all request identity values will be accepted. |
+  | notRequestPrincipals | []string | repeated | Optional. A list of identities to negative match the request identity. |
   
 
 

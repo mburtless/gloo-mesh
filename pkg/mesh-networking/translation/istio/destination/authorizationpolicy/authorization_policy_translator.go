@@ -148,11 +148,15 @@ func (t *translator) buildSource(
 	sources *commonv1.IdentitySelector,
 	meshes discoveryv1sets.MeshSet,
 ) (*securityv1beta1spec.Rule_From, error) {
+	ruleFrom := &securityv1beta1spec.Rule_From{
+		Source: &securityv1beta1spec.Source{
+			RequestPrincipals:    sources.GetRequestIdentityMatcher().GetRequestPrincipals(),
+			NotRequestPrincipals: sources.GetRequestIdentityMatcher().GetNotRequestPrincipals(),
+		},
+	}
 	if sources.GetKubeIdentityMatcher() == nil && sources.GetKubeServiceAccountRefs() == nil {
 		// allow any source identity
-		return &securityv1beta1spec.Rule_From{
-			Source: &securityv1beta1spec.Source{},
-		}, nil
+		return ruleFrom, nil
 	}
 	// Select by identity matcher.
 	wildcardPrincipals, namespaces, err := parseIdentityMatcher(sources.KubeIdentityMatcher, meshes)
@@ -165,12 +169,9 @@ func (t *translator) buildSource(
 		return nil, err
 	}
 
-	return &securityv1beta1spec.Rule_From{
-		Source: &securityv1beta1spec.Source{
-			Principals: append(wildcardPrincipals, serviceAccountPrincipals...),
-			Namespaces: namespaces,
-		},
-	}, nil
+	ruleFrom.Source.Principals = append(wildcardPrincipals, serviceAccountPrincipals...)
+	ruleFrom.Source.Namespaces = namespaces
+	return ruleFrom, nil
 }
 
 // Parse a list of principals and namespaces from a KubeIdentityMatcher.

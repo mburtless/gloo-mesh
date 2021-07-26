@@ -183,6 +183,25 @@ spec:
                                 type: object
                               type: array
                           type: object
+                        requestIdentityMatcher:
+                          description: |-
+                            Match requests based on the identity of the request. If multiple fields are set, they are ANDed together.
+                            More information about the individual values can be found here: https://istio.io/latest/docs/reference/config/security/authorization-policy/#Source
+                          properties:
+                            notRequestPrincipals:
+                              description: Optional. A list of identities to negative
+                                match the request identity.
+                              items:
+                                type: string
+                              type: array
+                            requestPrincipals:
+                              description: |-
+                                Optional. A list of identities to match the request identity ("iss/sub" from the JWT).
+                                           If omitted all request identity values will be accepted.
+                              items:
+                                type: string
+                              type: array
+                          type: object
                       type: object
                     type: array
                 type: object
