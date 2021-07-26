@@ -62,6 +62,12 @@ type SettingsSnapshot interface {
 
 	// Clone the snapshot
 	Clone() SettingsSnapshot
+
+	// convert this snapshot to its generic form.
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 // options for syncing input object statuses
@@ -163,6 +169,29 @@ func (s snapshotSettings) Clone() SettingsSnapshot {
 		name: s.name,
 
 		settings: s.settings.Clone(),
+	}
+}
+
+func (s snapshotSettings) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s snapshotSettings) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, obj := range s.settings.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "settings.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Settings",
+		}
+		handleObject(cluster, gvk, obj)
 	}
 }
 

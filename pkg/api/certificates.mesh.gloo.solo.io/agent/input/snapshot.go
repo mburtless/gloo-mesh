@@ -116,6 +116,12 @@ type Snapshot interface {
 
 	// Clone the snapshot
 	Clone() Snapshot
+
+	// convert this snapshot to its generic form.
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 // options for syncing input object statuses
@@ -394,6 +400,84 @@ func (s snapshot) Clone() Snapshot {
 		serviceAccounts:     s.serviceAccounts.Clone(),
 		configMaps:          s.configMaps.Clone(),
 		pods:                s.pods.Clone(),
+	}
+}
+
+func (s snapshot) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, obj := range s.issuedCertificates.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "IssuedCertificate",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.certificateRequests.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "CertificateRequest",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.podBounceDirectives.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "PodBounceDirective",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.secrets.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Secret",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.serviceAccounts.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "ServiceAccount",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.configMaps.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "ConfigMap",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.pods.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Pod",
+		}
+		handleObject(cluster, gvk, obj)
 	}
 }
 

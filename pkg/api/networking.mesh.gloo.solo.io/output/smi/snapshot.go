@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -77,6 +76,12 @@ type Snapshot interface {
 
 	// serialize the entire snapshot as JSON
 	MarshalJSON() ([]byte, error)
+
+	// convert this snapshot to its generic form
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 type snapshot struct {
@@ -219,6 +224,55 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		Clusters:    s.clusters,
 		ListsToSync: genericLists,
 	}.SyncMultiCluster(ctx, multiClusterClient, errHandler)
+}
+
+func (s *snapshot) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, set := range s.trafficSplits {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "split.smi-spec.io",
+				Version: "v1alpha2",
+				Kind:    "TrafficSplit",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.trafficTargets {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "access.smi-spec.io",
+				Version: "v1alpha2",
+				Kind:    "TrafficTarget",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.hTTPRouteGroups {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "specs.smi-spec.io",
+				Version: "v1alpha3",
+				Kind:    "HTTPRouteGroup",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
 }
 
 func partitionTrafficSplitsByLabel(labelKey string, set split_smi_spec_io_v1alpha2_sets.TrafficSplitSet) ([]LabeledTrafficSplitSet, error) {
@@ -663,6 +717,9 @@ type Builder interface {
 
 	// convert this snapshot to its generic form
 	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 func (b *builder) AddTrafficSplits(trafficSplits ...*split_smi_spec_io_v1alpha2.TrafficSplit) {
@@ -670,7 +727,6 @@ func (b *builder) AddTrafficSplits(trafficSplits ...*split_smi_spec_io_v1alpha2.
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output TrafficSplit %v", sets.Key(obj))
 		b.trafficSplits.Insert(obj)
 	}
 }
@@ -679,7 +735,6 @@ func (b *builder) AddTrafficTargets(trafficTargets ...*access_smi_spec_io_v1alph
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output TrafficTarget %v", sets.Key(obj))
 		b.trafficTargets.Insert(obj)
 	}
 }
@@ -688,7 +743,6 @@ func (b *builder) AddHTTPRouteGroups(hTTPRouteGroups ...*specs_smi_spec_io_v1alp
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output HTTPRouteGroup %v", sets.Key(obj))
 		b.hTTPRouteGroups.Insert(obj)
 	}
 }
@@ -817,4 +871,41 @@ func (b *builder) Generic() resource.ClusterSnapshot {
 	}
 
 	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (b *builder) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+	if b == nil {
+		return
+	}
+
+	for _, obj := range b.GetTrafficSplits().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "split.smi-spec.io",
+			Version: "v1alpha2",
+			Kind:    "TrafficSplit",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetTrafficTargets().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "access.smi-spec.io",
+			Version: "v1alpha2",
+			Kind:    "TrafficTarget",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetHTTPRouteGroups().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "specs.smi-spec.io",
+			Version: "v1alpha3",
+			Kind:    "HTTPRouteGroup",
+		}
+		handleObject(cluster, gvk, obj)
+	}
 }

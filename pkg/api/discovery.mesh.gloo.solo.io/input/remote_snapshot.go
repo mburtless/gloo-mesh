@@ -139,6 +139,12 @@ type DiscoveryInputSnapshot interface {
 
 	// Clone the snapshot
 	Clone() DiscoveryInputSnapshot
+
+	// convert this snapshot to its generic form.
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 // options for syncing input object statuses
@@ -417,6 +423,112 @@ func (s snapshotDiscoveryInput) Clone() DiscoveryInputSnapshot {
 		replicaSets:  s.replicaSets.Clone(),
 		daemonSets:   s.daemonSets.Clone(),
 		statefulSets: s.statefulSets.Clone(),
+	}
+}
+
+func (s snapshotDiscoveryInput) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s snapshotDiscoveryInput) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, obj := range s.meshes.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "appmesh.k8s.aws",
+			Version: "v1beta2",
+			Kind:    "Mesh",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.configMaps.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "ConfigMap",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.services.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Service",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.pods.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Pod",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.endpoints.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Endpoints",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.nodes.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Node",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.deployments.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "Deployment",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.replicaSets.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "ReplicaSet",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.daemonSets.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "DaemonSet",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.statefulSets.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "apps",
+			Version: "v1",
+			Kind:    "StatefulSet",
+		}
+		handleObject(cluster, gvk, obj)
 	}
 }
 

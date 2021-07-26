@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -55,6 +54,12 @@ type Snapshot interface {
 
 	// serialize the entire snapshot as JSON
 	MarshalJSON() ([]byte, error)
+
+	// convert this snapshot to its generic form
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 type snapshot struct {
@@ -151,6 +156,31 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		Clusters:    s.clusters,
 		ListsToSync: genericLists,
 	}.SyncMultiCluster(ctx, multiClusterClient, errHandler)
+}
+
+func (s *snapshot) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, set := range s.secrets {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "",
+				Version: "v1",
+				Kind:    "Secret",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
 }
 
 func partitionSecretsByLabel(labelKey string, set v1_sets.SecretSet) ([]LabeledSecretSet, error) {
@@ -331,6 +361,9 @@ type Builder interface {
 
 	// convert this snapshot to its generic form
 	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 func (b *builder) AddSecrets(secrets ...*v1.Secret) {
@@ -338,7 +371,6 @@ func (b *builder) AddSecrets(secrets ...*v1.Secret) {
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Secret %v", sets.Key(obj))
 		b.secrets.Insert(obj)
 	}
 }
@@ -419,4 +451,21 @@ func (b *builder) Generic() resource.ClusterSnapshot {
 	}
 
 	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (b *builder) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+	if b == nil {
+		return
+	}
+
+	for _, obj := range b.GetSecrets().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Secret",
+		}
+		handleObject(cluster, gvk, obj)
+	}
 }

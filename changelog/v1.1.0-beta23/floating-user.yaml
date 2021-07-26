@@ -1,0 +1,6 @@
+changelog:
+  - type: DEPENDENCY_BUMP
+    description: Expose the `floatingUserId` and `runAsUser` Helm values.
+    dependencyOwner: solo-io
+    dependencyRepo: skv2
+    dependencyTag: v0.19.0

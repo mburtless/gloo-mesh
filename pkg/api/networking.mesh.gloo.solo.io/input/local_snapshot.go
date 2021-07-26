@@ -226,6 +226,12 @@ type LocalSnapshot interface {
 
 	// Clone the snapshot
 	Clone() LocalSnapshot
+
+	// convert this snapshot to its generic form.
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 // options for syncing input object statuses
@@ -1004,6 +1010,179 @@ func (s snapshotLocal) Clone() LocalSnapshot {
 		accessLogRecords:         s.accessLogRecords.Clone(),
 		secrets:                  s.secrets.Clone(),
 		kubernetesClusters:       s.kubernetesClusters.Clone(),
+	}
+}
+
+func (s snapshotLocal) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s snapshotLocal) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, obj := range s.wasmDeployments.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "WasmDeployment",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.rateLimiterServerConfigs.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "RateLimiterServerConfig",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.virtualDestinations.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "VirtualDestination",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.virtualGateways.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "VirtualGateway",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.virtualHosts.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "VirtualHost",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.routeTables.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "RouteTable",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.serviceDependencies.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "ServiceDependency",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.trafficPolicies.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "TrafficPolicy",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.accessPolicies.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "AccessPolicy",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.virtualMeshes.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "VirtualMesh",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.settings.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "settings.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Settings",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.destinations.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Destination",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.workloads.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Workload",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.meshes.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Mesh",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.accessLogRecords.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "observability.enterprise.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "AccessLogRecord",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.secrets.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Secret",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range s.kubernetesClusters.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "multicluster.solo.io",
+			Version: "v1alpha1",
+			Kind:    "KubernetesCluster",
+		}
+		handleObject(cluster, gvk, obj)
 	}
 }
 

@@ -15,6 +15,8 @@ import (
 	input "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	v1beta1sets0 "github.com/solo-io/gloo-mesh/pkg/api/xds.agent.enterprise.mesh.gloo.solo.io/v1beta1/sets"
 	multicluster "github.com/solo-io/skv2/pkg/multicluster"
+	resource "github.com/solo-io/skv2/pkg/resource"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -97,6 +99,18 @@ func (mr *MockRemoteSnapshotMockRecorder) EnvoyFilters() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnvoyFilters", reflect.TypeOf((*MockRemoteSnapshot)(nil).EnvoyFilters))
 }
 
+// ForEachObject mocks base method.
+func (m *MockRemoteSnapshot) ForEachObject(handleObject func(string, schema.GroupVersionKind, resource.TypedObject)) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ForEachObject", handleObject)
+}
+
+// ForEachObject indicates an expected call of ForEachObject.
+func (mr *MockRemoteSnapshotMockRecorder) ForEachObject(handleObject interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForEachObject", reflect.TypeOf((*MockRemoteSnapshot)(nil).ForEachObject), handleObject)
+}
+
 // Gateways mocks base method.
 func (m *MockRemoteSnapshot) Gateways() v1alpha3sets.GatewaySet {
 	m.ctrl.T.Helper()
@@ -109,6 +123,20 @@ func (m *MockRemoteSnapshot) Gateways() v1alpha3sets.GatewaySet {
 func (mr *MockRemoteSnapshotMockRecorder) Gateways() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Gateways", reflect.TypeOf((*MockRemoteSnapshot)(nil).Gateways))
+}
+
+// Generic mocks base method.
+func (m *MockRemoteSnapshot) Generic() resource.ClusterSnapshot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(resource.ClusterSnapshot)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockRemoteSnapshotMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockRemoteSnapshot)(nil).Generic))
 }
 
 // IssuedCertificates mocks base method.

@@ -18,6 +18,8 @@ import (
 	v1sets3 "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1/sets"
 	v1alpha1sets "github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1/sets"
 	multicluster "github.com/solo-io/skv2/pkg/multicluster"
+	resource "github.com/solo-io/skv2/pkg/resource"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -98,6 +100,32 @@ func (m *MockLocalSnapshot) Destinations() v1sets0.DestinationSet {
 func (mr *MockLocalSnapshotMockRecorder) Destinations() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Destinations", reflect.TypeOf((*MockLocalSnapshot)(nil).Destinations))
+}
+
+// ForEachObject mocks base method.
+func (m *MockLocalSnapshot) ForEachObject(handleObject func(string, schema.GroupVersionKind, resource.TypedObject)) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ForEachObject", handleObject)
+}
+
+// ForEachObject indicates an expected call of ForEachObject.
+func (mr *MockLocalSnapshotMockRecorder) ForEachObject(handleObject interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForEachObject", reflect.TypeOf((*MockLocalSnapshot)(nil).ForEachObject), handleObject)
+}
+
+// Generic mocks base method.
+func (m *MockLocalSnapshot) Generic() resource.ClusterSnapshot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(resource.ClusterSnapshot)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockLocalSnapshotMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockLocalSnapshot)(nil).Generic))
 }
 
 // KubernetesClusters mocks base method.

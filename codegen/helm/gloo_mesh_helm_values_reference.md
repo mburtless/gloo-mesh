@@ -37,7 +37,7 @@ weight: 2
 |watchOutputTypes|bool|true|If true, Gloo Mesh will watch service mesh config types output by Gloo Mesh, and resync upon changes.|
 |defaultMetricsPort|uint32|9091|The port on which to serve internal Prometheus metrics for the Gloo Mesh application. Set to 0 to disable.|
 |verbose|bool|false|If true, enables verbose/debug logging.|
-|discovery|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"serviceType":"ClusterIP","ports":{"metrics":9091}}|Configuration for the discovery deployment.|
+|discovery|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"metrics":9091}}|Configuration for the discovery deployment.|
 |discovery|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}}}||
 |discovery.image|struct|{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |discovery.image.tag|string| |Tag for the container.|
@@ -73,13 +73,15 @@ weight: 2
 |discovery.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |discovery.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |discovery.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|discovery.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|discovery.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |discovery.serviceType|string|ClusterIP|Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |discovery.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |discovery.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|
 |discovery.ports.metrics|uint32|9091|Specify service ports as a map from port name to port number.|
 |discovery.DeploymentOverrides|invalid| |Provide arbitrary overrides for the component's [deployment template](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)|
 |discovery.ServiceOverrides|invalid| |Provide arbitrary overrides for the component's [service template](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/service-v1/).|
-|networking|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"serviceType":"","ports":{}}|Configuration for the networking deployment.|
+|networking|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"","ports":{}}|Configuration for the networking deployment.|
 |networking|struct|{"image":{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}}}||
 |networking.image|struct|{"repository":"gloo-mesh","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |networking.image.tag|string| |Tag for the container.|
@@ -115,6 +117,8 @@ weight: 2
 |networking.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |networking.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |networking.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|networking.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|networking.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |networking.serviceType|string| |Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |networking.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |networking.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|

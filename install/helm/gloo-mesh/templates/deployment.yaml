@@ -60,7 +60,9 @@ spec:
 {{- end}}
         securityContext:
           runAsNonRoot: true
-          runAsUser: 10101
+          {{- if not $discovery.floatingUserId }}
+          runAsUser: {{ printf "%.0f" (float64 $discovery.runAsUser) }}
+          {{- end }}
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -187,7 +189,9 @@ spec:
 {{- end}}
         securityContext:
           runAsNonRoot: true
-          runAsUser: 10101
+          {{- if not $networking.floatingUserId }}
+          runAsUser: {{ printf "%.0f" (float64 $networking.runAsUser) }}
+          {{- end }}
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:

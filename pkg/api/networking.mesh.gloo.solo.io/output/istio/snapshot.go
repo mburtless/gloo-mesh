@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -130,6 +129,12 @@ type Snapshot interface {
 
 	// serialize the entire snapshot as JSON
 	MarshalJSON() ([]byte, error)
+
+	// convert this snapshot to its generic form
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 type snapshot struct {
@@ -421,6 +426,133 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		Clusters:    s.clusters,
 		ListsToSync: genericLists,
 	}.SyncMultiCluster(ctx, multiClusterClient, errHandler)
+}
+
+func (s *snapshot) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, set := range s.issuedCertificates {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "certificates.mesh.gloo.solo.io",
+				Version: "v1",
+				Kind:    "IssuedCertificate",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.podBounceDirectives {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "certificates.mesh.gloo.solo.io",
+				Version: "v1",
+				Kind:    "PodBounceDirective",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.xdsConfigs {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "xds.agent.enterprise.mesh.gloo.solo.io",
+				Version: "v1beta1",
+				Kind:    "XdsConfig",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.destinationRules {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "DestinationRule",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.envoyFilters {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "EnvoyFilter",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.gateways {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "Gateway",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.serviceEntries {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "ServiceEntry",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.virtualServices {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "VirtualService",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.sidecars {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "networking.istio.io",
+				Version: "v1alpha3",
+				Kind:    "Sidecar",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.authorizationPolicies {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "security.istio.io",
+				Version: "v1beta1",
+				Kind:    "AuthorizationPolicy",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
 }
 
 func partitionIssuedCertificatesByLabel(labelKey string, set certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet) ([]LabeledIssuedCertificateSet, error) {
@@ -1771,6 +1903,9 @@ type Builder interface {
 
 	// convert this snapshot to its generic form
 	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 func (b *builder) AddIssuedCertificates(issuedCertificates ...*certificates_mesh_gloo_solo_io_v1.IssuedCertificate) {
@@ -1778,7 +1913,6 @@ func (b *builder) AddIssuedCertificates(issuedCertificates ...*certificates_mesh
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output IssuedCertificate %v", sets.Key(obj))
 		b.issuedCertificates.Insert(obj)
 	}
 }
@@ -1787,7 +1921,6 @@ func (b *builder) AddPodBounceDirectives(podBounceDirectives ...*certificates_me
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output PodBounceDirective %v", sets.Key(obj))
 		b.podBounceDirectives.Insert(obj)
 	}
 }
@@ -1796,7 +1929,6 @@ func (b *builder) AddXdsConfigs(xdsConfigs ...*xds_agent_enterprise_mesh_gloo_so
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output XdsConfig %v", sets.Key(obj))
 		b.xdsConfigs.Insert(obj)
 	}
 }
@@ -1805,7 +1937,6 @@ func (b *builder) AddDestinationRules(destinationRules ...*networking_istio_io_v
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output DestinationRule %v", sets.Key(obj))
 		b.destinationRules.Insert(obj)
 	}
 }
@@ -1814,7 +1945,6 @@ func (b *builder) AddEnvoyFilters(envoyFilters ...*networking_istio_io_v1alpha3.
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output EnvoyFilter %v", sets.Key(obj))
 		b.envoyFilters.Insert(obj)
 	}
 }
@@ -1823,7 +1953,6 @@ func (b *builder) AddGateways(gateways ...*networking_istio_io_v1alpha3.Gateway)
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Gateway %v", sets.Key(obj))
 		b.gateways.Insert(obj)
 	}
 }
@@ -1832,7 +1961,6 @@ func (b *builder) AddServiceEntries(serviceEntries ...*networking_istio_io_v1alp
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output ServiceEntry %v", sets.Key(obj))
 		b.serviceEntries.Insert(obj)
 	}
 }
@@ -1841,7 +1969,6 @@ func (b *builder) AddVirtualServices(virtualServices ...*networking_istio_io_v1a
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output VirtualService %v", sets.Key(obj))
 		b.virtualServices.Insert(obj)
 	}
 }
@@ -1850,7 +1977,6 @@ func (b *builder) AddSidecars(sidecars ...*networking_istio_io_v1alpha3.Sidecar)
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Sidecar %v", sets.Key(obj))
 		b.sidecars.Insert(obj)
 	}
 }
@@ -1859,7 +1985,6 @@ func (b *builder) AddAuthorizationPolicies(authorizationPolicies ...*security_is
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output AuthorizationPolicy %v", sets.Key(obj))
 		b.authorizationPolicies.Insert(obj)
 	}
 }
@@ -2120,4 +2245,105 @@ func (b *builder) Generic() resource.ClusterSnapshot {
 	}
 
 	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (b *builder) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+	if b == nil {
+		return
+	}
+
+	for _, obj := range b.GetIssuedCertificates().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "IssuedCertificate",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetPodBounceDirectives().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "PodBounceDirective",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetXdsConfigs().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "xds.agent.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "XdsConfig",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetDestinationRules().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "DestinationRule",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetEnvoyFilters().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "EnvoyFilter",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetGateways().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "Gateway",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetServiceEntries().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "ServiceEntry",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetVirtualServices().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "VirtualService",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetSidecars().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "Sidecar",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetAuthorizationPolicies().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "security.istio.io",
+			Version: "v1beta1",
+			Kind:    "AuthorizationPolicy",
+		}
+		handleObject(cluster, gvk, obj)
+	}
 }

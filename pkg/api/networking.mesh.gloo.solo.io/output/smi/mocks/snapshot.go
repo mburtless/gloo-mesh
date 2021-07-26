@@ -19,6 +19,7 @@ import (
 	output "github.com/solo-io/skv2/contrib/pkg/output"
 	multicluster "github.com/solo-io/skv2/pkg/multicluster"
 	resource "github.com/solo-io/skv2/pkg/resource"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -67,6 +68,32 @@ func (m *MockSnapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient
 func (mr *MockSnapshotMockRecorder) ApplyMultiCluster(ctx, multiClusterClient, errHandler interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyMultiCluster", reflect.TypeOf((*MockSnapshot)(nil).ApplyMultiCluster), ctx, multiClusterClient, errHandler)
+}
+
+// ForEachObject mocks base method.
+func (m *MockSnapshot) ForEachObject(handleObject func(string, schema.GroupVersionKind, resource.TypedObject)) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ForEachObject", handleObject)
+}
+
+// ForEachObject indicates an expected call of ForEachObject.
+func (mr *MockSnapshotMockRecorder) ForEachObject(handleObject interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForEachObject", reflect.TypeOf((*MockSnapshot)(nil).ForEachObject), handleObject)
+}
+
+// Generic mocks base method.
+func (m *MockSnapshot) Generic() resource.ClusterSnapshot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(resource.ClusterSnapshot)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockSnapshotMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockSnapshot)(nil).Generic))
 }
 
 // HTTPRouteGroups mocks base method.
@@ -460,6 +487,18 @@ func (m *MockBuilder) Clusters() []string {
 func (mr *MockBuilderMockRecorder) Clusters() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clusters", reflect.TypeOf((*MockBuilder)(nil).Clusters))
+}
+
+// ForEachObject mocks base method.
+func (m *MockBuilder) ForEachObject(handleObject func(string, schema.GroupVersionKind, resource.TypedObject)) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ForEachObject", handleObject)
+}
+
+// ForEachObject indicates an expected call of ForEachObject.
+func (mr *MockBuilderMockRecorder) ForEachObject(handleObject interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForEachObject", reflect.TypeOf((*MockBuilder)(nil).ForEachObject), handleObject)
 }
 
 // Generic mocks base method.

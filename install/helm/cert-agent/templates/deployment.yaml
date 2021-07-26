@@ -57,7 +57,9 @@ spec:
 {{- end}}
         securityContext:
           runAsNonRoot: true
-          runAsUser: 10101
+          {{- if not $certAgent.floatingUserId }}
+          runAsUser: {{ printf "%.0f" (float64 $certAgent.runAsUser) }}
+          {{- end }}
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:

@@ -37,7 +37,7 @@ Name|Version|License
 [rotisserie/eris](https://github.com/rotisserie/eris)|v0.4.0|MIT License
 [servicemeshinterface/smi-sdk-go](https://github.com/servicemeshinterface/smi-sdk-go)|v0.4.1|Apache License 2.0
 [sirupsen/logrus](https://github.com/sirupsen/logrus)|v1.7.0|MIT License
-[spf13/afero](https://github.com/spf13/afero)|v1.5.1|Apache License 2.0
+[spf13/afero](https://github.com/spf13/afero)|v1.6.0|Apache License 2.0
 [spf13/cobra](https://github.com/spf13/cobra)|v1.1.3|Apache License 2.0
 [spf13/pflag](https://github.com/spf13/pflag)|v1.0.5|BSD 3-clause "New" or "Revised" License
 [stoewer/go-strcase](https://github.com/stoewer/go-strcase)|v1.2.0|MIT License
@@ -45,7 +45,7 @@ Name|Version|License
 [go.uber.org/zap](https://go.uber.org/zap)|v1.16.0|MIT License
 [x/time](https://golang.org/x/time)|v0.0.0-20201208040808-7e3f01d25324|BSD 3-clause "New" or "Revised" License
 [google.golang.org/grpc](https://google.golang.org/grpc)|v1.37.0|Apache License 2.0
-[google.golang.org/protobuf](https://google.golang.org/protobuf)|v1.26.0|BSD 3-clause "New" or "Revised" License
+[google.golang.org/protobuf](https://google.golang.org/protobuf)|v1.27.1|BSD 3-clause "New" or "Revised" License
 [gopkg.in/yaml.v2](https://gopkg.in/yaml.v2)|v2.4.0|Apache License 2.0
 [helm/v3](https://helm.sh/helm/v3)|v3.5.3|Apache License 2.0
 [istio.io/api](https://istio.io/api)|v0.0.0-20210420211535-1c598ea4139c|Apache License 2.0

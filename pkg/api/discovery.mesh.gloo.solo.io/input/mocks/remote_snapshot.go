@@ -13,6 +13,8 @@ import (
 	v1sets "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1/sets"
 	v1sets0 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1/sets"
 	input "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/input"
+	resource "github.com/solo-io/skv2/pkg/resource"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // MockDiscoveryInputSnapshot is a mock of DiscoveryInputSnapshot interface.
@@ -106,6 +108,32 @@ func (m *MockDiscoveryInputSnapshot) Endpoints() v1sets0.EndpointsSet {
 func (mr *MockDiscoveryInputSnapshotMockRecorder) Endpoints() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Endpoints", reflect.TypeOf((*MockDiscoveryInputSnapshot)(nil).Endpoints))
+}
+
+// ForEachObject mocks base method.
+func (m *MockDiscoveryInputSnapshot) ForEachObject(handleObject func(string, schema.GroupVersionKind, resource.TypedObject)) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ForEachObject", handleObject)
+}
+
+// ForEachObject indicates an expected call of ForEachObject.
+func (mr *MockDiscoveryInputSnapshotMockRecorder) ForEachObject(handleObject interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForEachObject", reflect.TypeOf((*MockDiscoveryInputSnapshot)(nil).ForEachObject), handleObject)
+}
+
+// Generic mocks base method.
+func (m *MockDiscoveryInputSnapshot) Generic() resource.ClusterSnapshot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(resource.ClusterSnapshot)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockDiscoveryInputSnapshotMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockDiscoveryInputSnapshot)(nil).Generic))
 }
 
 // MarshalJSON mocks base method.

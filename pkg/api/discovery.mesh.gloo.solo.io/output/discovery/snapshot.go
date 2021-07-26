@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -69,6 +68,12 @@ type Snapshot interface {
 
 	// serialize the entire snapshot as JSON
 	MarshalJSON() ([]byte, error)
+
+	// convert this snapshot to its generic form
+	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 type snapshot struct {
@@ -207,6 +212,53 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		Clusters:    s.clusters,
 		ListsToSync: genericLists,
 	}.SyncMultiCluster(ctx, multiClusterClient, errHandler)
+}
+
+func (s *snapshot) Generic() resource.ClusterSnapshot {
+	clusterSnapshots := resource.ClusterSnapshot{}
+	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	})
+
+	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+
+	for _, set := range s.destinations {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "discovery.mesh.gloo.solo.io",
+				Version: "v1",
+				Kind:    "Destination",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.workloads {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "discovery.mesh.gloo.solo.io",
+				Version: "v1",
+				Kind:    "Workload",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+	for _, set := range s.meshes {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "discovery.mesh.gloo.solo.io",
+				Version: "v1",
+				Kind:    "Mesh",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
 }
 
 func partitionDestinationsByLabel(labelKey string, set discovery_mesh_gloo_solo_io_v1_sets.DestinationSet) ([]LabeledDestinationSet, error) {
@@ -645,6 +697,9 @@ type Builder interface {
 
 	// convert this snapshot to its generic form
 	Generic() resource.ClusterSnapshot
+
+	// iterate over the objects contained in the snapshot
+	ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject))
 }
 
 func (b *builder) AddDestinations(destinations ...*discovery_mesh_gloo_solo_io_v1.Destination) {
@@ -652,7 +707,6 @@ func (b *builder) AddDestinations(destinations ...*discovery_mesh_gloo_solo_io_v
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Destination %v", sets.Key(obj))
 		b.destinations.Insert(obj)
 	}
 }
@@ -661,7 +715,6 @@ func (b *builder) AddWorkloads(workloads ...*discovery_mesh_gloo_solo_io_v1.Work
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Workload %v", sets.Key(obj))
 		b.workloads.Insert(obj)
 	}
 }
@@ -670,7 +723,6 @@ func (b *builder) AddMeshes(meshes ...*discovery_mesh_gloo_solo_io_v1.Mesh) {
 		if obj == nil {
 			continue
 		}
-		contextutils.LoggerFrom(b.ctx).Debugf("added output Mesh %v", sets.Key(obj))
 		b.meshes.Insert(obj)
 	}
 }
@@ -787,4 +839,39 @@ func (b *builder) Generic() resource.ClusterSnapshot {
 	}
 
 	return clusterSnapshots
+}
+
+// convert this snapshot to its generic form
+func (b *builder) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+	if b == nil {
+		return
+	}
+
+	for _, obj := range b.GetDestinations().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Destination",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetWorkloads().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Workload",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range b.GetMeshes().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Mesh",
+		}
+		handleObject(cluster, gvk, obj)
+	}
 }
