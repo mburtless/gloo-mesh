@@ -4,6 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1sets "github.com/solo-io/external-apis/pkg/api/k8s/core/v1/sets"
@@ -143,6 +146,61 @@ var _ = Describe("IstioMeshDetector", func() {
 				}},
 			},
 		}))
+	})
+
+	It("will add an existing IssuedCert status", func() {
+
+		configMaps := istioConfigMap()
+		deployment := istioDeployment(istiodDeploymentName)
+
+		issuedCertStatus := certificatesv1.IssuedCertificateStatus{
+			ObservedGeneration:    5,
+			Error:                 "Hi I'm an error",
+			State:                 certificatesv1.IssuedCertificateStatus_FINISHED,
+			ObservedRotationState: certificatesv1.CertificateRotationState_ADDING_NEW_ROOT,
+		}
+
+		expectedMesh := &discoveryv1.Mesh{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "istiod-namespace-cluster",
+				Namespace: defaults.GetPodNamespace(),
+				Labels:    labelutils.ClusterLabels(clusterName),
+			},
+			Spec: discoveryv1.MeshSpec{
+				Type: &discoveryv1.MeshSpec_Istio_{Istio: &discoveryv1.MeshSpec_Istio{
+					SmartDnsProxyingEnabled: smartDnsProxyingEnabled,
+					Installation: &discoveryv1.MeshInstallation{
+						Namespace: meshNs,
+						Cluster:   clusterName,
+						PodLabels: map[string]string{"app": "istiod"},
+						Version:   "latest",
+					},
+					TrustDomain:          trustDomain,
+					IstiodServiceAccount: serviceAccountName,
+				}},
+				IssuedCertificateStatus: &issuedCertStatus,
+			},
+		}
+
+		inRemote := input.NewInputDiscoveryInputSnapshotManualBuilder("")
+		inRemote.AddDeployments([]*appsv1.Deployment{deployment})
+		inRemote.AddConfigMaps(configMaps.List())
+		inRemote.AddIssuedCertificates([]*certificatesv1.IssuedCertificate{
+			{
+				ObjectMeta: mtls.BuildMeshResourceObjectMeta(expectedMesh),
+				Spec:       certificatesv1.IssuedCertificateSpec{},
+				Status:     issuedCertStatus,
+			},
+		})
+
+		detector := NewMeshDetector(
+			ctx,
+		)
+
+		meshes, err := detector.DetectMeshes(inRemote.Build(), settings)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(meshes).To(HaveLen(1))
+		Expect(meshes[0]).To(Equal(expectedMesh))
 	})
 
 	Context("detects ingress gateway", func() {

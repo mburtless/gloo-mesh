@@ -38,6 +38,7 @@ type InputLocalSnapshotManualBuilder struct {
 	virtualHosts             networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualHostSet
 	routeTables              networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet
 	serviceDependencies      networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet
+	certificateVerifications networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet
 
 	trafficPolicies networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet
 	accessPolicies  networking_mesh_gloo_solo_io_v1_sets.AccessPolicySet
@@ -67,6 +68,7 @@ func NewInputLocalSnapshotManualBuilder(name string) *InputLocalSnapshotManualBu
 		virtualHosts:             networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet(),
 		routeTables:              networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet(),
 		serviceDependencies:      networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet(),
+		certificateVerifications: networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet(),
 
 		trafficPolicies: networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet(),
 		accessPolicies:  networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet(),
@@ -97,6 +99,7 @@ func (i *InputLocalSnapshotManualBuilder) Build() LocalSnapshot {
 		i.virtualHosts,
 		i.routeTables,
 		i.serviceDependencies,
+		i.certificateVerifications,
 
 		i.trafficPolicies,
 		i.accessPolicies,
@@ -141,6 +144,10 @@ func (i *InputLocalSnapshotManualBuilder) AddRouteTables(routeTables []*networki
 }
 func (i *InputLocalSnapshotManualBuilder) AddServiceDependencies(serviceDependencies []*networking_enterprise_mesh_gloo_solo_io_v1beta1.ServiceDependency) *InputLocalSnapshotManualBuilder {
 	i.serviceDependencies.Insert(serviceDependencies...)
+	return i
+}
+func (i *InputLocalSnapshotManualBuilder) AddCertificateVerifications(certificateVerifications []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) *InputLocalSnapshotManualBuilder {
+	i.certificateVerifications.Insert(certificateVerifications...)
 	return i
 }
 func (i *InputLocalSnapshotManualBuilder) AddTrafficPolicies(trafficPolicies []*networking_mesh_gloo_solo_io_v1.TrafficPolicy) *InputLocalSnapshotManualBuilder {

@@ -37,21 +37,21 @@ var _ = Describe("CertAgentTranslator", func() {
 		ctrl.Finish()
 	})
 
-	Context("IssuedCertiticatePending", func() {
+	Context("IssuedCertificatePending", func() {
 
 		It("will do nothing if no IssuedCertSecret is not present", func() {
 
 			translator := translation.NewCertAgentTranslator()
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{}
+			issuedCertificate := &certificatesv1.IssuedCertificate{}
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeFalse())
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeFalse())
 		})
 
 		It("Will create the private key secret, and return CSR bytes", func() {
 			translator := translation.NewCertAgentTranslator()
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{
+			issuedCertificate := &certificatesv1.IssuedCertificate{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "name",
 					Namespace: "namespace",
@@ -70,8 +70,8 @@ var _ = Describe("CertAgentTranslator", func() {
 				AddSecrets(gomock.Any()).
 				Do(func(secret *corev1.Secret) {
 					Expect(secret.ObjectMeta).To(Equal(metav1.ObjectMeta{
-						Name:      issuedCertiticate.Name,
-						Namespace: issuedCertiticate.Namespace,
+						Name:      issuedCertificate.Name,
+						Namespace: issuedCertificate.Namespace,
 						Labels: map[string]string{
 							"agent.certificates.mesh.gloo.solo.io": "gloo-mesh",
 						},
@@ -81,7 +81,7 @@ var _ = Describe("CertAgentTranslator", func() {
 					Expect(pemByt.Type).To(Equal("RSA PRIVATE KEY"))
 				})
 
-			csrBytes, err := translator.IssuedCertiticatePending(ctx, issuedCertiticate, inputSnap, mockOutput)
+			csrBytes, err := translator.IssuedCertificatePending(ctx, issuedCertificate, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(csrBytes).NotTo(BeNil())
@@ -94,15 +94,15 @@ var _ = Describe("CertAgentTranslator", func() {
 
 	})
 
-	Context("IssuedCertiticateRequested", func() {
+	Context("IssuedCertificateRequested", func() {
 
 		It("will do nothing if no IssuedCertSecret is not present", func() {
 
 			translator := translation.NewCertAgentTranslator()
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{}
+			issuedCertificate := &certificatesv1.IssuedCertificate{}
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeFalse())
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeFalse())
 		})
 
 		var (
@@ -116,7 +116,7 @@ var _ = Describe("CertAgentTranslator", func() {
 				},
 			}
 
-			issuedCertiticate = &certificatesv1.IssuedCertificate{
+			issuedCertificate = &certificatesv1.IssuedCertificate{
 				ObjectMeta: privateKeySecret.ObjectMeta,
 				Spec: certificatesv1.IssuedCertificateSpec{
 					IssuedCertificateSecret: &skv2corev1.ObjectRef{
@@ -143,9 +143,9 @@ var _ = Describe("CertAgentTranslator", func() {
 			mockOutput.EXPECT().AddSecrets(privateKeySecret)
 			mockOutput.EXPECT().AddCertificateRequests(csr)
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeTrue())
 
-			_, err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
+			_, err := translator.IssuedCertificateRequested(ctx, issuedCertificate, csr, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -168,8 +168,8 @@ var _ = Describe("CertAgentTranslator", func() {
 				AddSecrets(gomock.Any()).
 				Do(func(secret *corev1.Secret) {
 					Expect(secret.ObjectMeta).To(Equal(metav1.ObjectMeta{
-						Name:      issuedCertiticate.Spec.IssuedCertificateSecret.Name,
-						Namespace: issuedCertiticate.Spec.IssuedCertificateSecret.Namespace,
+						Name:      issuedCertificate.Spec.IssuedCertificateSecret.Name,
+						Namespace: issuedCertificate.Spec.IssuedCertificateSecret.Namespace,
 						Labels: map[string]string{
 							"agent.certificates.mesh.gloo.solo.io": "gloo-mesh",
 						},
@@ -181,23 +181,23 @@ var _ = Describe("CertAgentTranslator", func() {
 					Expect(intCaData.CaCert).To(Equal([]byte("I'm a signing cert")))
 				})
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeTrue())
 
-			_, err := translator.IssuedCertificateRequested(ctx, issuedCertiticate, csr, inputSnap, mockOutput)
+			_, err := translator.IssuedCertificateRequested(ctx, issuedCertificate, csr, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 	})
 
-	Context("IssuedCertiticateIssued", func() {
+	Context("IssuedCertificateIssued", func() {
 
 		It("will do nothing if no IssuedCertSecret is not present", func() {
 
 			translator := translation.NewCertAgentTranslator()
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{}
+			issuedCertificate := &certificatesv1.IssuedCertificate{}
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeFalse())
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeFalse())
 		})
 
 		It("Will create the provate key secret, and return CSR bytes", func() {
@@ -210,7 +210,7 @@ var _ = Describe("CertAgentTranslator", func() {
 				},
 			}
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{
+			issuedCertificate := &certificatesv1.IssuedCertificate{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "name",
 					Namespace: "namespace",
@@ -229,14 +229,14 @@ var _ = Describe("CertAgentTranslator", func() {
 			mockOutput.EXPECT().
 				AddSecrets(issuedCertSecret)
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
-			err := translator.IssuedCertificateIssued(ctx, issuedCertiticate, inputSnap, mockOutput)
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeTrue())
+			err := translator.IssuedCertificateIssued(ctx, issuedCertificate, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
 	})
 
-	Context("IssuedCertiticateFinished", func() {
+	Context("IssuedCertificateFinished", func() {
 
 		It("Will return error if issuedCert cannot be found", func() {
 
@@ -249,7 +249,7 @@ var _ = Describe("CertAgentTranslator", func() {
 				},
 			}
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{
+			issuedCertificate := &certificatesv1.IssuedCertificate{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "name",
 					Namespace: "namespace",
@@ -261,8 +261,8 @@ var _ = Describe("CertAgentTranslator", func() {
 			inputSnap := input.NewInputSnapshotManualBuilder("hello").
 				Build()
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
-			err := translator.IssuedCertificateFinished(ctx, issuedCertiticate, inputSnap, mockOutput)
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeTrue())
+			err := translator.IssuedCertificateFinished(ctx, issuedCertificate, inputSnap, mockOutput)
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("could not find issued cert secret (issued.cert.), restarting workflow: *v1.Secret with id issued.cert. not found"))
 		})
@@ -277,7 +277,7 @@ var _ = Describe("CertAgentTranslator", func() {
 				},
 			}
 
-			issuedCertiticate := &certificatesv1.IssuedCertificate{
+			issuedCertificate := &certificatesv1.IssuedCertificate{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "name",
 					Namespace: "namespace",
@@ -293,8 +293,8 @@ var _ = Describe("CertAgentTranslator", func() {
 			mockOutput.EXPECT().
 				AddSecrets(issuedCertSecret)
 
-			Expect(translator.ShouldProcess(ctx, issuedCertiticate)).To(BeTrue())
-			err := translator.IssuedCertificateFinished(ctx, issuedCertiticate, inputSnap, mockOutput)
+			Expect(translator.ShouldProcess(ctx, issuedCertificate)).To(BeTrue())
+			err := translator.IssuedCertificateFinished(ctx, issuedCertificate, inputSnap, mockOutput)
 			Expect(err).NotTo(HaveOccurred())
 		})
 

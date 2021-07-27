@@ -10,6 +10,7 @@
 // * VirtualHosts
 // * RouteTables
 // * ServiceDependencies
+// * CertificateVerifications
 // * TrafficPolicies
 // * AccessPolicies
 // * VirtualMeshes
@@ -114,6 +115,11 @@ var LocalSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1beta1",
 		Kind:    "ServiceDependency",
 	},
+	schema.GroupVersionKind{
+		Group:   "networking.enterprise.mesh.gloo.solo.io",
+		Version: "v1beta1",
+		Kind:    "CertificateVerification",
+	},
 
 	schema.GroupVersionKind{
 		Group:   "networking.mesh.gloo.solo.io",
@@ -189,6 +195,8 @@ type LocalSnapshot interface {
 	RouteTables() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet
 	// return the set of input ServiceDependencies
 	ServiceDependencies() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet
+	// return the set of input CertificateVerifications
+	CertificateVerifications() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet
 
 	// return the set of input TrafficPolicies
 	TrafficPolicies() networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet
@@ -251,6 +259,8 @@ type LocalSyncStatusOptions struct {
 	RouteTable bool
 	// sync status of ServiceDependency objects
 	ServiceDependency bool
+	// sync status of CertificateVerification objects
+	CertificateVerification bool
 
 	// sync status of TrafficPolicy objects
 	TrafficPolicy bool
@@ -289,6 +299,7 @@ type snapshotLocal struct {
 	virtualHosts             networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualHostSet
 	routeTables              networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet
 	serviceDependencies      networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet
+	certificateVerifications networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet
 
 	trafficPolicies networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet
 	accessPolicies  networking_mesh_gloo_solo_io_v1_sets.AccessPolicySet
@@ -317,6 +328,7 @@ func NewLocalSnapshot(
 	virtualHosts networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualHostSet,
 	routeTables networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet,
 	serviceDependencies networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet,
+	certificateVerifications networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet,
 
 	trafficPolicies networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet,
 	accessPolicies networking_mesh_gloo_solo_io_v1_sets.AccessPolicySet,
@@ -345,6 +357,7 @@ func NewLocalSnapshot(
 		virtualHosts:             virtualHosts,
 		routeTables:              routeTables,
 		serviceDependencies:      serviceDependencies,
+		certificateVerifications: certificateVerifications,
 		trafficPolicies:          trafficPolicies,
 		accessPolicies:           accessPolicies,
 		virtualMeshes:            virtualMeshes,
@@ -370,6 +383,7 @@ func NewLocalSnapshotFromGeneric(
 	virtualHostSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet()
 	routeTableSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet()
 	serviceDependencySet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet()
+	certificateVerificationSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet()
 
 	trafficPolicySet := networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet()
 	accessPolicySet := networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet()
@@ -451,6 +465,15 @@ func NewLocalSnapshotFromGeneric(
 
 		for _, serviceDependency := range serviceDependencies {
 			serviceDependencySet.Insert(serviceDependency.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.ServiceDependency))
+		}
+		certificateVerifications := snapshot[schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "CertificateVerification",
+		}]
+
+		for _, certificateVerification := range certificateVerifications {
+			certificateVerificationSet.Insert(certificateVerification.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.CertificateVerification))
 		}
 
 		trafficPolicies := snapshot[schema.GroupVersionKind{
@@ -559,6 +582,7 @@ func NewLocalSnapshotFromGeneric(
 		virtualHostSet,
 		routeTableSet,
 		serviceDependencySet,
+		certificateVerificationSet,
 		trafficPolicySet,
 		accessPolicySet,
 		virtualMeshSet,
@@ -598,6 +622,10 @@ func (s snapshotLocal) RouteTables() networking_enterprise_mesh_gloo_solo_io_v1b
 
 func (s snapshotLocal) ServiceDependencies() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet {
 	return s.serviceDependencies
+}
+
+func (s snapshotLocal) CertificateVerifications() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet {
+	return s.certificateVerifications
 }
 
 func (s snapshotLocal) TrafficPolicies() networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet {
@@ -717,6 +745,18 @@ func (s snapshotLocal) SyncStatusesMultiCluster(ctx context.Context, mcClient mu
 	}
 	if opts.ServiceDependency {
 		for _, obj := range s.ServiceDependencies().List() {
+			clusterClient, err := mcClient.Cluster(obj.ClusterName)
+			if err != nil {
+				errs = multierror.Append(errs, err)
+				continue
+			}
+			if _, err := controllerutils.UpdateStatusImmutable(ctx, clusterClient, obj); err != nil {
+				errs = multierror.Append(errs, err)
+			}
+		}
+	}
+	if opts.CertificateVerification {
+		for _, obj := range s.CertificateVerifications().List() {
 			clusterClient, err := mcClient.Cluster(obj.ClusterName)
 			if err != nil {
 				errs = multierror.Append(errs, err)
@@ -895,6 +935,13 @@ func (s snapshotLocal) SyncStatuses(ctx context.Context, c client.Client, opts L
 			}
 		}
 	}
+	if opts.CertificateVerification {
+		for _, obj := range s.CertificateVerifications().List() {
+			if _, err := controllerutils.UpdateStatusImmutable(ctx, c, obj); err != nil {
+				errs = multierror.Append(errs, err)
+			}
+		}
+	}
 
 	if opts.TrafficPolicy {
 		for _, obj := range s.TrafficPolicies().List() {
@@ -976,6 +1023,7 @@ func (s snapshotLocal) MarshalJSON() ([]byte, error) {
 	snapshotMap["virtualHosts"] = s.virtualHosts.List()
 	snapshotMap["routeTables"] = s.routeTables.List()
 	snapshotMap["serviceDependencies"] = s.serviceDependencies.List()
+	snapshotMap["certificateVerifications"] = s.certificateVerifications.List()
 	snapshotMap["trafficPolicies"] = s.trafficPolicies.List()
 	snapshotMap["accessPolicies"] = s.accessPolicies.List()
 	snapshotMap["virtualMeshes"] = s.virtualMeshes.List()
@@ -1000,6 +1048,7 @@ func (s snapshotLocal) Clone() LocalSnapshot {
 		virtualHosts:             s.virtualHosts.Clone(),
 		routeTables:              s.routeTables.Clone(),
 		serviceDependencies:      s.serviceDependencies.Clone(),
+		certificateVerifications: s.certificateVerifications.Clone(),
 		trafficPolicies:          s.trafficPolicies.Clone(),
 		accessPolicies:           s.accessPolicies.Clone(),
 		virtualMeshes:            s.virtualMeshes.Clone(),
@@ -1085,6 +1134,15 @@ func (s snapshotLocal) ForEachObject(handleObject func(cluster string, gvk schem
 			Group:   "networking.enterprise.mesh.gloo.solo.io",
 			Version: "v1beta1",
 			Kind:    "ServiceDependency",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+	for _, obj := range s.certificateVerifications.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "CertificateVerification",
 		}
 		handleObject(cluster, gvk, obj)
 	}
@@ -1208,6 +1266,8 @@ type LocalBuildOptions struct {
 	RouteTables ResourceLocalBuildOptions
 	// List options for composing a snapshot from ServiceDependencies
 	ServiceDependencies ResourceLocalBuildOptions
+	// List options for composing a snapshot from CertificateVerifications
+	CertificateVerifications ResourceLocalBuildOptions
 
 	// List options for composing a snapshot from TrafficPolicies
 	TrafficPolicies ResourceLocalBuildOptions
@@ -1272,6 +1332,7 @@ func (b *multiClusterLocalBuilder) BuildSnapshot(ctx context.Context, name strin
 	virtualHosts := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet()
 	routeTables := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet()
 	serviceDependencies := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet()
+	certificateVerifications := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet()
 
 	trafficPolicies := networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet()
 	accessPolicies := networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet()
@@ -1312,6 +1373,9 @@ func (b *multiClusterLocalBuilder) BuildSnapshot(ctx context.Context, name strin
 			errs = multierror.Append(errs, err)
 		}
 		if err := b.insertServiceDependenciesFromCluster(ctx, cluster, serviceDependencies, opts.ServiceDependencies); err != nil {
+			errs = multierror.Append(errs, err)
+		}
+		if err := b.insertCertificateVerificationsFromCluster(ctx, cluster, certificateVerifications, opts.CertificateVerifications); err != nil {
 			errs = multierror.Append(errs, err)
 		}
 		if err := b.insertTrafficPoliciesFromCluster(ctx, cluster, trafficPolicies, opts.TrafficPolicies); err != nil {
@@ -1357,6 +1421,7 @@ func (b *multiClusterLocalBuilder) BuildSnapshot(ctx context.Context, name strin
 		virtualHosts,
 		routeTables,
 		serviceDependencies,
+		certificateVerifications,
 		trafficPolicies,
 		accessPolicies,
 		virtualMeshes,
@@ -1662,6 +1727,48 @@ func (b *multiClusterLocalBuilder) insertServiceDependenciesFromCluster(ctx cont
 		item := item.DeepCopy()    // pike + own
 		item.ClusterName = cluster // set cluster for in-memory processing
 		serviceDependencies.Insert(item)
+	}
+
+	return nil
+}
+func (b *multiClusterLocalBuilder) insertCertificateVerificationsFromCluster(ctx context.Context, cluster string, certificateVerifications networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet, opts ResourceLocalBuildOptions) error {
+	certificateVerificationClient, err := networking_enterprise_mesh_gloo_solo_io_v1beta1.NewMulticlusterCertificateVerificationClient(b.client).Cluster(cluster)
+	if err != nil {
+		return err
+	}
+
+	if opts.Verifier != nil {
+		mgr, err := b.clusters.Cluster(cluster)
+		if err != nil {
+			return err
+		}
+
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "CertificateVerification",
+		}
+
+		if resourceRegistered, err := opts.Verifier.VerifyServerResource(
+			cluster,
+			mgr.GetConfig(),
+			gvk,
+		); err != nil {
+			return err
+		} else if !resourceRegistered {
+			return nil
+		}
+	}
+
+	certificateVerificationList, err := certificateVerificationClient.ListCertificateVerification(ctx, opts.ListOptions...)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range certificateVerificationList.Items {
+		item := item.DeepCopy()    // pike + own
+		item.ClusterName = cluster // set cluster for in-memory processing
+		certificateVerifications.Insert(item)
 	}
 
 	return nil
@@ -2127,6 +2234,7 @@ func (b *singleClusterLocalBuilder) BuildSnapshot(ctx context.Context, name stri
 	virtualHosts := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet()
 	routeTables := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet()
 	serviceDependencies := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet()
+	certificateVerifications := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet()
 
 	trafficPolicies := networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet()
 	accessPolicies := networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet()
@@ -2165,6 +2273,9 @@ func (b *singleClusterLocalBuilder) BuildSnapshot(ctx context.Context, name stri
 		errs = multierror.Append(errs, err)
 	}
 	if err := b.insertServiceDependencies(ctx, serviceDependencies, opts.ServiceDependencies); err != nil {
+		errs = multierror.Append(errs, err)
+	}
+	if err := b.insertCertificateVerifications(ctx, certificateVerifications, opts.CertificateVerifications); err != nil {
 		errs = multierror.Append(errs, err)
 	}
 	if err := b.insertTrafficPolicies(ctx, trafficPolicies, opts.TrafficPolicies); err != nil {
@@ -2208,6 +2319,7 @@ func (b *singleClusterLocalBuilder) BuildSnapshot(ctx context.Context, name stri
 		virtualHosts,
 		routeTables,
 		serviceDependencies,
+		certificateVerifications,
 		trafficPolicies,
 		accessPolicies,
 		virtualMeshes,
@@ -2450,6 +2562,39 @@ func (b *singleClusterLocalBuilder) insertServiceDependencies(ctx context.Contex
 		item := item.DeepCopy() // pike + own the item.
 		item.ClusterName = b.clusterName
 		serviceDependencies.Insert(item)
+	}
+
+	return nil
+}
+func (b *singleClusterLocalBuilder) insertCertificateVerifications(ctx context.Context, certificateVerifications networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet, opts ResourceLocalBuildOptions) error {
+
+	if opts.Verifier != nil {
+		gvk := schema.GroupVersionKind{
+			Group:   "networking.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "CertificateVerification",
+		}
+
+		if resourceRegistered, err := opts.Verifier.VerifyServerResource(
+			"", // verify in the local cluster
+			b.mgr.GetConfig(),
+			gvk,
+		); err != nil {
+			return err
+		} else if !resourceRegistered {
+			return nil
+		}
+	}
+
+	certificateVerificationList, err := networking_enterprise_mesh_gloo_solo_io_v1beta1.NewCertificateVerificationClient(b.mgr.GetClient()).ListCertificateVerification(ctx, opts.ListOptions...)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range certificateVerificationList.Items {
+		item := item.DeepCopy() // pike + own the item.
+		item.ClusterName = b.clusterName
+		certificateVerifications.Insert(item)
 	}
 
 	return nil
@@ -2818,6 +2963,7 @@ func (i *inMemoryLocalBuilder) BuildSnapshot(ctx context.Context, name string, o
 	virtualHosts := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet()
 	routeTables := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet()
 	serviceDependencies := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet()
+	certificateVerifications := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet()
 
 	trafficPolicies := networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet()
 	accessPolicies := networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet()
@@ -2858,6 +3004,9 @@ func (i *inMemoryLocalBuilder) BuildSnapshot(ctx context.Context, name string, o
 		// insert ServiceDependencies
 		case *networking_enterprise_mesh_gloo_solo_io_v1beta1_types.ServiceDependency:
 			i.insertServiceDependency(ctx, obj, serviceDependencies, opts)
+		// insert CertificateVerifications
+		case *networking_enterprise_mesh_gloo_solo_io_v1beta1_types.CertificateVerification:
+			i.insertCertificateVerification(ctx, obj, certificateVerifications, opts)
 		// insert TrafficPolicies
 		case *networking_mesh_gloo_solo_io_v1_types.TrafficPolicy:
 			i.insertTrafficPolicy(ctx, obj, trafficPolicies, opts)
@@ -2901,6 +3050,7 @@ func (i *inMemoryLocalBuilder) BuildSnapshot(ctx context.Context, name string, o
 		virtualHosts,
 		routeTables,
 		serviceDependencies,
+		certificateVerifications,
 		trafficPolicies,
 		accessPolicies,
 		virtualMeshes,
@@ -3115,6 +3265,35 @@ func (i *inMemoryLocalBuilder) insertServiceDependency(
 
 	if !filteredOut {
 		serviceDependencySet.Insert(serviceDependency)
+	}
+}
+func (i *inMemoryLocalBuilder) insertCertificateVerification(
+	ctx context.Context,
+	certificateVerification *networking_enterprise_mesh_gloo_solo_io_v1beta1_types.CertificateVerification,
+	certificateVerificationSet networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet,
+	buildOpts LocalBuildOptions,
+) {
+
+	opts := buildOpts.CertificateVerifications.ListOptions
+
+	listOpts := &client.ListOptions{}
+	for _, opt := range opts {
+		opt.ApplyToList(listOpts)
+	}
+
+	filteredOut := false
+	if listOpts.Namespace != "" {
+		filteredOut = certificateVerification.Namespace != listOpts.Namespace
+	}
+	if listOpts.LabelSelector != nil {
+		filteredOut = !listOpts.LabelSelector.Matches(labels.Set(certificateVerification.Labels))
+	}
+	if listOpts.FieldSelector != nil {
+		contextutils.LoggerFrom(ctx).DPanicf("field selector is not implemented for in-memory remote snapshot")
+	}
+
+	if !filteredOut {
+		certificateVerificationSet.Insert(certificateVerification)
 	}
 }
 

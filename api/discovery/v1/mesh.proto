@@ -5,6 +5,8 @@ option go_package = "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.so
 import "github.com/solo-io/skv2/api/core/v1/core.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/virtual_mesh.proto";
 import "github.com/solo-io/gloo-mesh/api/discovery/v1/destination.proto";
+import "github.com/solo-io/gloo-mesh/api/certificates/v1/ca_options.proto";
+import "github.com/solo-io/gloo-mesh/api/certificates/v1/issued_certificate.proto";
 import "google/protobuf/wrappers.proto";
 
 import "extproto/ext.proto";
@@ -34,6 +36,8 @@ message MeshSpec {
 
     // Describes the Gloo Mesh agent if it has been installed to the managed cluster.
     AgentInfo agent_info = 5;
+
+    .certificates.mesh.gloo.solo.io.IssuedCertificateStatus issued_certificate_status = 7;
 
     // Describes an Istio deployment.
     message Istio {

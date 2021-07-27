@@ -260,14 +260,7 @@ func (t *translator) getOrCreateGeneratedCaSecret(
 		generatedRootCa = defaultSelfSignedRootCa.GetGenerated()
 	}
 
-	generatedSecretName := virtualMeshRef.Name + "." + virtualMeshRef.Namespace
-	// write the signing secret to the gloomesh namespace
-	generatedSecretNamespace := defaults.GetPodNamespace()
-	// use the existing secret if it exists
-	rootCaSecret := &skv2corev1.ObjectRef{
-		Name:      generatedSecretName,
-		Namespace: generatedSecretNamespace,
-	}
+	rootCaSecret := RootCASecretName(virtualMeshRef)
 	selfSignedCertSecret, err := t.secrets.Find(rootCaSecret)
 	if err != nil {
 		selfSignedCert, err := generateSelfSignedCert(generatedRootCa)
@@ -278,9 +271,9 @@ func (t *translator) getOrCreateGeneratedCaSecret(
 		// the self signed cert goes to the master/local cluster
 		selfSignedCertSecret = &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: generatedSecretName,
+				Name: rootCaSecret.GetName(),
 				// write to the agent namespace
-				Namespace: generatedSecretNamespace,
+				Namespace: rootCaSecret.GetNamespace(),
 				// ensure the secret is written to the maser/local cluster
 				ClusterName: "",
 				Labels:      metautils.TranslatedObjectLabels(),
@@ -319,15 +312,7 @@ func (t *translator) constructIssuedCertificate(
 		istioNamespace = defaultIstioNamespace
 	}
 
-	clusterName := istioMesh.GetInstallation().GetCluster()
-	issuedCertificateMeta := metav1.ObjectMeta{
-		Name: mesh.Name,
-		// write to the agent namespace
-		Namespace: agentNamespace,
-		// write to the mesh cluster
-		ClusterName: clusterName,
-		Labels:      metautils.TranslatedObjectLabels(),
-	}
+	issuedCertificateMeta := BuildMeshResourceObjectMeta(mesh)
 
 	// get the pods that need to be bounced for this mesh
 	podsToBounce := getPodsToBounce(mesh, sharedTrust, t.workloads, autoRestartPods)
@@ -500,4 +485,33 @@ func getPodsToBounce(
 	})
 
 	return podsToBounce
+}
+
+// Build the common ObjectMeta used for child certificate resources of this mesh
+// Exposed for use in enterprise
+func BuildMeshResourceObjectMeta(
+	mesh *discoveryv1.Mesh,
+) metav1.ObjectMeta {
+	istioMesh := mesh.Spec.GetIstio()
+	clusterName := istioMesh.GetInstallation().GetCluster()
+	return metav1.ObjectMeta{
+		Name: mesh.Name,
+		// write to the agent namespace
+		Namespace: mesh.Spec.GetAgentInfo().GetAgentNamespace(),
+		// write to the mesh cluster
+		ClusterName: clusterName,
+		Labels:      metautils.TranslatedObjectLabels(),
+	}
+}
+
+func RootCASecretName(virtualMeshRef ezkube.ResourceId) *skv2corev1.ObjectRef {
+	generatedSecretName := virtualMeshRef.GetName() + "." + virtualMeshRef.GetNamespace()
+	// write the signing secret to the gloomesh namespace
+	generatedSecretNamespace := defaults.GetPodNamespace()
+	// use the existing secret if it exists
+	rootCaSecret := &skv2corev1.ObjectRef{
+		Name:      generatedSecretName,
+		Namespace: generatedSecretNamespace,
+	}
+	return rootCaSecret
 }

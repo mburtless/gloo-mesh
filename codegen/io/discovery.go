@@ -26,6 +26,13 @@ var (
 		appmeshv1beta2.GroupVersion: {
 			"Mesh",
 		},
+		// Need to watch IssuedCertificates to propagate the status onto the Mesh.
+		schema.GroupVersion{
+			Group:   "certificates." + constants.GlooMeshApiGroupSuffix,
+			Version: "v1",
+		}: {
+			"IssuedCertificate",
+		},
 	}
 
 	DiscoveryLocalInputTypes = Snapshot{

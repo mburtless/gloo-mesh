@@ -57,6 +57,7 @@ import (
 // * VirtualHosts
 // * RouteTables
 // * ServiceDependencies
+// * CertificateVerifications
 // * TrafficPolicies
 // * AccessPolicies
 // * VirtualMeshes
@@ -150,6 +151,10 @@ func RegisterInputReconciler(
 	}
 	// initialize ServiceDependencies reconcile loop for local cluster
 	if err := networking_enterprise_mesh_gloo_solo_io_v1beta1_controllers.NewServiceDependencyReconcileLoop("ServiceDependency", mgr, options.Local.ServiceDependencies).RunServiceDependencyReconciler(ctx, &localInputReconciler{base: base}, options.Local.Predicates...); err != nil {
+		return nil, err
+	}
+	// initialize CertificateVerifications reconcile loop for local cluster
+	if err := networking_enterprise_mesh_gloo_solo_io_v1beta1_controllers.NewCertificateVerificationReconcileLoop("CertificateVerification", mgr, options.Local.CertificateVerifications).RunCertificateVerificationReconciler(ctx, &localInputReconciler{base: base}, options.Local.Predicates...); err != nil {
 		return nil, err
 	}
 
@@ -404,6 +409,8 @@ type LocalReconcileOptions struct {
 	RouteTables reconcile.Options
 	// Options for reconciling ServiceDependencies
 	ServiceDependencies reconcile.Options
+	// Options for reconciling CertificateVerifications
+	CertificateVerifications reconcile.Options
 
 	// Options for reconciling TrafficPolicies
 	TrafficPolicies reconcile.Options
@@ -522,6 +529,19 @@ func (r *localInputReconciler) ReconcileServiceDependency(obj *networking_enterp
 }
 
 func (r *localInputReconciler) ReconcileServiceDependencyDeletion(obj reconcile.Request) error {
+	ref := &sk_core_v1.ObjectRef{
+		Name:      obj.Name,
+		Namespace: obj.Namespace,
+	}
+	_, err := r.base.ReconcileLocalGeneric(ref)
+	return err
+}
+
+func (r *localInputReconciler) ReconcileCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error) {
+	return r.base.ReconcileLocalGeneric(obj)
+}
+
+func (r *localInputReconciler) ReconcileCertificateVerificationDeletion(obj reconcile.Request) error {
 	ref := &sk_core_v1.ObjectRef{
 		Name:      obj.Name,
 		Namespace: obj.Namespace,

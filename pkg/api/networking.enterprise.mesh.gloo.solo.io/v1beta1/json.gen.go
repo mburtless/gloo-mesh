@@ -177,3 +177,25 @@ func (this *ServiceDependencyStatus) MarshalJSON() ([]byte, error) {
 func (this *ServiceDependencyStatus) UnmarshalJSON(b []byte) error {
 	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
 }
+
+// MarshalJSON is a custom marshaler for CertificateVerificationSpec
+func (this *CertificateVerificationSpec) MarshalJSON() ([]byte, error) {
+	str, err := marshaller.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for CertificateVerificationSpec
+func (this *CertificateVerificationSpec) UnmarshalJSON(b []byte) error {
+	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for CertificateVerificationStatus
+func (this *CertificateVerificationStatus) MarshalJSON() ([]byte, error) {
+	str, err := marshaller.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for CertificateVerificationStatus
+func (this *CertificateVerificationStatus) UnmarshalJSON(b []byte) error {
+	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
+}

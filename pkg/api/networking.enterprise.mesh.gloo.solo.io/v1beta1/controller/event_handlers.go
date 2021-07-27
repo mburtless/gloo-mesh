@@ -765,3 +765,110 @@ func (h genericServiceDependencyHandler) Generic(object client.Object) error {
 	}
 	return h.handler.GenericServiceDependency(obj)
 }
+
+// Handle events for the CertificateVerification Resource
+// DEPRECATED: Prefer reconciler pattern.
+type CertificateVerificationEventHandler interface {
+	CreateCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	UpdateCertificateVerification(old, new *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	DeleteCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	GenericCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+}
+
+type CertificateVerificationEventHandlerFuncs struct {
+	OnCreate  func(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	OnUpdate  func(old, new *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	OnDelete  func(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+	OnGeneric func(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+}
+
+func (f *CertificateVerificationEventHandlerFuncs) CreateCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error {
+	if f.OnCreate == nil {
+		return nil
+	}
+	return f.OnCreate(obj)
+}
+
+func (f *CertificateVerificationEventHandlerFuncs) DeleteCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error {
+	if f.OnDelete == nil {
+		return nil
+	}
+	return f.OnDelete(obj)
+}
+
+func (f *CertificateVerificationEventHandlerFuncs) UpdateCertificateVerification(objOld, objNew *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error {
+	if f.OnUpdate == nil {
+		return nil
+	}
+	return f.OnUpdate(objOld, objNew)
+}
+
+func (f *CertificateVerificationEventHandlerFuncs) GenericCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error {
+	if f.OnGeneric == nil {
+		return nil
+	}
+	return f.OnGeneric(obj)
+}
+
+type CertificateVerificationEventWatcher interface {
+	AddEventHandler(ctx context.Context, h CertificateVerificationEventHandler, predicates ...predicate.Predicate) error
+}
+
+type certificateVerificationEventWatcher struct {
+	watcher events.EventWatcher
+}
+
+func NewCertificateVerificationEventWatcher(name string, mgr manager.Manager) CertificateVerificationEventWatcher {
+	return &certificateVerificationEventWatcher{
+		watcher: events.NewWatcher(name, mgr, &networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification{}),
+	}
+}
+
+func (c *certificateVerificationEventWatcher) AddEventHandler(ctx context.Context, h CertificateVerificationEventHandler, predicates ...predicate.Predicate) error {
+	handler := genericCertificateVerificationHandler{handler: h}
+	if err := c.watcher.Watch(ctx, handler, predicates...); err != nil {
+		return err
+	}
+	return nil
+}
+
+// genericCertificateVerificationHandler implements a generic events.EventHandler
+type genericCertificateVerificationHandler struct {
+	handler CertificateVerificationEventHandler
+}
+
+func (h genericCertificateVerificationHandler) Create(object client.Object) error {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return h.handler.CreateCertificateVerification(obj)
+}
+
+func (h genericCertificateVerificationHandler) Delete(object client.Object) error {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return h.handler.DeleteCertificateVerification(obj)
+}
+
+func (h genericCertificateVerificationHandler) Update(old, new client.Object) error {
+	objOld, ok := old.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", old)
+	}
+	objNew, ok := new.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", new)
+	}
+	return h.handler.UpdateCertificateVerification(objOld, objNew)
+}
+
+func (h genericCertificateVerificationHandler) Generic(object client.Object) error {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return h.handler.GenericCertificateVerification(obj)
+}

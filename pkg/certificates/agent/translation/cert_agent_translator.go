@@ -43,7 +43,7 @@ func IssuedCertificateSecretType() corev1.SecretType {
 
 //go:generate mockgen -source ./cert_agent_translator.go -destination mocks/translator.go
 
-// These functions correspond to issued certiticate statuses
+// These functions correspond to issued certificate statuses
 // PENDING
 // REQUESTED
 // ISSUED
@@ -53,16 +53,16 @@ type Translator interface {
 	// Should the reconciler process this resource
 	ShouldProcess(ctx context.Context, issuedCertificate *certificatesv1.IssuedCertificate) bool
 
-	// This function is called when the IssuedCertiticate is first created, it is meant to create the CSR
+	// This function is called when the IssuedCertificate is first created, it is meant to create the CSR
 	// and return the bytes directly
-	IssuedCertiticatePending(
+	IssuedCertificatePending(
 		ctx context.Context,
 		issuedCertificate *certificatesv1.IssuedCertificate,
 		inputs input.Snapshot,
 		outputs certagent.Builder,
 	) ([]byte, error)
 
-	// This function is called when the IssuedCertiticate has been REQUESTED, this means that the
+	// This function is called when the IssuedCertificate has been REQUESTED, this means that the
 	// CertificateRequest has been successfully created, and is passed in along with the
 	// IssuedCertificate
 	// This function may be called multiple times in a row, as long as the IssuedCertificate is in a
@@ -76,7 +76,7 @@ type Translator interface {
 		outputs certagent.Builder,
 	) (waitForCondition bool, err error)
 
-	// This function is called when the IssuedCertiticate has been ISSUED, this means that the
+	// This function is called when the IssuedCertificate has been ISSUED, this means that the
 	// CertificateRequest has been fulfilled by the relevant party. By this stage the intermediate
 	// cert should already have made it to it's destination.
 	IssuedCertificateIssued(
@@ -86,7 +86,7 @@ type Translator interface {
 		outputs certagent.Builder,
 	) error
 
-	// This function is called when the IssuedCertiticate has been FINISHED, this means that the
+	// This function is called when the IssuedCertificate has been FINISHED, this means that the
 	// Cert has been issued, and the pod bounce directive has completed.
 	IssuedCertificateFinished(
 		ctx context.Context,
@@ -106,7 +106,7 @@ func (c *certAgentTranslator) ShouldProcess(ctx context.Context, issuedCertifica
 	return issuedCertificate.Spec.GetIssuedCertificateSecret() != nil
 }
 
-func (c *certAgentTranslator) IssuedCertiticatePending(
+func (c *certAgentTranslator) IssuedCertificatePending(
 	ctx context.Context,
 	issuedCertificate *certificatesv1.IssuedCertificate,
 	_ input.Snapshot,
@@ -133,7 +133,6 @@ func (c *certAgentTranslator) IssuedCertiticatePending(
 	if org == "" {
 		org = issuedCertificate.Spec.Org
 	}
-	// Use deprecated field if present
 
 	// create certificate request for private key
 	return utils.GenerateCertificateSigningRequest(

@@ -3,6 +3,9 @@ package translation_test
 import (
 	"context"
 
+	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	certificatesv1sets "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1/sets"
+
 	"github.com/aws/aws-app-mesh-controller-for-k8s/apis/appmesh/v1beta2"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -63,8 +66,10 @@ var _ = Describe("Translator", func() {
 		replicaSets := appsv1sets.NewReplicaSetSet(&appsv1.ReplicaSet{})
 		daemonSets := appsv1sets.NewDaemonSetSet(&appsv1.DaemonSet{})
 		statefulSets := appsv1sets.NewStatefulSetSet(&appsv1.StatefulSet{})
+		issuedCertificates := certificatesv1sets.NewIssuedCertificateSet(&certificatesv1.IssuedCertificate{})
 		inRemote := input.NewDiscoveryInputSnapshot(
 			"mesh-discovery-remote",
+			issuedCertificates,
 			appMeshes,
 			configMaps,
 			services,

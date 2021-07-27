@@ -43,6 +43,7 @@ var GlooMeshEnterpriseNetworkingGroup = makeGroup("networking.enterprise", "v1be
 	{Kind: "VirtualHost", ShortNames: []string{"vh", "vhs"}},
 	{Kind: "RouteTable", ShortNames: []string{"rt", "rts"}},
 	{Kind: "ServiceDependency", ShortNames: []string{"sd", "sds"}},
+	{Kind: "CertificateVerification", ShortNames: []string{"cv", "cvs"}},
 })
 
 var GlooMeshEnterpriseObservabilityGroup = makeGroup("observability.enterprise", "v1", []ResourceToGenerate{

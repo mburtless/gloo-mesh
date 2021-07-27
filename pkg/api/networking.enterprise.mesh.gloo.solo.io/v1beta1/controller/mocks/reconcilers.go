@@ -1295,3 +1295,186 @@ func (mr *MockServiceDependencyReconcileLoopMockRecorder) RunServiceDependencyRe
 	varargs := append([]interface{}{ctx, rec}, predicates...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunServiceDependencyReconciler", reflect.TypeOf((*MockServiceDependencyReconcileLoop)(nil).RunServiceDependencyReconciler), varargs...)
 }
+
+// MockCertificateVerificationReconciler is a mock of CertificateVerificationReconciler interface.
+type MockCertificateVerificationReconciler struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationReconcilerMockRecorder
+}
+
+// MockCertificateVerificationReconcilerMockRecorder is the mock recorder for MockCertificateVerificationReconciler.
+type MockCertificateVerificationReconcilerMockRecorder struct {
+	mock *MockCertificateVerificationReconciler
+}
+
+// NewMockCertificateVerificationReconciler creates a new mock instance.
+func NewMockCertificateVerificationReconciler(ctrl *gomock.Controller) *MockCertificateVerificationReconciler {
+	mock := &MockCertificateVerificationReconciler{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationReconcilerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationReconciler) EXPECT() *MockCertificateVerificationReconcilerMockRecorder {
+	return m.recorder
+}
+
+// ReconcileCertificateVerification mocks base method.
+func (m *MockCertificateVerificationReconciler) ReconcileCertificateVerification(obj *v1beta1.CertificateVerification) (reconcile.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReconcileCertificateVerification", obj)
+	ret0, _ := ret[0].(reconcile.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReconcileCertificateVerification indicates an expected call of ReconcileCertificateVerification.
+func (mr *MockCertificateVerificationReconcilerMockRecorder) ReconcileCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileCertificateVerification", reflect.TypeOf((*MockCertificateVerificationReconciler)(nil).ReconcileCertificateVerification), obj)
+}
+
+// MockCertificateVerificationDeletionReconciler is a mock of CertificateVerificationDeletionReconciler interface.
+type MockCertificateVerificationDeletionReconciler struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationDeletionReconcilerMockRecorder
+}
+
+// MockCertificateVerificationDeletionReconcilerMockRecorder is the mock recorder for MockCertificateVerificationDeletionReconciler.
+type MockCertificateVerificationDeletionReconcilerMockRecorder struct {
+	mock *MockCertificateVerificationDeletionReconciler
+}
+
+// NewMockCertificateVerificationDeletionReconciler creates a new mock instance.
+func NewMockCertificateVerificationDeletionReconciler(ctrl *gomock.Controller) *MockCertificateVerificationDeletionReconciler {
+	mock := &MockCertificateVerificationDeletionReconciler{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationDeletionReconcilerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationDeletionReconciler) EXPECT() *MockCertificateVerificationDeletionReconcilerMockRecorder {
+	return m.recorder
+}
+
+// ReconcileCertificateVerificationDeletion mocks base method.
+func (m *MockCertificateVerificationDeletionReconciler) ReconcileCertificateVerificationDeletion(req reconcile.Request) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReconcileCertificateVerificationDeletion", req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ReconcileCertificateVerificationDeletion indicates an expected call of ReconcileCertificateVerificationDeletion.
+func (mr *MockCertificateVerificationDeletionReconcilerMockRecorder) ReconcileCertificateVerificationDeletion(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileCertificateVerificationDeletion", reflect.TypeOf((*MockCertificateVerificationDeletionReconciler)(nil).ReconcileCertificateVerificationDeletion), req)
+}
+
+// MockCertificateVerificationFinalizer is a mock of CertificateVerificationFinalizer interface.
+type MockCertificateVerificationFinalizer struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationFinalizerMockRecorder
+}
+
+// MockCertificateVerificationFinalizerMockRecorder is the mock recorder for MockCertificateVerificationFinalizer.
+type MockCertificateVerificationFinalizerMockRecorder struct {
+	mock *MockCertificateVerificationFinalizer
+}
+
+// NewMockCertificateVerificationFinalizer creates a new mock instance.
+func NewMockCertificateVerificationFinalizer(ctrl *gomock.Controller) *MockCertificateVerificationFinalizer {
+	mock := &MockCertificateVerificationFinalizer{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationFinalizerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationFinalizer) EXPECT() *MockCertificateVerificationFinalizerMockRecorder {
+	return m.recorder
+}
+
+// CertificateVerificationFinalizerName mocks base method.
+func (m *MockCertificateVerificationFinalizer) CertificateVerificationFinalizerName() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CertificateVerificationFinalizerName")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// CertificateVerificationFinalizerName indicates an expected call of CertificateVerificationFinalizerName.
+func (mr *MockCertificateVerificationFinalizerMockRecorder) CertificateVerificationFinalizerName() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CertificateVerificationFinalizerName", reflect.TypeOf((*MockCertificateVerificationFinalizer)(nil).CertificateVerificationFinalizerName))
+}
+
+// FinalizeCertificateVerification mocks base method.
+func (m *MockCertificateVerificationFinalizer) FinalizeCertificateVerification(obj *v1beta1.CertificateVerification) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FinalizeCertificateVerification", obj)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// FinalizeCertificateVerification indicates an expected call of FinalizeCertificateVerification.
+func (mr *MockCertificateVerificationFinalizerMockRecorder) FinalizeCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FinalizeCertificateVerification", reflect.TypeOf((*MockCertificateVerificationFinalizer)(nil).FinalizeCertificateVerification), obj)
+}
+
+// ReconcileCertificateVerification mocks base method.
+func (m *MockCertificateVerificationFinalizer) ReconcileCertificateVerification(obj *v1beta1.CertificateVerification) (reconcile.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReconcileCertificateVerification", obj)
+	ret0, _ := ret[0].(reconcile.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReconcileCertificateVerification indicates an expected call of ReconcileCertificateVerification.
+func (mr *MockCertificateVerificationFinalizerMockRecorder) ReconcileCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileCertificateVerification", reflect.TypeOf((*MockCertificateVerificationFinalizer)(nil).ReconcileCertificateVerification), obj)
+}
+
+// MockCertificateVerificationReconcileLoop is a mock of CertificateVerificationReconcileLoop interface.
+type MockCertificateVerificationReconcileLoop struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationReconcileLoopMockRecorder
+}
+
+// MockCertificateVerificationReconcileLoopMockRecorder is the mock recorder for MockCertificateVerificationReconcileLoop.
+type MockCertificateVerificationReconcileLoopMockRecorder struct {
+	mock *MockCertificateVerificationReconcileLoop
+}
+
+// NewMockCertificateVerificationReconcileLoop creates a new mock instance.
+func NewMockCertificateVerificationReconcileLoop(ctrl *gomock.Controller) *MockCertificateVerificationReconcileLoop {
+	mock := &MockCertificateVerificationReconcileLoop{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationReconcileLoopMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationReconcileLoop) EXPECT() *MockCertificateVerificationReconcileLoopMockRecorder {
+	return m.recorder
+}
+
+// RunCertificateVerificationReconciler mocks base method.
+func (m *MockCertificateVerificationReconcileLoop) RunCertificateVerificationReconciler(ctx context.Context, rec controller.CertificateVerificationReconciler, predicates ...predicate.Predicate) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, rec}
+	for _, a := range predicates {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "RunCertificateVerificationReconciler", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RunCertificateVerificationReconciler indicates an expected call of RunCertificateVerificationReconciler.
+func (mr *MockCertificateVerificationReconcileLoopMockRecorder) RunCertificateVerificationReconciler(ctx, rec interface{}, predicates ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, rec}, predicates...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunCertificateVerificationReconciler", reflect.TypeOf((*MockCertificateVerificationReconcileLoop)(nil).RunCertificateVerificationReconciler), varargs...)
+}

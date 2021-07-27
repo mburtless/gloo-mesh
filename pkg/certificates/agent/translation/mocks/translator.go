@@ -65,6 +65,21 @@ func (mr *MockTranslatorMockRecorder) IssuedCertificateIssued(ctx, issuedCertifi
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IssuedCertificateIssued", reflect.TypeOf((*MockTranslator)(nil).IssuedCertificateIssued), ctx, issuedCertificate, inputs, outputs)
 }
 
+// IssuedCertificatePending mocks base method.
+func (m *MockTranslator) IssuedCertificatePending(ctx context.Context, issuedCertificate *v1.IssuedCertificate, inputs input.Snapshot, outputs certagent.Builder) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IssuedCertificatePending", ctx, issuedCertificate, inputs, outputs)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IssuedCertificatePending indicates an expected call of IssuedCertificatePending.
+func (mr *MockTranslatorMockRecorder) IssuedCertificatePending(ctx, issuedCertificate, inputs, outputs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IssuedCertificatePending", reflect.TypeOf((*MockTranslator)(nil).IssuedCertificatePending), ctx, issuedCertificate, inputs, outputs)
+}
+
 // IssuedCertificateRequested mocks base method.
 func (m *MockTranslator) IssuedCertificateRequested(ctx context.Context, issuedCertificate *v1.IssuedCertificate, certificateRequest *v1.CertificateRequest, inputs input.Snapshot, outputs certagent.Builder) (bool, error) {
 	m.ctrl.T.Helper()
@@ -78,21 +93,6 @@ func (m *MockTranslator) IssuedCertificateRequested(ctx context.Context, issuedC
 func (mr *MockTranslatorMockRecorder) IssuedCertificateRequested(ctx, issuedCertificate, certificateRequest, inputs, outputs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IssuedCertificateRequested", reflect.TypeOf((*MockTranslator)(nil).IssuedCertificateRequested), ctx, issuedCertificate, certificateRequest, inputs, outputs)
-}
-
-// IssuedCertiticatePending mocks base method.
-func (m *MockTranslator) IssuedCertiticatePending(ctx context.Context, issuedCertificate *v1.IssuedCertificate, inputs input.Snapshot, outputs certagent.Builder) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IssuedCertiticatePending", ctx, issuedCertificate, inputs, outputs)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IssuedCertiticatePending indicates an expected call of IssuedCertiticatePending.
-func (mr *MockTranslatorMockRecorder) IssuedCertiticatePending(ctx, issuedCertificate, inputs, outputs interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IssuedCertiticatePending", reflect.TypeOf((*MockTranslator)(nil).IssuedCertiticatePending), ctx, issuedCertificate, inputs, outputs)
 }
 
 // ShouldProcess mocks base method.

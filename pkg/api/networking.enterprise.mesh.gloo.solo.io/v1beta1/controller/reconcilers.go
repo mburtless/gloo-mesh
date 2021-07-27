@@ -835,3 +835,120 @@ func (r genericServiceDependencyFinalizer) Finalize(object ezkube.Object) error 
 	}
 	return r.finalizingReconciler.FinalizeServiceDependency(obj)
 }
+
+// Reconcile Upsert events for the CertificateVerification Resource.
+// implemented by the user
+type CertificateVerificationReconciler interface {
+	ReconcileCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error)
+}
+
+// Reconcile deletion events for the CertificateVerification Resource.
+// Deletion receives a reconcile.Request as we cannot guarantee the last state of the object
+// before being deleted.
+// implemented by the user
+type CertificateVerificationDeletionReconciler interface {
+	ReconcileCertificateVerificationDeletion(req reconcile.Request) error
+}
+
+type CertificateVerificationReconcilerFuncs struct {
+	OnReconcileCertificateVerification         func(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error)
+	OnReconcileCertificateVerificationDeletion func(req reconcile.Request) error
+}
+
+func (f *CertificateVerificationReconcilerFuncs) ReconcileCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error) {
+	if f.OnReconcileCertificateVerification == nil {
+		return reconcile.Result{}, nil
+	}
+	return f.OnReconcileCertificateVerification(obj)
+}
+
+func (f *CertificateVerificationReconcilerFuncs) ReconcileCertificateVerificationDeletion(req reconcile.Request) error {
+	if f.OnReconcileCertificateVerificationDeletion == nil {
+		return nil
+	}
+	return f.OnReconcileCertificateVerificationDeletion(req)
+}
+
+// Reconcile and finalize the CertificateVerification Resource
+// implemented by the user
+type CertificateVerificationFinalizer interface {
+	CertificateVerificationReconciler
+
+	// name of the finalizer used by this handler.
+	// finalizer names should be unique for a single task
+	CertificateVerificationFinalizerName() string
+
+	// finalize the object before it is deleted.
+	// Watchers created with a finalizing handler will a
+	FinalizeCertificateVerification(obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) error
+}
+
+type CertificateVerificationReconcileLoop interface {
+	RunCertificateVerificationReconciler(ctx context.Context, rec CertificateVerificationReconciler, predicates ...predicate.Predicate) error
+}
+
+type certificateVerificationReconcileLoop struct {
+	loop reconcile.Loop
+}
+
+func NewCertificateVerificationReconcileLoop(name string, mgr manager.Manager, options reconcile.Options) CertificateVerificationReconcileLoop {
+	return &certificateVerificationReconcileLoop{
+		// empty cluster indicates this reconciler is built for the local cluster
+		loop: reconcile.NewLoop(name, "", mgr, &networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification{}, options),
+	}
+}
+
+func (c *certificateVerificationReconcileLoop) RunCertificateVerificationReconciler(ctx context.Context, reconciler CertificateVerificationReconciler, predicates ...predicate.Predicate) error {
+	genericReconciler := genericCertificateVerificationReconciler{
+		reconciler: reconciler,
+	}
+
+	var reconcilerWrapper reconcile.Reconciler
+	if finalizingReconciler, ok := reconciler.(CertificateVerificationFinalizer); ok {
+		reconcilerWrapper = genericCertificateVerificationFinalizer{
+			genericCertificateVerificationReconciler: genericReconciler,
+			finalizingReconciler:                     finalizingReconciler,
+		}
+	} else {
+		reconcilerWrapper = genericReconciler
+	}
+	return c.loop.RunReconciler(ctx, reconcilerWrapper, predicates...)
+}
+
+// genericCertificateVerificationHandler implements a generic reconcile.Reconciler
+type genericCertificateVerificationReconciler struct {
+	reconciler CertificateVerificationReconciler
+}
+
+func (r genericCertificateVerificationReconciler) Reconcile(object ezkube.Object) (reconcile.Result, error) {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return reconcile.Result{}, errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return r.reconciler.ReconcileCertificateVerification(obj)
+}
+
+func (r genericCertificateVerificationReconciler) ReconcileDeletion(request reconcile.Request) error {
+	if deletionReconciler, ok := r.reconciler.(CertificateVerificationDeletionReconciler); ok {
+		return deletionReconciler.ReconcileCertificateVerificationDeletion(request)
+	}
+	return nil
+}
+
+// genericCertificateVerificationFinalizer implements a generic reconcile.FinalizingReconciler
+type genericCertificateVerificationFinalizer struct {
+	genericCertificateVerificationReconciler
+	finalizingReconciler CertificateVerificationFinalizer
+}
+
+func (r genericCertificateVerificationFinalizer) FinalizerName() string {
+	return r.finalizingReconciler.CertificateVerificationFinalizerName()
+}
+
+func (r genericCertificateVerificationFinalizer) Finalize(object ezkube.Object) error {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return r.finalizingReconciler.FinalizeCertificateVerification(obj)
+}

@@ -149,7 +149,7 @@ func (r *certAgentReconciler) reconcileIssuedCertificate(
 		fallthrough
 	case certificatesv1.IssuedCertificateStatus_PENDING:
 
-		csrBytes, err := r.translator.IssuedCertiticatePending(r.ctx, issuedCertificate, inputSnap, outputs)
+		csrBytes, err := r.translator.IssuedCertificatePending(r.ctx, issuedCertificate, inputSnap, outputs)
 		if err != nil {
 			return err
 		}

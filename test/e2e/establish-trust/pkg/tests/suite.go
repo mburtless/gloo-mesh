@@ -60,7 +60,13 @@ func SetupClustersAndFederation(customDeployFuc func()) {
 
 	switch os.Getenv(establishTrustTestType) {
 	case "provided-ca":
-		SetupProvidedSecret(ctx, dynamicClient, vm)
+		secret, err := data.BuildRootCa(ctx, &v1.ObjectRef{
+			Name:      "test",
+			Namespace: "gloo-mesh",
+		})
+		Expect(err).NotTo(HaveOccurred())
+		err = utils.SetupProvidedCA(ctx, secret, dynamicClient, vm)
+		Expect(err).NotTo(HaveOccurred())
 	default:
 		Fail(fmt.Sprintf("Must provide a value for %s", establishTrustTestType))
 	}

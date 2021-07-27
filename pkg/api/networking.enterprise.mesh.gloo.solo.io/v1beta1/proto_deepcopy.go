@@ -91,3 +91,15 @@ func (in *ServiceDependencyStatus) DeepCopyInto(out *ServiceDependencyStatus) {
 	p := proto.Clone(in).(*ServiceDependencyStatus)
 	*out = *p
 }
+
+// DeepCopyInto for the CertificateVerification.Spec
+func (in *CertificateVerificationSpec) DeepCopyInto(out *CertificateVerificationSpec) {
+	p := proto.Clone(in).(*CertificateVerificationSpec)
+	*out = *p
+}
+
+// DeepCopyInto for the CertificateVerification.Status
+func (in *CertificateVerificationStatus) DeepCopyInto(out *CertificateVerificationStatus) {
+	p := proto.Clone(in).(*CertificateVerificationStatus)
+	*out = *p
+}

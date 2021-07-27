@@ -23,3 +23,6 @@ type RouteTableSlice []*RouteTable
 
 // ServiceDependencySlice represents a slice of *ServiceDependency
 type ServiceDependencySlice []*ServiceDependency
+
+// CertificateVerificationSlice represents a slice of *CertificateVerification
+type CertificateVerificationSlice []*CertificateVerification

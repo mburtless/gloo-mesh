@@ -212,3 +212,31 @@ func ServiceDependencyClientFromConfigFactoryProvider() ServiceDependencyClientF
 		return clients.ServiceDependencies(), nil
 	}
 }
+
+// Provider for CertificateVerificationClient from Clientset
+func CertificateVerificationClientFromClientsetProvider(clients networking_enterprise_mesh_gloo_solo_io_v1beta1.Clientset) networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationClient {
+	return clients.CertificateVerifications()
+}
+
+// Provider for CertificateVerification Client from Client
+func CertificateVerificationClientProvider(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationClient {
+	return networking_enterprise_mesh_gloo_solo_io_v1beta1.NewCertificateVerificationClient(client)
+}
+
+type CertificateVerificationClientFactory func(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationClient
+
+func CertificateVerificationClientFactoryProvider() CertificateVerificationClientFactory {
+	return CertificateVerificationClientProvider
+}
+
+type CertificateVerificationClientFromConfigFactory func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationClient, error)
+
+func CertificateVerificationClientFromConfigFactoryProvider() CertificateVerificationClientFromConfigFactory {
+	return func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationClient, error) {
+		clients, err := networking_enterprise_mesh_gloo_solo_io_v1beta1.NewClientsetFromConfig(cfg)
+		if err != nil {
+			return nil, err
+		}
+		return clients.CertificateVerifications(), nil
+	}
+}

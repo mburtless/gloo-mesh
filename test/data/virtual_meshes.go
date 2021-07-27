@@ -27,7 +27,7 @@ func SelfSignedVirtualMesh(
 			Namespace: namespace,
 		},
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "VirtualMesh",
+			Kind:       networkingv1.VirtualMeshGVK.Kind,
 			APIVersion: networkingv1.SchemeGroupVersion.String(),
 		},
 		Spec: networkingv1.VirtualMeshSpec{

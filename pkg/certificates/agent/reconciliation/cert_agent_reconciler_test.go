@@ -89,7 +89,7 @@ var _ = Describe("CertAgentReconciler", func() {
 				Build()
 
 			mockTranslator.EXPECT().
-				IssuedCertiticatePending(gomock.Any(), issuedCert, inputSnap, mockOutput).
+				IssuedCertificatePending(gomock.Any(), issuedCert, inputSnap, mockOutput).
 				Return(csrBytes, nil)
 
 			mockOutput.EXPECT().AddCertificateRequests(csr)

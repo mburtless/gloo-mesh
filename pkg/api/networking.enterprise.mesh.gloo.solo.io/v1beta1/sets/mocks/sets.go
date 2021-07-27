@@ -1806,3 +1806,259 @@ func (mr *MockServiceDependencySetMockRecorder) UnsortedList(filterResource ...i
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsortedList", reflect.TypeOf((*MockServiceDependencySet)(nil).UnsortedList), filterResource...)
 }
+
+// MockCertificateVerificationSet is a mock of CertificateVerificationSet interface.
+type MockCertificateVerificationSet struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationSetMockRecorder
+}
+
+// MockCertificateVerificationSetMockRecorder is the mock recorder for MockCertificateVerificationSet.
+type MockCertificateVerificationSetMockRecorder struct {
+	mock *MockCertificateVerificationSet
+}
+
+// NewMockCertificateVerificationSet creates a new mock instance.
+func NewMockCertificateVerificationSet(ctrl *gomock.Controller) *MockCertificateVerificationSet {
+	mock := &MockCertificateVerificationSet{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationSetMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationSet) EXPECT() *MockCertificateVerificationSetMockRecorder {
+	return m.recorder
+}
+
+// Clone mocks base method.
+func (m *MockCertificateVerificationSet) Clone() v1beta1sets.CertificateVerificationSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Clone")
+	ret0, _ := ret[0].(v1beta1sets.CertificateVerificationSet)
+	return ret0
+}
+
+// Clone indicates an expected call of Clone.
+func (mr *MockCertificateVerificationSetMockRecorder) Clone() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clone", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Clone))
+}
+
+// Delete mocks base method.
+func (m *MockCertificateVerificationSet) Delete(certificateVerification ezkube.ResourceId) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Delete", certificateVerification)
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockCertificateVerificationSetMockRecorder) Delete(certificateVerification interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Delete), certificateVerification)
+}
+
+// Delta mocks base method.
+func (m *MockCertificateVerificationSet) Delta(newSet v1beta1sets.CertificateVerificationSet) sets.ResourceDelta {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delta", newSet)
+	ret0, _ := ret[0].(sets.ResourceDelta)
+	return ret0
+}
+
+// Delta indicates an expected call of Delta.
+func (mr *MockCertificateVerificationSetMockRecorder) Delta(newSet interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delta", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Delta), newSet)
+}
+
+// Difference mocks base method.
+func (m *MockCertificateVerificationSet) Difference(set v1beta1sets.CertificateVerificationSet) v1beta1sets.CertificateVerificationSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Difference", set)
+	ret0, _ := ret[0].(v1beta1sets.CertificateVerificationSet)
+	return ret0
+}
+
+// Difference indicates an expected call of Difference.
+func (mr *MockCertificateVerificationSetMockRecorder) Difference(set interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Difference", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Difference), set)
+}
+
+// Equal mocks base method.
+func (m *MockCertificateVerificationSet) Equal(certificateVerificationSet v1beta1sets.CertificateVerificationSet) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Equal", certificateVerificationSet)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Equal indicates an expected call of Equal.
+func (mr *MockCertificateVerificationSetMockRecorder) Equal(certificateVerificationSet interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Equal", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Equal), certificateVerificationSet)
+}
+
+// Find mocks base method.
+func (m *MockCertificateVerificationSet) Find(id ezkube.ResourceId) (*v1beta1.CertificateVerification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Find", id)
+	ret0, _ := ret[0].(*v1beta1.CertificateVerification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Find indicates an expected call of Find.
+func (mr *MockCertificateVerificationSetMockRecorder) Find(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Find), id)
+}
+
+// Generic mocks base method.
+func (m *MockCertificateVerificationSet) Generic() sets.ResourceSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(sets.ResourceSet)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockCertificateVerificationSetMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Generic))
+}
+
+// Has mocks base method.
+func (m *MockCertificateVerificationSet) Has(certificateVerification ezkube.ResourceId) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Has", certificateVerification)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Has indicates an expected call of Has.
+func (mr *MockCertificateVerificationSetMockRecorder) Has(certificateVerification interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Has", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Has), certificateVerification)
+}
+
+// Insert mocks base method.
+func (m *MockCertificateVerificationSet) Insert(certificateVerification ...*v1beta1.CertificateVerification) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range certificateVerification {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Insert", varargs...)
+}
+
+// Insert indicates an expected call of Insert.
+func (mr *MockCertificateVerificationSetMockRecorder) Insert(certificateVerification ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Insert), certificateVerification...)
+}
+
+// Intersection mocks base method.
+func (m *MockCertificateVerificationSet) Intersection(set v1beta1sets.CertificateVerificationSet) v1beta1sets.CertificateVerificationSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Intersection", set)
+	ret0, _ := ret[0].(v1beta1sets.CertificateVerificationSet)
+	return ret0
+}
+
+// Intersection indicates an expected call of Intersection.
+func (mr *MockCertificateVerificationSetMockRecorder) Intersection(set interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Intersection", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Intersection), set)
+}
+
+// Keys mocks base method.
+func (m *MockCertificateVerificationSet) Keys() sets0.String {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Keys")
+	ret0, _ := ret[0].(sets0.String)
+	return ret0
+}
+
+// Keys indicates an expected call of Keys.
+func (mr *MockCertificateVerificationSetMockRecorder) Keys() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Keys", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Keys))
+}
+
+// Length mocks base method.
+func (m *MockCertificateVerificationSet) Length() int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Length")
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// Length indicates an expected call of Length.
+func (mr *MockCertificateVerificationSetMockRecorder) Length() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Length", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Length))
+}
+
+// List mocks base method.
+func (m *MockCertificateVerificationSet) List(filterResource ...func(*v1beta1.CertificateVerification) bool) []*v1beta1.CertificateVerification {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range filterResource {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "List", varargs...)
+	ret0, _ := ret[0].([]*v1beta1.CertificateVerification)
+	return ret0
+}
+
+// List indicates an expected call of List.
+func (mr *MockCertificateVerificationSetMockRecorder) List(filterResource ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockCertificateVerificationSet)(nil).List), filterResource...)
+}
+
+// Map mocks base method.
+func (m *MockCertificateVerificationSet) Map() map[string]*v1beta1.CertificateVerification {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Map")
+	ret0, _ := ret[0].(map[string]*v1beta1.CertificateVerification)
+	return ret0
+}
+
+// Map indicates an expected call of Map.
+func (mr *MockCertificateVerificationSetMockRecorder) Map() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Map", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Map))
+}
+
+// Union mocks base method.
+func (m *MockCertificateVerificationSet) Union(set v1beta1sets.CertificateVerificationSet) v1beta1sets.CertificateVerificationSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Union", set)
+	ret0, _ := ret[0].(v1beta1sets.CertificateVerificationSet)
+	return ret0
+}
+
+// Union indicates an expected call of Union.
+func (mr *MockCertificateVerificationSetMockRecorder) Union(set interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Union", reflect.TypeOf((*MockCertificateVerificationSet)(nil).Union), set)
+}
+
+// UnsortedList mocks base method.
+func (m *MockCertificateVerificationSet) UnsortedList(filterResource ...func(*v1beta1.CertificateVerification) bool) []*v1beta1.CertificateVerification {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range filterResource {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UnsortedList", varargs...)
+	ret0, _ := ret[0].([]*v1beta1.CertificateVerification)
+	return ret0
+}
+
+// UnsortedList indicates an expected call of UnsortedList.
+func (mr *MockCertificateVerificationSetMockRecorder) UnsortedList(filterResource ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsortedList", reflect.TypeOf((*MockCertificateVerificationSet)(nil).UnsortedList), filterResource...)
+}

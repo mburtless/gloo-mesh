@@ -89,6 +89,7 @@ Describes a service mesh control plane deployment.
   | consulConnect | [discovery.mesh.gloo.solo.io.MeshSpec.ConsulConnectMesh]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.discovery.v1.mesh#discovery.mesh.gloo.solo.io.MeshSpec.ConsulConnectMesh" >}}) |  | Describes a [Consul Connect](https://www.consul.io/docs/connect) service mesh. |
   | osm | [discovery.mesh.gloo.solo.io.MeshSpec.OSM]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.discovery.v1.mesh#discovery.mesh.gloo.solo.io.MeshSpec.OSM" >}}) |  | Describes an [Open Service Mesh](https://openservicemesh.io/) service mesh. |
   | agentInfo | [discovery.mesh.gloo.solo.io.MeshSpec.AgentInfo]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.discovery.v1.mesh#discovery.mesh.gloo.solo.io.MeshSpec.AgentInfo" >}}) |  | Describes the Gloo Mesh agent if it has been installed to the managed cluster. |
+  | issuedCertificateStatus | [certificates.mesh.gloo.solo.io.IssuedCertificateStatus]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.certificates.v1.issued_certificate#certificates.mesh.gloo.solo.io.IssuedCertificateStatus" >}}) |  |  |
   
 
 

@@ -1545,3 +1545,222 @@ func (s *serviceDependencySet) Clone() ServiceDependencySet {
 	}
 	return &serviceDependencySet{set: sksets.NewResourceSet(s.Generic().Clone().List()...)}
 }
+
+type CertificateVerificationSet interface {
+	// Get the set stored keys
+	Keys() sets.String
+	// List of resources stored in the set. Pass an optional filter function to filter on the list.
+	List(filterResource ...func(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) bool) []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification
+	// Unsorted list of resources stored in the set. Pass an optional filter function to filter on the list.
+	UnsortedList(filterResource ...func(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) bool) []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification
+	// Return the Set as a map of key to resource.
+	Map() map[string]*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification
+	// Insert a resource into the set.
+	Insert(certificateVerification ...*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	// Compare the equality of the keys in two sets (not the resources themselves)
+	Equal(certificateVerificationSet CertificateVerificationSet) bool
+	// Check if the set contains a key matching the resource (not the resource itself)
+	Has(certificateVerification ezkube.ResourceId) bool
+	// Delete the key matching the resource
+	Delete(certificateVerification ezkube.ResourceId)
+	// Return the union with the provided set
+	Union(set CertificateVerificationSet) CertificateVerificationSet
+	// Return the difference with the provided set
+	Difference(set CertificateVerificationSet) CertificateVerificationSet
+	// Return the intersection with the provided set
+	Intersection(set CertificateVerificationSet) CertificateVerificationSet
+	// Find the resource with the given ID
+	Find(id ezkube.ResourceId) (*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification, error)
+	// Get the length of the set
+	Length() int
+	// returns the generic implementation of the set
+	Generic() sksets.ResourceSet
+	// returns the delta between this and and another CertificateVerificationSet
+	Delta(newSet CertificateVerificationSet) sksets.ResourceDelta
+	// Create a deep copy of the current CertificateVerificationSet
+	Clone() CertificateVerificationSet
+}
+
+func makeGenericCertificateVerificationSet(certificateVerificationList []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) sksets.ResourceSet {
+	var genericResources []ezkube.ResourceId
+	for _, obj := range certificateVerificationList {
+		genericResources = append(genericResources, obj)
+	}
+	return sksets.NewResourceSet(genericResources...)
+}
+
+type certificateVerificationSet struct {
+	set sksets.ResourceSet
+}
+
+func NewCertificateVerificationSet(certificateVerificationList ...*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) CertificateVerificationSet {
+	return &certificateVerificationSet{set: makeGenericCertificateVerificationSet(certificateVerificationList)}
+}
+
+func NewCertificateVerificationSetFromList(certificateVerificationList *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerificationList) CertificateVerificationSet {
+	list := make([]*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification, 0, len(certificateVerificationList.Items))
+	for idx := range certificateVerificationList.Items {
+		list = append(list, &certificateVerificationList.Items[idx])
+	}
+	return &certificateVerificationSet{set: makeGenericCertificateVerificationSet(list)}
+}
+
+func (s *certificateVerificationSet) Keys() sets.String {
+	if s == nil {
+		return sets.String{}
+	}
+	return s.Generic().Keys()
+}
+
+func (s *certificateVerificationSet) List(filterResource ...func(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) bool) []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification {
+	if s == nil {
+		return nil
+	}
+	var genericFilters []func(ezkube.ResourceId) bool
+	for _, filter := range filterResource {
+		genericFilters = append(genericFilters, func(obj ezkube.ResourceId) bool {
+			return filter(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification))
+		})
+	}
+
+	objs := s.Generic().List(genericFilters...)
+	certificateVerificationList := make([]*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification, 0, len(objs))
+	for _, obj := range objs {
+		certificateVerificationList = append(certificateVerificationList, obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification))
+	}
+	return certificateVerificationList
+}
+
+func (s *certificateVerificationSet) UnsortedList(filterResource ...func(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) bool) []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification {
+	if s == nil {
+		return nil
+	}
+	var genericFilters []func(ezkube.ResourceId) bool
+	for _, filter := range filterResource {
+		genericFilters = append(genericFilters, func(obj ezkube.ResourceId) bool {
+			return filter(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification))
+		})
+	}
+
+	var certificateVerificationList []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification
+	for _, obj := range s.Generic().UnsortedList(genericFilters...) {
+		certificateVerificationList = append(certificateVerificationList, obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification))
+	}
+	return certificateVerificationList
+}
+
+func (s *certificateVerificationSet) Map() map[string]*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification {
+	if s == nil {
+		return nil
+	}
+
+	newMap := map[string]*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification{}
+	for k, v := range s.Generic().Map() {
+		newMap[k] = v.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	}
+	return newMap
+}
+
+func (s *certificateVerificationSet) Insert(
+	certificateVerificationList ...*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification,
+) {
+	if s == nil {
+		panic("cannot insert into nil set")
+	}
+
+	for _, obj := range certificateVerificationList {
+		s.Generic().Insert(obj)
+	}
+}
+
+func (s *certificateVerificationSet) Has(certificateVerification ezkube.ResourceId) bool {
+	if s == nil {
+		return false
+	}
+	return s.Generic().Has(certificateVerification)
+}
+
+func (s *certificateVerificationSet) Equal(
+	certificateVerificationSet CertificateVerificationSet,
+) bool {
+	if s == nil {
+		return certificateVerificationSet == nil
+	}
+	return s.Generic().Equal(certificateVerificationSet.Generic())
+}
+
+func (s *certificateVerificationSet) Delete(CertificateVerification ezkube.ResourceId) {
+	if s == nil {
+		return
+	}
+	s.Generic().Delete(CertificateVerification)
+}
+
+func (s *certificateVerificationSet) Union(set CertificateVerificationSet) CertificateVerificationSet {
+	if s == nil {
+		return set
+	}
+	return NewCertificateVerificationSet(append(s.List(), set.List()...)...)
+}
+
+func (s *certificateVerificationSet) Difference(set CertificateVerificationSet) CertificateVerificationSet {
+	if s == nil {
+		return set
+	}
+	newSet := s.Generic().Difference(set.Generic())
+	return &certificateVerificationSet{set: newSet}
+}
+
+func (s *certificateVerificationSet) Intersection(set CertificateVerificationSet) CertificateVerificationSet {
+	if s == nil {
+		return nil
+	}
+	newSet := s.Generic().Intersection(set.Generic())
+	var certificateVerificationList []*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification
+	for _, obj := range newSet.List() {
+		certificateVerificationList = append(certificateVerificationList, obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification))
+	}
+	return NewCertificateVerificationSet(certificateVerificationList...)
+}
+
+func (s *certificateVerificationSet) Find(id ezkube.ResourceId) (*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification, error) {
+	if s == nil {
+		return nil, eris.Errorf("empty set, cannot find CertificateVerification %v", sksets.Key(id))
+	}
+	obj, err := s.Generic().Find(&networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification{}, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification), nil
+}
+
+func (s *certificateVerificationSet) Length() int {
+	if s == nil {
+		return 0
+	}
+	return s.Generic().Length()
+}
+
+func (s *certificateVerificationSet) Generic() sksets.ResourceSet {
+	if s == nil {
+		return nil
+	}
+	return s.set
+}
+
+func (s *certificateVerificationSet) Delta(newSet CertificateVerificationSet) sksets.ResourceDelta {
+	if s == nil {
+		return sksets.ResourceDelta{
+			Inserted: newSet.Generic(),
+		}
+	}
+	return s.Generic().Delta(newSet.Generic())
+}
+
+func (s *certificateVerificationSet) Clone() CertificateVerificationSet {
+	if s == nil {
+		return nil
+	}
+	return &certificateVerificationSet{set: sksets.NewResourceSet(s.Generic().Clone().List()...)}
+}

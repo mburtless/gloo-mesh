@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/rotisserie/eris"
 	corev1sets "github.com/solo-io/external-apis/pkg/api/k8s/core/v1/sets"
@@ -141,6 +143,12 @@ func (d *meshDetector) detectMesh(
 			},
 			AgentInfo: agent,
 		},
+	}
+
+	objMeta := mtls.BuildMeshResourceObjectMeta(mesh)
+	// If an issuedCert exists for this mesh, persist the status
+	if issuedCert, err := in.IssuedCertificates().Find(&objMeta); err == nil {
+		mesh.Spec.IssuedCertificateStatus = &issuedCert.Status
 	}
 
 	return mesh, nil

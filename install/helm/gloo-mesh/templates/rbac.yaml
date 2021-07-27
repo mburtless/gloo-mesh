@@ -117,6 +117,7 @@ rules:
 - apiGroups:
   - networking.enterprise.mesh.gloo.solo.io
   resources:
+  - certificateverifications
   - wasmdeployments
   - ratelimiterserverconfigs
   - virtualdestinations
@@ -180,6 +181,7 @@ rules:
 - apiGroups:
   - networking.enterprise.mesh.gloo.solo.io
   resources:
+  - certificateverifications/status
   - wasmdeployments/status
   - ratelimiterserverconfigs/status
   - virtualdestinations/status

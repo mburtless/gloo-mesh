@@ -860,3 +860,124 @@ func (mr *MockServiceDependencyEventWatcherMockRecorder) AddEventHandler(ctx, h 
 	varargs := append([]interface{}{ctx, h}, predicates...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddEventHandler", reflect.TypeOf((*MockServiceDependencyEventWatcher)(nil).AddEventHandler), varargs...)
 }
+
+// MockCertificateVerificationEventHandler is a mock of CertificateVerificationEventHandler interface.
+type MockCertificateVerificationEventHandler struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationEventHandlerMockRecorder
+}
+
+// MockCertificateVerificationEventHandlerMockRecorder is the mock recorder for MockCertificateVerificationEventHandler.
+type MockCertificateVerificationEventHandlerMockRecorder struct {
+	mock *MockCertificateVerificationEventHandler
+}
+
+// NewMockCertificateVerificationEventHandler creates a new mock instance.
+func NewMockCertificateVerificationEventHandler(ctrl *gomock.Controller) *MockCertificateVerificationEventHandler {
+	mock := &MockCertificateVerificationEventHandler{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationEventHandlerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationEventHandler) EXPECT() *MockCertificateVerificationEventHandlerMockRecorder {
+	return m.recorder
+}
+
+// CreateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationEventHandler) CreateCertificateVerification(obj *v1beta1.CertificateVerification) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCertificateVerification", obj)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCertificateVerification indicates an expected call of CreateCertificateVerification.
+func (mr *MockCertificateVerificationEventHandlerMockRecorder) CreateCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationEventHandler)(nil).CreateCertificateVerification), obj)
+}
+
+// DeleteCertificateVerification mocks base method.
+func (m *MockCertificateVerificationEventHandler) DeleteCertificateVerification(obj *v1beta1.CertificateVerification) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCertificateVerification", obj)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCertificateVerification indicates an expected call of DeleteCertificateVerification.
+func (mr *MockCertificateVerificationEventHandlerMockRecorder) DeleteCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCertificateVerification", reflect.TypeOf((*MockCertificateVerificationEventHandler)(nil).DeleteCertificateVerification), obj)
+}
+
+// GenericCertificateVerification mocks base method.
+func (m *MockCertificateVerificationEventHandler) GenericCertificateVerification(obj *v1beta1.CertificateVerification) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenericCertificateVerification", obj)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GenericCertificateVerification indicates an expected call of GenericCertificateVerification.
+func (mr *MockCertificateVerificationEventHandlerMockRecorder) GenericCertificateVerification(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenericCertificateVerification", reflect.TypeOf((*MockCertificateVerificationEventHandler)(nil).GenericCertificateVerification), obj)
+}
+
+// UpdateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationEventHandler) UpdateCertificateVerification(old, new *v1beta1.CertificateVerification) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCertificateVerification", old, new)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCertificateVerification indicates an expected call of UpdateCertificateVerification.
+func (mr *MockCertificateVerificationEventHandlerMockRecorder) UpdateCertificateVerification(old, new interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationEventHandler)(nil).UpdateCertificateVerification), old, new)
+}
+
+// MockCertificateVerificationEventWatcher is a mock of CertificateVerificationEventWatcher interface.
+type MockCertificateVerificationEventWatcher struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationEventWatcherMockRecorder
+}
+
+// MockCertificateVerificationEventWatcherMockRecorder is the mock recorder for MockCertificateVerificationEventWatcher.
+type MockCertificateVerificationEventWatcherMockRecorder struct {
+	mock *MockCertificateVerificationEventWatcher
+}
+
+// NewMockCertificateVerificationEventWatcher creates a new mock instance.
+func NewMockCertificateVerificationEventWatcher(ctrl *gomock.Controller) *MockCertificateVerificationEventWatcher {
+	mock := &MockCertificateVerificationEventWatcher{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationEventWatcherMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationEventWatcher) EXPECT() *MockCertificateVerificationEventWatcherMockRecorder {
+	return m.recorder
+}
+
+// AddEventHandler mocks base method.
+func (m *MockCertificateVerificationEventWatcher) AddEventHandler(ctx context.Context, h controller.CertificateVerificationEventHandler, predicates ...predicate.Predicate) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, h}
+	for _, a := range predicates {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AddEventHandler", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddEventHandler indicates an expected call of AddEventHandler.
+func (mr *MockCertificateVerificationEventWatcherMockRecorder) AddEventHandler(ctx, h interface{}, predicates ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, h}, predicates...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddEventHandler", reflect.TypeOf((*MockCertificateVerificationEventWatcher)(nil).AddEventHandler), varargs...)
+}

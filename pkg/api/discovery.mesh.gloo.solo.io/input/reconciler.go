@@ -15,6 +15,8 @@ import (
 	appmesh_k8s_aws_v1beta2_controllers "github.com/solo-io/external-apis/pkg/api/appmesh/appmesh.k8s.aws/v1beta2/controller"
 	apps_v1_controllers "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1/controller"
 	v1_controllers "github.com/solo-io/external-apis/pkg/api/k8s/core/v1/controller"
+	certificates_mesh_gloo_solo_io_v1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	certificates_mesh_gloo_solo_io_v1_controllers "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1/controller"
 	settings_mesh_gloo_solo_io_v1 "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1"
 	settings_mesh_gloo_solo_io_v1_controllers "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1/controller"
 	apps_v1 "k8s.io/api/apps/v1"
@@ -25,6 +27,7 @@ import (
 
 // The Input Reconciler calls a simple func(id) error whenever a
 // storage event is received for any of:
+// * IssuedCertificates
 // * Meshes
 // * ConfigMaps
 // * Services
@@ -58,7 +61,7 @@ func RegisterInputReconciler(
 	singleClusterReconcileFunc input.SingleClusterReconcileFunc,
 	options ReconcileOptions,
 ) (input.InputReconciler, error) {
-	// [appmesh.k8s.aws/v1beta2 v1 apps/v1] false 3
+	// [certificates.mesh.gloo.solo.io/v1 appmesh.k8s.aws/v1beta2 v1 apps/v1] false 4
 	// [settings.mesh.gloo.solo.io/v1]
 
 	base := input.NewInputReconciler(
@@ -69,6 +72,9 @@ func RegisterInputReconciler(
 	)
 
 	// initialize reconcile loops
+
+	// initialize IssuedCertificates reconcile loop for remote clusters
+	certificates_mesh_gloo_solo_io_v1_controllers.NewMulticlusterIssuedCertificateReconcileLoop("IssuedCertificate", clusters, options.Remote.IssuedCertificates).AddMulticlusterIssuedCertificateReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
 
 	// initialize Meshes reconcile loop for remote clusters
 	appmesh_k8s_aws_v1beta2_controllers.NewMulticlusterMeshReconcileLoop("Mesh", clusters, options.Remote.Meshes).AddMulticlusterMeshReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
@@ -104,6 +110,9 @@ func RegisterInputReconciler(
 // Options for reconciling a snapshot in remote clusters
 type RemoteReconcileOptions struct {
 
+	// Options for reconciling IssuedCertificates
+	IssuedCertificates reconcile.Options
+
 	// Options for reconciling Meshes
 	Meshes reconcile.Options
 
@@ -133,6 +142,21 @@ type RemoteReconcileOptions struct {
 
 type remoteInputReconciler struct {
 	base input.InputReconciler
+}
+
+func (r *remoteInputReconciler) ReconcileIssuedCertificate(clusterName string, obj *certificates_mesh_gloo_solo_io_v1.IssuedCertificate) (reconcile.Result, error) {
+	obj.ClusterName = clusterName
+	return r.base.ReconcileRemoteGeneric(obj)
+}
+
+func (r *remoteInputReconciler) ReconcileIssuedCertificateDeletion(clusterName string, obj reconcile.Request) error {
+	ref := &sk_core_v1.ClusterObjectRef{
+		Name:        obj.Name,
+		Namespace:   obj.Namespace,
+		ClusterName: clusterName,
+	}
+	_, err := r.base.ReconcileRemoteGeneric(ref)
+	return err
 }
 
 func (r *remoteInputReconciler) ReconcileMesh(clusterName string, obj *appmesh_k8s_aws_v1beta2.Mesh) (reconcile.Result, error) {

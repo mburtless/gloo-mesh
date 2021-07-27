@@ -53,6 +53,8 @@ type Clientset interface {
 	RouteTables() RouteTableClient
 	// clienset for the networking.enterprise.mesh.gloo.solo.io/v1beta1/v1beta1 APIs
 	ServiceDependencies() ServiceDependencyClient
+	// clienset for the networking.enterprise.mesh.gloo.solo.io/v1beta1/v1beta1 APIs
+	CertificateVerifications() CertificateVerificationClient
 }
 
 type clientSet struct {
@@ -110,6 +112,11 @@ func (c *clientSet) RouteTables() RouteTableClient {
 // clienset for the networking.enterprise.mesh.gloo.solo.io/v1beta1/v1beta1 APIs
 func (c *clientSet) ServiceDependencies() ServiceDependencyClient {
 	return NewServiceDependencyClient(c.client)
+}
+
+// clienset for the networking.enterprise.mesh.gloo.solo.io/v1beta1/v1beta1 APIs
+func (c *clientSet) CertificateVerifications() CertificateVerificationClient {
+	return NewCertificateVerificationClient(c.client)
 }
 
 // Reader knows how to read and list WasmDeployments.
@@ -1104,4 +1111,146 @@ func (m *multiclusterServiceDependencyClient) Cluster(cluster string) (ServiceDe
 		return nil, err
 	}
 	return NewServiceDependencyClient(client), nil
+}
+
+// Reader knows how to read and list CertificateVerifications.
+type CertificateVerificationReader interface {
+	// Get retrieves a CertificateVerification for the given object key
+	GetCertificateVerification(ctx context.Context, key client.ObjectKey) (*CertificateVerification, error)
+
+	// List retrieves list of CertificateVerifications for a given namespace and list options.
+	ListCertificateVerification(ctx context.Context, opts ...client.ListOption) (*CertificateVerificationList, error)
+}
+
+// CertificateVerificationTransitionFunction instructs the CertificateVerificationWriter how to transition between an existing
+// CertificateVerification object and a desired on an Upsert
+type CertificateVerificationTransitionFunction func(existing, desired *CertificateVerification) error
+
+// Writer knows how to create, delete, and update CertificateVerifications.
+type CertificateVerificationWriter interface {
+	// Create saves the CertificateVerification object.
+	CreateCertificateVerification(ctx context.Context, obj *CertificateVerification, opts ...client.CreateOption) error
+
+	// Delete deletes the CertificateVerification object.
+	DeleteCertificateVerification(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error
+
+	// Update updates the given CertificateVerification object.
+	UpdateCertificateVerification(ctx context.Context, obj *CertificateVerification, opts ...client.UpdateOption) error
+
+	// Patch patches the given CertificateVerification object.
+	PatchCertificateVerification(ctx context.Context, obj *CertificateVerification, patch client.Patch, opts ...client.PatchOption) error
+
+	// DeleteAllOf deletes all CertificateVerification objects matching the given options.
+	DeleteAllOfCertificateVerification(ctx context.Context, opts ...client.DeleteAllOfOption) error
+
+	// Create or Update the CertificateVerification object.
+	UpsertCertificateVerification(ctx context.Context, obj *CertificateVerification, transitionFuncs ...CertificateVerificationTransitionFunction) error
+}
+
+// StatusWriter knows how to update status subresource of a CertificateVerification object.
+type CertificateVerificationStatusWriter interface {
+	// Update updates the fields corresponding to the status subresource for the
+	// given CertificateVerification object.
+	UpdateCertificateVerificationStatus(ctx context.Context, obj *CertificateVerification, opts ...client.UpdateOption) error
+
+	// Patch patches the given CertificateVerification object's subresource.
+	PatchCertificateVerificationStatus(ctx context.Context, obj *CertificateVerification, patch client.Patch, opts ...client.PatchOption) error
+}
+
+// Client knows how to perform CRUD operations on CertificateVerifications.
+type CertificateVerificationClient interface {
+	CertificateVerificationReader
+	CertificateVerificationWriter
+	CertificateVerificationStatusWriter
+}
+
+type certificateVerificationClient struct {
+	client client.Client
+}
+
+func NewCertificateVerificationClient(client client.Client) *certificateVerificationClient {
+	return &certificateVerificationClient{client: client}
+}
+
+func (c *certificateVerificationClient) GetCertificateVerification(ctx context.Context, key client.ObjectKey) (*CertificateVerification, error) {
+	obj := &CertificateVerification{}
+	if err := c.client.Get(ctx, key, obj); err != nil {
+		return nil, err
+	}
+	return obj, nil
+}
+
+func (c *certificateVerificationClient) ListCertificateVerification(ctx context.Context, opts ...client.ListOption) (*CertificateVerificationList, error) {
+	list := &CertificateVerificationList{}
+	if err := c.client.List(ctx, list, opts...); err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
+func (c *certificateVerificationClient) CreateCertificateVerification(ctx context.Context, obj *CertificateVerification, opts ...client.CreateOption) error {
+	return c.client.Create(ctx, obj, opts...)
+}
+
+func (c *certificateVerificationClient) DeleteCertificateVerification(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+	obj := &CertificateVerification{}
+	obj.SetName(key.Name)
+	obj.SetNamespace(key.Namespace)
+	return c.client.Delete(ctx, obj, opts...)
+}
+
+func (c *certificateVerificationClient) UpdateCertificateVerification(ctx context.Context, obj *CertificateVerification, opts ...client.UpdateOption) error {
+	return c.client.Update(ctx, obj, opts...)
+}
+
+func (c *certificateVerificationClient) PatchCertificateVerification(ctx context.Context, obj *CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	return c.client.Patch(ctx, obj, patch, opts...)
+}
+
+func (c *certificateVerificationClient) DeleteAllOfCertificateVerification(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+	obj := &CertificateVerification{}
+	return c.client.DeleteAllOf(ctx, obj, opts...)
+}
+
+func (c *certificateVerificationClient) UpsertCertificateVerification(ctx context.Context, obj *CertificateVerification, transitionFuncs ...CertificateVerificationTransitionFunction) error {
+	genericTxFunc := func(existing, desired runtime.Object) error {
+		for _, txFunc := range transitionFuncs {
+			if err := txFunc(existing.(*CertificateVerification), desired.(*CertificateVerification)); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	_, err := controllerutils.Upsert(ctx, c.client, obj, genericTxFunc)
+	return err
+}
+
+func (c *certificateVerificationClient) UpdateCertificateVerificationStatus(ctx context.Context, obj *CertificateVerification, opts ...client.UpdateOption) error {
+	return c.client.Status().Update(ctx, obj, opts...)
+}
+
+func (c *certificateVerificationClient) PatchCertificateVerificationStatus(ctx context.Context, obj *CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	return c.client.Status().Patch(ctx, obj, patch, opts...)
+}
+
+// Provides CertificateVerificationClients for multiple clusters.
+type MulticlusterCertificateVerificationClient interface {
+	// Cluster returns a CertificateVerificationClient for the given cluster
+	Cluster(cluster string) (CertificateVerificationClient, error)
+}
+
+type multiclusterCertificateVerificationClient struct {
+	client multicluster.Client
+}
+
+func NewMulticlusterCertificateVerificationClient(client multicluster.Client) MulticlusterCertificateVerificationClient {
+	return &multiclusterCertificateVerificationClient{client: client}
+}
+
+func (m *multiclusterCertificateVerificationClient) Cluster(cluster string) (CertificateVerificationClient, error) {
+	client, err := m.client.Cluster(cluster)
+	if err != nil {
+		return nil, err
+	}
+	return NewCertificateVerificationClient(client), nil
 }

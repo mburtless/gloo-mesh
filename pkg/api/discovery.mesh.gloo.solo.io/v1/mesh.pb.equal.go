@@ -56,6 +56,16 @@ func (m *MeshSpec) Equal(that interface{}) bool {
 		}
 	}
 
+	if h, ok := interface{}(m.GetIssuedCertificateStatus()).(equality.Equalizer); ok {
+		if !h.Equal(target.GetIssuedCertificateStatus()) {
+			return false
+		}
+	} else {
+		if !proto.Equal(m.GetIssuedCertificateStatus(), target.GetIssuedCertificateStatus()) {
+			return false
+		}
+	}
+
 	switch m.Type.(type) {
 
 	case *MeshSpec_Istio_:

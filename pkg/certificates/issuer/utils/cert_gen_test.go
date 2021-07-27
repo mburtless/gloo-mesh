@@ -1,6 +1,7 @@
 package utils_test
 
 import (
+	"context"
 	"crypto/x509"
 	"encoding/pem"
 	"time"
@@ -27,6 +28,7 @@ var _ = Describe("CertGen workflow", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		inetermediaryCert, err := GenCertForCSR(
+			context.Background(),
 			hosts,
 			csr,
 			signingRoot,

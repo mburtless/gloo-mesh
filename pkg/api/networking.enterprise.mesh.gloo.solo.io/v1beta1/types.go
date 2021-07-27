@@ -253,6 +253,41 @@ type ServiceDependencyList struct {
 	Items           []ServiceDependency `json:"items"`
 }
 
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
+// +kubebuilder:subresource:status
+
+// GroupVersionKind for CertificateVerification
+var CertificateVerificationGVK = schema.GroupVersionKind{
+	Group:   "networking.enterprise.mesh.gloo.solo.io",
+	Version: "v1beta1",
+	Kind:    "CertificateVerification",
+}
+
+// CertificateVerification is the Schema for the certificateVerification API
+type CertificateVerification struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   CertificateVerificationSpec   `json:"spec,omitempty"`
+	Status CertificateVerificationStatus `json:"status,omitempty"`
+}
+
+// GVK returns the GroupVersionKind associated with the resource type.
+func (CertificateVerification) GVK() schema.GroupVersionKind {
+	return CertificateVerificationGVK
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// CertificateVerificationList contains a list of CertificateVerification
+type CertificateVerificationList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []CertificateVerification `json:"items"`
+}
+
 func init() {
 	SchemeBuilder.Register(&WasmDeployment{}, &WasmDeploymentList{})
 	SchemeBuilder.Register(&RateLimiterServerConfig{}, &RateLimiterServerConfigList{})
@@ -261,4 +296,5 @@ func init() {
 	SchemeBuilder.Register(&VirtualHost{}, &VirtualHostList{})
 	SchemeBuilder.Register(&RouteTable{}, &RouteTableList{})
 	SchemeBuilder.Register(&ServiceDependency{}, &ServiceDependencyList{})
+	SchemeBuilder.Register(&CertificateVerification{}, &CertificateVerificationList{})
 }

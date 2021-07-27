@@ -74,6 +74,20 @@ func (mr *MockLocalSnapshotMockRecorder) AccessPolicies() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccessPolicies", reflect.TypeOf((*MockLocalSnapshot)(nil).AccessPolicies))
 }
 
+// CertificateVerifications mocks base method.
+func (m *MockLocalSnapshot) CertificateVerifications() v1beta1sets.CertificateVerificationSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CertificateVerifications")
+	ret0, _ := ret[0].(v1beta1sets.CertificateVerificationSet)
+	return ret0
+}
+
+// CertificateVerifications indicates an expected call of CertificateVerifications.
+func (mr *MockLocalSnapshotMockRecorder) CertificateVerifications() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CertificateVerifications", reflect.TypeOf((*MockLocalSnapshot)(nil).CertificateVerifications))
+}
+
 // Clone mocks base method.
 func (m *MockLocalSnapshot) Clone() input.LocalSnapshot {
 	m.ctrl.T.Helper()

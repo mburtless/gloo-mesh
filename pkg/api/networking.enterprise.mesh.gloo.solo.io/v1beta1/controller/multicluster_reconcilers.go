@@ -514,3 +514,74 @@ func (g genericServiceDependencyMulticlusterReconciler) Reconcile(cluster string
 	}
 	return g.reconciler.ReconcileServiceDependency(cluster, obj)
 }
+
+// Reconcile Upsert events for the CertificateVerification Resource across clusters.
+// implemented by the user
+type MulticlusterCertificateVerificationReconciler interface {
+	ReconcileCertificateVerification(clusterName string, obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error)
+}
+
+// Reconcile deletion events for the CertificateVerification Resource across clusters.
+// Deletion receives a reconcile.Request as we cannot guarantee the last state of the object
+// before being deleted.
+// implemented by the user
+type MulticlusterCertificateVerificationDeletionReconciler interface {
+	ReconcileCertificateVerificationDeletion(clusterName string, req reconcile.Request) error
+}
+
+type MulticlusterCertificateVerificationReconcilerFuncs struct {
+	OnReconcileCertificateVerification         func(clusterName string, obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error)
+	OnReconcileCertificateVerificationDeletion func(clusterName string, req reconcile.Request) error
+}
+
+func (f *MulticlusterCertificateVerificationReconcilerFuncs) ReconcileCertificateVerification(clusterName string, obj *networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification) (reconcile.Result, error) {
+	if f.OnReconcileCertificateVerification == nil {
+		return reconcile.Result{}, nil
+	}
+	return f.OnReconcileCertificateVerification(clusterName, obj)
+}
+
+func (f *MulticlusterCertificateVerificationReconcilerFuncs) ReconcileCertificateVerificationDeletion(clusterName string, req reconcile.Request) error {
+	if f.OnReconcileCertificateVerificationDeletion == nil {
+		return nil
+	}
+	return f.OnReconcileCertificateVerificationDeletion(clusterName, req)
+}
+
+type MulticlusterCertificateVerificationReconcileLoop interface {
+	// AddMulticlusterCertificateVerificationReconciler adds a MulticlusterCertificateVerificationReconciler to the MulticlusterCertificateVerificationReconcileLoop.
+	AddMulticlusterCertificateVerificationReconciler(ctx context.Context, rec MulticlusterCertificateVerificationReconciler, predicates ...predicate.Predicate)
+}
+
+type multiclusterCertificateVerificationReconcileLoop struct {
+	loop multicluster.Loop
+}
+
+func (m *multiclusterCertificateVerificationReconcileLoop) AddMulticlusterCertificateVerificationReconciler(ctx context.Context, rec MulticlusterCertificateVerificationReconciler, predicates ...predicate.Predicate) {
+	genericReconciler := genericCertificateVerificationMulticlusterReconciler{reconciler: rec}
+
+	m.loop.AddReconciler(ctx, genericReconciler, predicates...)
+}
+
+func NewMulticlusterCertificateVerificationReconcileLoop(name string, cw multicluster.ClusterWatcher, options reconcile.Options) MulticlusterCertificateVerificationReconcileLoop {
+	return &multiclusterCertificateVerificationReconcileLoop{loop: mc_reconcile.NewLoop(name, cw, &networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification{}, options)}
+}
+
+type genericCertificateVerificationMulticlusterReconciler struct {
+	reconciler MulticlusterCertificateVerificationReconciler
+}
+
+func (g genericCertificateVerificationMulticlusterReconciler) ReconcileDeletion(cluster string, req reconcile.Request) error {
+	if deletionReconciler, ok := g.reconciler.(MulticlusterCertificateVerificationDeletionReconciler); ok {
+		return deletionReconciler.ReconcileCertificateVerificationDeletion(cluster, req)
+	}
+	return nil
+}
+
+func (g genericCertificateVerificationMulticlusterReconciler) Reconcile(cluster string, object ezkube.Object) (reconcile.Result, error) {
+	obj, ok := object.(*networking_enterprise_mesh_gloo_solo_io_v1beta1.CertificateVerification)
+	if !ok {
+		return reconcile.Result{}, errors.Errorf("internal error: CertificateVerification handler received event for %T", object)
+	}
+	return g.reconciler.ReconcileCertificateVerification(cluster, obj)
+}

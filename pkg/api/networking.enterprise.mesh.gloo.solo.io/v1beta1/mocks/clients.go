@@ -74,6 +74,20 @@ func (m *MockClientset) EXPECT() *MockClientsetMockRecorder {
 	return m.recorder
 }
 
+// CertificateVerifications mocks base method.
+func (m *MockClientset) CertificateVerifications() v1beta1.CertificateVerificationClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CertificateVerifications")
+	ret0, _ := ret[0].(v1beta1.CertificateVerificationClient)
+	return ret0
+}
+
+// CertificateVerifications indicates an expected call of CertificateVerifications.
+func (mr *MockClientsetMockRecorder) CertificateVerifications() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CertificateVerifications", reflect.TypeOf((*MockClientset)(nil).CertificateVerifications))
+}
+
 // RateLimiterServerConfigs mocks base method.
 func (m *MockClientset) RateLimiterServerConfigs() v1beta1.RateLimiterServerConfigClient {
 	m.ctrl.T.Helper()
@@ -3698,4 +3712,508 @@ func (m *MockMulticlusterServiceDependencyClient) Cluster(cluster string) (v1bet
 func (mr *MockMulticlusterServiceDependencyClientMockRecorder) Cluster(cluster interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterServiceDependencyClient)(nil).Cluster), cluster)
+}
+
+// MockCertificateVerificationReader is a mock of CertificateVerificationReader interface.
+type MockCertificateVerificationReader struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationReaderMockRecorder
+}
+
+// MockCertificateVerificationReaderMockRecorder is the mock recorder for MockCertificateVerificationReader.
+type MockCertificateVerificationReaderMockRecorder struct {
+	mock *MockCertificateVerificationReader
+}
+
+// NewMockCertificateVerificationReader creates a new mock instance.
+func NewMockCertificateVerificationReader(ctrl *gomock.Controller) *MockCertificateVerificationReader {
+	mock := &MockCertificateVerificationReader{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationReaderMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationReader) EXPECT() *MockCertificateVerificationReaderMockRecorder {
+	return m.recorder
+}
+
+// GetCertificateVerification mocks base method.
+func (m *MockCertificateVerificationReader) GetCertificateVerification(ctx context.Context, key client.ObjectKey) (*v1beta1.CertificateVerification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCertificateVerification", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.CertificateVerification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCertificateVerification indicates an expected call of GetCertificateVerification.
+func (mr *MockCertificateVerificationReaderMockRecorder) GetCertificateVerification(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCertificateVerification", reflect.TypeOf((*MockCertificateVerificationReader)(nil).GetCertificateVerification), ctx, key)
+}
+
+// ListCertificateVerification mocks base method.
+func (m *MockCertificateVerificationReader) ListCertificateVerification(ctx context.Context, opts ...client.ListOption) (*v1beta1.CertificateVerificationList, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListCertificateVerification", varargs...)
+	ret0, _ := ret[0].(*v1beta1.CertificateVerificationList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCertificateVerification indicates an expected call of ListCertificateVerification.
+func (mr *MockCertificateVerificationReaderMockRecorder) ListCertificateVerification(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCertificateVerification", reflect.TypeOf((*MockCertificateVerificationReader)(nil).ListCertificateVerification), varargs...)
+}
+
+// MockCertificateVerificationWriter is a mock of CertificateVerificationWriter interface.
+type MockCertificateVerificationWriter struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationWriterMockRecorder
+}
+
+// MockCertificateVerificationWriterMockRecorder is the mock recorder for MockCertificateVerificationWriter.
+type MockCertificateVerificationWriterMockRecorder struct {
+	mock *MockCertificateVerificationWriter
+}
+
+// NewMockCertificateVerificationWriter creates a new mock instance.
+func NewMockCertificateVerificationWriter(ctrl *gomock.Controller) *MockCertificateVerificationWriter {
+	mock := &MockCertificateVerificationWriter{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationWriterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationWriter) EXPECT() *MockCertificateVerificationWriterMockRecorder {
+	return m.recorder
+}
+
+// CreateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) CreateCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.CreateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCertificateVerification indicates an expected call of CreateCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) CreateCertificateVerification(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).CreateCertificateVerification), varargs...)
+}
+
+// DeleteAllOfCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) DeleteAllOfCertificateVerification(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteAllOfCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAllOfCertificateVerification indicates an expected call of DeleteAllOfCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) DeleteAllOfCertificateVerification(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).DeleteAllOfCertificateVerification), varargs...)
+}
+
+// DeleteCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) DeleteCertificateVerification(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCertificateVerification indicates an expected call of DeleteCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) DeleteCertificateVerification(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, key}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).DeleteCertificateVerification), varargs...)
+}
+
+// PatchCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) PatchCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchCertificateVerification indicates an expected call of PatchCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) PatchCertificateVerification(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).PatchCertificateVerification), varargs...)
+}
+
+// UpdateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) UpdateCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCertificateVerification indicates an expected call of UpdateCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) UpdateCertificateVerification(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).UpdateCertificateVerification), varargs...)
+}
+
+// UpsertCertificateVerification mocks base method.
+func (m *MockCertificateVerificationWriter) UpsertCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, transitionFuncs ...v1beta1.CertificateVerificationTransitionFunction) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range transitionFuncs {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpsertCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertCertificateVerification indicates an expected call of UpsertCertificateVerification.
+func (mr *MockCertificateVerificationWriterMockRecorder) UpsertCertificateVerification(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertCertificateVerification", reflect.TypeOf((*MockCertificateVerificationWriter)(nil).UpsertCertificateVerification), varargs...)
+}
+
+// MockCertificateVerificationStatusWriter is a mock of CertificateVerificationStatusWriter interface.
+type MockCertificateVerificationStatusWriter struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationStatusWriterMockRecorder
+}
+
+// MockCertificateVerificationStatusWriterMockRecorder is the mock recorder for MockCertificateVerificationStatusWriter.
+type MockCertificateVerificationStatusWriterMockRecorder struct {
+	mock *MockCertificateVerificationStatusWriter
+}
+
+// NewMockCertificateVerificationStatusWriter creates a new mock instance.
+func NewMockCertificateVerificationStatusWriter(ctrl *gomock.Controller) *MockCertificateVerificationStatusWriter {
+	mock := &MockCertificateVerificationStatusWriter{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationStatusWriterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationStatusWriter) EXPECT() *MockCertificateVerificationStatusWriterMockRecorder {
+	return m.recorder
+}
+
+// PatchCertificateVerificationStatus mocks base method.
+func (m *MockCertificateVerificationStatusWriter) PatchCertificateVerificationStatus(ctx context.Context, obj *v1beta1.CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchCertificateVerificationStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchCertificateVerificationStatus indicates an expected call of PatchCertificateVerificationStatus.
+func (mr *MockCertificateVerificationStatusWriterMockRecorder) PatchCertificateVerificationStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchCertificateVerificationStatus", reflect.TypeOf((*MockCertificateVerificationStatusWriter)(nil).PatchCertificateVerificationStatus), varargs...)
+}
+
+// UpdateCertificateVerificationStatus mocks base method.
+func (m *MockCertificateVerificationStatusWriter) UpdateCertificateVerificationStatus(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCertificateVerificationStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCertificateVerificationStatus indicates an expected call of UpdateCertificateVerificationStatus.
+func (mr *MockCertificateVerificationStatusWriterMockRecorder) UpdateCertificateVerificationStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCertificateVerificationStatus", reflect.TypeOf((*MockCertificateVerificationStatusWriter)(nil).UpdateCertificateVerificationStatus), varargs...)
+}
+
+// MockCertificateVerificationClient is a mock of CertificateVerificationClient interface.
+type MockCertificateVerificationClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockCertificateVerificationClientMockRecorder
+}
+
+// MockCertificateVerificationClientMockRecorder is the mock recorder for MockCertificateVerificationClient.
+type MockCertificateVerificationClientMockRecorder struct {
+	mock *MockCertificateVerificationClient
+}
+
+// NewMockCertificateVerificationClient creates a new mock instance.
+func NewMockCertificateVerificationClient(ctrl *gomock.Controller) *MockCertificateVerificationClient {
+	mock := &MockCertificateVerificationClient{ctrl: ctrl}
+	mock.recorder = &MockCertificateVerificationClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCertificateVerificationClient) EXPECT() *MockCertificateVerificationClientMockRecorder {
+	return m.recorder
+}
+
+// CreateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) CreateCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.CreateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCertificateVerification indicates an expected call of CreateCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) CreateCertificateVerification(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).CreateCertificateVerification), varargs...)
+}
+
+// DeleteAllOfCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) DeleteAllOfCertificateVerification(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteAllOfCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAllOfCertificateVerification indicates an expected call of DeleteAllOfCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) DeleteAllOfCertificateVerification(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).DeleteAllOfCertificateVerification), varargs...)
+}
+
+// DeleteCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) DeleteCertificateVerification(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCertificateVerification indicates an expected call of DeleteCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) DeleteCertificateVerification(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, key}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).DeleteCertificateVerification), varargs...)
+}
+
+// GetCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) GetCertificateVerification(ctx context.Context, key client.ObjectKey) (*v1beta1.CertificateVerification, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCertificateVerification", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.CertificateVerification)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCertificateVerification indicates an expected call of GetCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) GetCertificateVerification(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).GetCertificateVerification), ctx, key)
+}
+
+// ListCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) ListCertificateVerification(ctx context.Context, opts ...client.ListOption) (*v1beta1.CertificateVerificationList, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListCertificateVerification", varargs...)
+	ret0, _ := ret[0].(*v1beta1.CertificateVerificationList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCertificateVerification indicates an expected call of ListCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) ListCertificateVerification(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).ListCertificateVerification), varargs...)
+}
+
+// PatchCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) PatchCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchCertificateVerification indicates an expected call of PatchCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) PatchCertificateVerification(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).PatchCertificateVerification), varargs...)
+}
+
+// PatchCertificateVerificationStatus mocks base method.
+func (m *MockCertificateVerificationClient) PatchCertificateVerificationStatus(ctx context.Context, obj *v1beta1.CertificateVerification, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchCertificateVerificationStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchCertificateVerificationStatus indicates an expected call of PatchCertificateVerificationStatus.
+func (mr *MockCertificateVerificationClientMockRecorder) PatchCertificateVerificationStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchCertificateVerificationStatus", reflect.TypeOf((*MockCertificateVerificationClient)(nil).PatchCertificateVerificationStatus), varargs...)
+}
+
+// UpdateCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) UpdateCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCertificateVerification indicates an expected call of UpdateCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) UpdateCertificateVerification(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).UpdateCertificateVerification), varargs...)
+}
+
+// UpdateCertificateVerificationStatus mocks base method.
+func (m *MockCertificateVerificationClient) UpdateCertificateVerificationStatus(ctx context.Context, obj *v1beta1.CertificateVerification, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateCertificateVerificationStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateCertificateVerificationStatus indicates an expected call of UpdateCertificateVerificationStatus.
+func (mr *MockCertificateVerificationClientMockRecorder) UpdateCertificateVerificationStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCertificateVerificationStatus", reflect.TypeOf((*MockCertificateVerificationClient)(nil).UpdateCertificateVerificationStatus), varargs...)
+}
+
+// UpsertCertificateVerification mocks base method.
+func (m *MockCertificateVerificationClient) UpsertCertificateVerification(ctx context.Context, obj *v1beta1.CertificateVerification, transitionFuncs ...v1beta1.CertificateVerificationTransitionFunction) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range transitionFuncs {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpsertCertificateVerification", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertCertificateVerification indicates an expected call of UpsertCertificateVerification.
+func (mr *MockCertificateVerificationClientMockRecorder) UpsertCertificateVerification(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertCertificateVerification", reflect.TypeOf((*MockCertificateVerificationClient)(nil).UpsertCertificateVerification), varargs...)
+}
+
+// MockMulticlusterCertificateVerificationClient is a mock of MulticlusterCertificateVerificationClient interface.
+type MockMulticlusterCertificateVerificationClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockMulticlusterCertificateVerificationClientMockRecorder
+}
+
+// MockMulticlusterCertificateVerificationClientMockRecorder is the mock recorder for MockMulticlusterCertificateVerificationClient.
+type MockMulticlusterCertificateVerificationClientMockRecorder struct {
+	mock *MockMulticlusterCertificateVerificationClient
+}
+
+// NewMockMulticlusterCertificateVerificationClient creates a new mock instance.
+func NewMockMulticlusterCertificateVerificationClient(ctrl *gomock.Controller) *MockMulticlusterCertificateVerificationClient {
+	mock := &MockMulticlusterCertificateVerificationClient{ctrl: ctrl}
+	mock.recorder = &MockMulticlusterCertificateVerificationClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockMulticlusterCertificateVerificationClient) EXPECT() *MockMulticlusterCertificateVerificationClientMockRecorder {
+	return m.recorder
+}
+
+// Cluster mocks base method.
+func (m *MockMulticlusterCertificateVerificationClient) Cluster(cluster string) (v1beta1.CertificateVerificationClient, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cluster", cluster)
+	ret0, _ := ret[0].(v1beta1.CertificateVerificationClient)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Cluster indicates an expected call of Cluster.
+func (mr *MockMulticlusterCertificateVerificationClientMockRecorder) Cluster(cluster interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterCertificateVerificationClient)(nil).Cluster), cluster)
 }

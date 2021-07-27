@@ -6,6 +6,9 @@
 package input
 
 import (
+	certificates_mesh_gloo_solo_io_v1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	certificates_mesh_gloo_solo_io_v1_sets "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1/sets"
+
 	appmesh_k8s_aws_v1beta2 "github.com/aws/aws-app-mesh-controller-for-k8s/apis/appmesh/v1beta2"
 	appmesh_k8s_aws_v1beta2_sets "github.com/solo-io/external-apis/pkg/api/appmesh/appmesh.k8s.aws/v1beta2/sets"
 
@@ -18,6 +21,8 @@ import (
 
 type InputDiscoveryInputSnapshotManualBuilder struct {
 	name string
+
+	issuedCertificates certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet
 
 	meshes appmesh_k8s_aws_v1beta2_sets.MeshSet
 
@@ -36,6 +41,8 @@ type InputDiscoveryInputSnapshotManualBuilder struct {
 func NewInputDiscoveryInputSnapshotManualBuilder(name string) *InputDiscoveryInputSnapshotManualBuilder {
 	return &InputDiscoveryInputSnapshotManualBuilder{
 		name: name,
+
+		issuedCertificates: certificates_mesh_gloo_solo_io_v1_sets.NewIssuedCertificateSet(),
 
 		meshes: appmesh_k8s_aws_v1beta2_sets.NewMeshSet(),
 
@@ -56,6 +63,8 @@ func (i *InputDiscoveryInputSnapshotManualBuilder) Build() DiscoveryInputSnapsho
 	return NewDiscoveryInputSnapshot(
 		i.name,
 
+		i.issuedCertificates,
+
 		i.meshes,
 
 		i.configMaps,
@@ -69,6 +78,10 @@ func (i *InputDiscoveryInputSnapshotManualBuilder) Build() DiscoveryInputSnapsho
 		i.daemonSets,
 		i.statefulSets,
 	)
+}
+func (i *InputDiscoveryInputSnapshotManualBuilder) AddIssuedCertificates(issuedCertificates []*certificates_mesh_gloo_solo_io_v1.IssuedCertificate) *InputDiscoveryInputSnapshotManualBuilder {
+	i.issuedCertificates.Insert(issuedCertificates...)
+	return i
 }
 func (i *InputDiscoveryInputSnapshotManualBuilder) AddMeshes(meshes []*appmesh_k8s_aws_v1beta2.Mesh) *InputDiscoveryInputSnapshotManualBuilder {
 	i.meshes.Insert(meshes...)

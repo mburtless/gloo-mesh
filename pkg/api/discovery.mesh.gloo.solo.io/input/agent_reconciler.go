@@ -5,6 +5,7 @@
 // The Input Reconciler calls a simple func() error whenever a
 // storage event is received for any of:
 // * Settings
+// * IssuedCertificates
 // * Meshes
 // * ConfigMaps
 // * Services
@@ -36,6 +37,9 @@ import (
 	settings_mesh_gloo_solo_io_v1 "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1"
 	settings_mesh_gloo_solo_io_v1_controllers "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1/controller"
 
+	certificates_mesh_gloo_solo_io_v1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	certificates_mesh_gloo_solo_io_v1_controllers "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1/controller"
+
 	appmesh_k8s_aws_v1beta2 "github.com/aws/aws-app-mesh-controller-for-k8s/apis/appmesh/v1beta2"
 	appmesh_k8s_aws_v1beta2_controllers "github.com/solo-io/external-apis/pkg/api/appmesh/appmesh.k8s.aws/v1beta2/controller"
 
@@ -50,6 +54,8 @@ import (
 // this private interface is used to ensure that the generated struct implements the intended functions
 type multiClusterAgentReconciler interface {
 	settings_mesh_gloo_solo_io_v1_controllers.MulticlusterSettingsReconciler
+
+	certificates_mesh_gloo_solo_io_v1_controllers.MulticlusterIssuedCertificateReconciler
 
 	appmesh_k8s_aws_v1beta2_controllers.MulticlusterMeshReconciler
 
@@ -76,6 +82,9 @@ type AgentReconcileOptions struct {
 
 	// Options for reconciling Settings
 	Settings reconcile.Options
+
+	// Options for reconciling IssuedCertificates
+	IssuedCertificates reconcile.Options
 
 	// Options for reconciling Meshes
 	Meshes reconcile.Options
@@ -128,6 +137,8 @@ func RegisterMultiClusterAgentReconciler(
 
 	settings_mesh_gloo_solo_io_v1_controllers.NewMulticlusterSettingsReconcileLoop("Settings", clusters, options.Settings).AddMulticlusterSettingsReconciler(ctx, r, predicates...)
 
+	certificates_mesh_gloo_solo_io_v1_controllers.NewMulticlusterIssuedCertificateReconcileLoop("IssuedCertificate", clusters, options.IssuedCertificates).AddMulticlusterIssuedCertificateReconciler(ctx, r, predicates...)
+
 	appmesh_k8s_aws_v1beta2_controllers.NewMulticlusterMeshReconcileLoop("Mesh", clusters, options.Meshes).AddMulticlusterMeshReconciler(ctx, r, predicates...)
 
 	v1_controllers.NewMulticlusterConfigMapReconcileLoop("ConfigMap", clusters, options.ConfigMaps).AddMulticlusterConfigMapReconciler(ctx, r, predicates...)
@@ -156,6 +167,21 @@ func (r *multiClusterAgentReconcilerImpl) ReconcileSettings(clusterName string, 
 }
 
 func (r *multiClusterAgentReconcilerImpl) ReconcileSettingsDeletion(clusterName string, obj reconcile.Request) error {
+	ref := &sk_core_v1.ClusterObjectRef{
+		Name:        obj.Name,
+		Namespace:   obj.Namespace,
+		ClusterName: clusterName,
+	}
+	_, err := r.base.ReconcileRemoteGeneric(ref)
+	return err
+}
+
+func (r *multiClusterAgentReconcilerImpl) ReconcileIssuedCertificate(clusterName string, obj *certificates_mesh_gloo_solo_io_v1.IssuedCertificate) (reconcile.Result, error) {
+	obj.ClusterName = clusterName
+	return r.base.ReconcileRemoteGeneric(obj)
+}
+
+func (r *multiClusterAgentReconcilerImpl) ReconcileIssuedCertificateDeletion(clusterName string, obj reconcile.Request) error {
 	ref := &sk_core_v1.ClusterObjectRef{
 		Name:        obj.Name,
 		Namespace:   obj.Namespace,
@@ -320,6 +346,8 @@ func (r *multiClusterAgentReconcilerImpl) ReconcileStatefulSetDeletion(clusterNa
 type singleClusterAgentReconciler interface {
 	settings_mesh_gloo_solo_io_v1_controllers.SettingsReconciler
 
+	certificates_mesh_gloo_solo_io_v1_controllers.IssuedCertificateReconciler
+
 	appmesh_k8s_aws_v1beta2_controllers.MeshReconciler
 
 	v1_controllers.ConfigMapReconciler
@@ -369,6 +397,10 @@ func RegisterSingleClusterAgentReconciler(
 		return nil, err
 	}
 
+	if err := certificates_mesh_gloo_solo_io_v1_controllers.NewIssuedCertificateReconcileLoop("IssuedCertificate", mgr, options).RunIssuedCertificateReconciler(ctx, r, predicates...); err != nil {
+		return nil, err
+	}
+
 	if err := appmesh_k8s_aws_v1beta2_controllers.NewMeshReconcileLoop("Mesh", mgr, options).RunMeshReconciler(ctx, r, predicates...); err != nil {
 		return nil, err
 	}
@@ -410,6 +442,19 @@ func (r *singleClusterAgentReconcilerImpl) ReconcileSettings(obj *settings_mesh_
 }
 
 func (r *singleClusterAgentReconcilerImpl) ReconcileSettingsDeletion(obj reconcile.Request) error {
+	ref := &sk_core_v1.ObjectRef{
+		Name:      obj.Name,
+		Namespace: obj.Namespace,
+	}
+	_, err := r.base.ReconcileLocalGeneric(ref)
+	return err
+}
+
+func (r *singleClusterAgentReconcilerImpl) ReconcileIssuedCertificate(obj *certificates_mesh_gloo_solo_io_v1.IssuedCertificate) (reconcile.Result, error) {
+	return r.base.ReconcileLocalGeneric(obj)
+}
+
+func (r *singleClusterAgentReconcilerImpl) ReconcileIssuedCertificateDeletion(obj reconcile.Request) error {
 	ref := &sk_core_v1.ObjectRef{
 		Name:      obj.Name,
 		Namespace: obj.Namespace,

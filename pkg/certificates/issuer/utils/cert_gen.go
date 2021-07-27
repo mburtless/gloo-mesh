@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/x509"
@@ -10,6 +11,9 @@ import (
 	"math/big"
 	"strings"
 	"time"
+
+	"github.com/solo-io/go-utils/contextutils"
+	"go.uber.org/zap"
 
 	pkiutil "istio.io/istio/security/pkg/pki/util"
 )
@@ -32,7 +36,10 @@ const (
 )
 
 func GenCertForCSR(
-	hosts []string, csrPem, signingCert, privateKey []byte, ttlDays uint32,
+	ctx context.Context,
+	hosts []string,
+	csrPem, signingCert, privateKey []byte,
+	ttlDays uint32,
 ) ([]byte, error) {
 
 	// Default to 1 year
@@ -57,6 +64,7 @@ func GenCertForCSR(
 	}
 
 	newCertBytes, err := genCertFromCSR(
+		ctx,
 		csr,
 		cert,
 		csr.PublicKey,
@@ -82,9 +90,17 @@ func GenCertForCSR(
 // genCertTemplateFromCSR below.
 // We need access to this because we need to ensure the subject of the new certificate is different from it's parent,
 // and we ensure this by adding the mesh name to the OU list in the subject.
-func genCertFromCSR(csr *x509.CertificateRequest, signingCert *x509.Certificate, publicKey interface{},
-	signingKey crypto.PrivateKey, subjectIDs []string, ttl time.Duration, isCA bool) (cert []byte, err error) {
-	tmpl, err := genCertTemplateFromCSR(csr, subjectIDs, ttl, isCA)
+func genCertFromCSR(
+	ctx context.Context,
+	csr *x509.CertificateRequest,
+	signingCert *x509.Certificate,
+	publicKey interface{},
+	signingKey crypto.PrivateKey,
+	subjectIDs []string,
+	ttl time.Duration,
+	isCA bool,
+) (cert []byte, err error) {
+	tmpl, err := genCertTemplateFromCSR(ctx, csr, subjectIDs, ttl, isCA)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +111,13 @@ func genCertFromCSR(csr *x509.CertificateRequest, signingCert *x509.Certificate,
 // The NotBefore value of the cert is set to current time.
 // Copied from https://github.com/istio/istio/blob/b976960cab61b400860f0266dd09c009b31ee5e3/security/pkg/pki/util/generate_cert.go#L223
 // Added the ability to maintain the subject from the CertificateRequest template.
-func genCertTemplateFromCSR(csr *x509.CertificateRequest, subjectIDs []string, ttl time.Duration, isCA bool) (
+func genCertTemplateFromCSR(
+	ctx context.Context,
+	csr *x509.CertificateRequest,
+	subjectIDs []string,
+	ttl time.Duration,
+	isCA bool,
+) (
 	*x509.Certificate, error) {
 	subjectIDsInString := strings.Join(subjectIDs, ",")
 	var keyUsage x509.KeyUsage
@@ -126,7 +148,7 @@ func genCertTemplateFromCSR(csr *x509.CertificateRequest, subjectIDs []string, t
 	if len(csr.Subject.CommonName) != 0 {
 		if cn, err := pkiutil.DualUseCommonName(subjectIDsInString); err != nil {
 			// log and continue
-			//log.Errorf("dual-use failed for cert template - omitting CN (%v)", err)
+			contextutils.LoggerFrom(ctx).Errorw("dual-use failed for cert template - omitting CN", zap.Error(err))
 		} else {
 			subject.CommonName = cn
 		}

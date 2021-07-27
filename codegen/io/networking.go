@@ -41,6 +41,7 @@ var (
 			Group:   "networking.enterprise." + constants.GlooMeshApiGroupSuffix,
 			Version: "v1beta1",
 		}: {
+			"CertificateVerification",
 			"WasmDeployment",
 			"RateLimiterServerConfig",
 			"VirtualDestination",

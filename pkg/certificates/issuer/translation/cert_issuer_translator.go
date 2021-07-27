@@ -63,7 +63,7 @@ func (s *secretTranslator) Translate(
 		zap.String("IssuedCertificate", sets.Key(issuedCertificate)),
 	)
 
-	signingCert := s.getSigningSecret(issuedCertificate)
+	signingCert := GetSigningSecret(issuedCertificate)
 	// This translator only cares about CA with local secrets
 	if signingCert == nil {
 		contextutils.LoggerFrom(ctx).Debugf("No signing cert found, not this translator's responsiliblity to sign CSR")
@@ -87,6 +87,7 @@ func (s *secretTranslator) Translate(
 
 	// generate the issued cert PEM encoded bytes
 	signedCert, err := utils.GenCertForCSR(
+		ctx,
 		issuedCertificate.Spec.Hosts,
 		certificateRequest.Spec.GetCertificateSigningRequest(),
 		signingCA.CaCert,
@@ -104,7 +105,8 @@ func (s *secretTranslator) Translate(
 	}, nil
 }
 
-func (s *secretTranslator) getSigningSecret(issuedCertificate *certificatesv1.IssuedCertificate) *skv2corev1.ObjectRef {
+// Public for use in enterprise
+func GetSigningSecret(issuedCertificate *certificatesv1.IssuedCertificate) *skv2corev1.ObjectRef {
 	//Handle deprecated field
 	if issuedCertificate.Spec.GetGlooMeshCa().GetSigningCertificateSecret() != nil {
 		return issuedCertificate.Spec.GetGlooMeshCa().GetSigningCertificateSecret()
