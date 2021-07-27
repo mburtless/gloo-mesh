@@ -37,7 +37,7 @@ weight: 2
 |watchOutputTypes|bool|false|If true, Gloo Mesh will watch service mesh config types output by Gloo Mesh, and resync upon changes.|
 |defaultMetricsPort|uint32|0|The port on which to serve internal Prometheus metrics for the Gloo Mesh application. Set to 0 to disable.|
 |verbose|bool|false|If true, enables verbose/debug logging.|
-|certAgent|struct|{"image":{"repository":"cert-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"serviceType":"ClusterIP","ports":{"metrics":9091}}|Configuration for the certAgent deployment.|
+|certAgent|struct|{"image":{"repository":"cert-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"metrics":9091}}|Configuration for the certAgent deployment.|
 |certAgent|struct|{"image":{"repository":"cert-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}}}||
 |certAgent.image|struct|{"repository":"cert-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |certAgent.image.tag|string| |Tag for the container.|
@@ -73,6 +73,8 @@ weight: 2
 |certAgent.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |certAgent.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |certAgent.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|certAgent.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|certAgent.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |certAgent.serviceType|string|ClusterIP|Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |certAgent.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |certAgent.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|

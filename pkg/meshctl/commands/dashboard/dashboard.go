@@ -13,13 +13,12 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/browser"
+	corev1client "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
-	"github.com/solo-io/skv2/pkg/multicluster/kubeconfig"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
+	pkgclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var ConsoleNotFoundError = errors.New("Console image not found. Your Gloo Mesh enterprise install may be a bad state.")
@@ -70,40 +69,27 @@ func forwardDashboard(ctx context.Context, kubeconfigPath, kubectx, namespace st
 }
 
 func getStaticPort(ctx context.Context, kubeconfigPath, kubectx, namespace string) (string, error) {
-	cfg, err := kubeconfig.GetRestConfigWithContext(kubeconfigPath, kubectx, "")
+	client, err := utils.BuildClient(kubeconfigPath, kubectx)
 	if err != nil {
 		return "", err
 	}
-	client, err := kubernetes.NewForConfig(cfg)
-	if err != nil {
-		return "", err
-	}
-	dep, err := client.AppsV1().Deployments(namespace).Get(ctx, "dashboard", metav1.GetOptions{})
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			fmt.Printf("No Gloo Mesh dashboard found as part of the installation in namespace %s. "+
-				"The full dashboard is part of Gloo Mesh enterprise by default. "+
-				"Check that your kubeconfig is pointing at the Gloo Mesh management cluster. ", namespace)
-		}
-
+	svcClient := corev1client.NewServiceClient(client)
+	svc, err := svcClient.GetService(ctx, pkgclient.ObjectKey{Name: "dashboard", Namespace: namespace})
+	if apierrors.IsNotFound(err) {
+		fmt.Printf("No Gloo Mesh dashboard found as part of the installation in namespace %s. "+
+			"The full dashboard is part of Gloo Mesh enterprise by default. "+
+			"Check that your kubeconfig is pointing at the Gloo Mesh management cluster. ", namespace)
+	} else if err != nil {
 		return "", err
 	}
 
-	var staticPort string
-	for _, container := range dep.Spec.Template.Spec.Containers {
-		if container.Name == "console" {
-			for _, port := range container.Ports {
-				if port.Name == "static" {
-					staticPort = fmt.Sprint(port.ContainerPort)
-				}
-			}
+	for _, port := range svc.Spec.Ports {
+		if port.Name == "console" {
+			return port.TargetPort.String(), nil
 		}
 	}
-	if staticPort == "" {
-		return "", ConsoleNotFoundError
-	}
 
-	return staticPort, nil
+	return "", ConsoleNotFoundError
 }
 
 func forwardPort(kubeconfigPath, kubectx, namespace, localPort, kubePort string) (*exec.Cmd, error) {
