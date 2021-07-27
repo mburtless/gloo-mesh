@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"go.uber.org/zap"
+
 	"github.com/rotisserie/eris"
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
@@ -55,7 +57,6 @@ func (v *applier) Apply(
 	input input.LocalSnapshot,
 	userSupplied input.RemoteSnapshot,
 ) {
-	ctx = contextutils.WithLogger(ctx, "validation")
 	reporter := newApplyReporter()
 
 	initializePolicyStatuses(input)
@@ -66,9 +67,11 @@ func (v *applier) Apply(
 
 	applyPoliciesToConfigTargets(input)
 
+	// suppress logs from the applier's wrapped translation
+	silentContext := contextutils.WithExistingLogger(ctx, zap.NewNop().Sugar())
 	// perform a dry run of translation to find any errors
 	// Deep copy the input snapshot so that we start the 2nd run with a clean slate
-	_, err := v.translator.Translate(ctx, input.Clone(), userSupplied, reporter)
+	_, err := v.translator.Translate(silentContext, input.Clone(), userSupplied, reporter)
 	if err != nil {
 		// should never happen
 		contextutils.LoggerFrom(ctx).DPanicf("internal error: failed to run translator: %v", err)

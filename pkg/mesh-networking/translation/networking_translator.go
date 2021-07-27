@@ -60,12 +60,17 @@ func (t *translator) Translate(
 	reporter reporting.Reporter,
 ) (*Outputs, error) {
 	t.totalTranslates++
-	ctx = contextutils.WithLogger(ctx, fmt.Sprintf("translation-%v", t.totalTranslates))
 
-	istioOutputs := istiooutput.NewBuilder(ctx, fmt.Sprintf("networking-istio-%v", t.totalTranslates))
-	appmeshOutputs := appmeshoutput.NewBuilder(ctx, fmt.Sprintf("networking-appmesh-%v", t.totalTranslates))
-	smiOutputs := smioutput.NewBuilder(ctx, fmt.Sprintf("networking-smi-%v", t.totalTranslates))
-	localOutputs := localoutput.NewBuilder(ctx, fmt.Sprintf("networking-local-%v", t.totalTranslates))
+	// TODO(ilackarms): remove this when we remove the applier
+	// this is done to distinguish the number of actual translations from the applier-invoked ones
+	currentTranslation := t.totalTranslates/2 + 1
+
+	ctx = contextutils.WithLogger(ctx, fmt.Sprintf("translation-%v", currentTranslation))
+
+	istioOutputs := istiooutput.NewBuilder(ctx, fmt.Sprintf("networking-istio-%v", currentTranslation))
+	appmeshOutputs := appmeshoutput.NewBuilder(ctx, fmt.Sprintf("networking-appmesh-%v", currentTranslation))
+	smiOutputs := smioutput.NewBuilder(ctx, fmt.Sprintf("networking-smi-%v", currentTranslation))
+	localOutputs := localoutput.NewBuilder(ctx, fmt.Sprintf("networking-local-%v", currentTranslation))
 
 	t.istioTranslator.Translate(ctx, in, userSupplied, istioOutputs, localOutputs, reporter)
 

@@ -116,7 +116,7 @@ func (c *certAgentTranslator) IssuedCertificatePending(
 	// create a new private key
 	privateKey, err := utils.GeneratePrivateKey(int(issuedCertificate.Spec.CertOptions.GetRsaKeySizeBytes()))
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "generating private key")
 	}
 	outputs.AddSecrets(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -135,12 +135,17 @@ func (c *certAgentTranslator) IssuedCertificatePending(
 	}
 
 	// create certificate request for private key
-	return utils.GenerateCertificateSigningRequest(
+	csrBytes, err := utils.GenerateCertificateSigningRequest(
 		issuedCertificate.Spec.Hosts,
 		org,
 		issuedCertificate.Name,
 		privateKey,
 	)
+	if err != nil {
+		return nil, eris.Wrap(err, "creating CSR")
+	}
+
+	return csrBytes, nil
 }
 
 func (c *certAgentTranslator) IssuedCertificateRequested(

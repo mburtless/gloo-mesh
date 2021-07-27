@@ -6,6 +6,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/output/discovery"
+	"github.com/solo-io/gloo-mesh/pkg/common/reconciliation"
+
+	"github.com/prometheus/client_golang/prometheus"
+	settingsv1 "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1"
+	"sigs.k8s.io/controller-runtime/pkg/metrics"
+
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 
 	"github.com/solo-io/skv2/pkg/stats"
@@ -33,6 +40,39 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// describes the states the reconciler can be in
+type reconcilerState = float64
+
+const (
+	// the set of states the reconciler can be in.
+	// these are used as metric values
+	stateBooting reconcilerState = iota
+	stateWaitingForSettings
+	stateRunning
+)
+
+var (
+	reconcilerStateGauge = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "gloo_mesh_discovery_reconciling_state",
+		Help: "Indicates whether the Discovery reconciler is currently running (settings CR is detected). controller_namespace indicates the namespace to which the controller is deployed. A value of 0 indicates the reconciler is still initializing. A value of 1 indicates the reconciler is waiting for the Settings object to be created. A value of 2 indicates Settings object has been detected and the reconciler is running.",
+	})
+
+	recorder = reconciliation.NewRecorder(
+		prometheus.CounterOpts{
+			Name: "gloo_mesh_discovery_reconciles_total",
+			Help: "The total number of reconciles (state resyncs) Discovery reconciler has performed.",
+		},
+		"detected",
+		input.DiscoveryInputSnapshotGVKs,
+		"discovery",
+		discovery.SnapshotGVKs,
+	)
+)
+
+func init() {
+	metrics.Registry.MustRegister(reconcilerStateGauge)
+}
+
 type discoveryReconciler struct {
 	ctx                   context.Context
 	discoveryInputBuilder input.DiscoveryInputBuilder
@@ -44,6 +84,7 @@ type discoveryReconciler struct {
 	settingsRef           *v1.ObjectRef
 	verifier              verifier.ServerResourceVerifier
 	totalReconciles       int
+	state                 reconcilerState // track whether we are waiting for the settings object
 }
 
 func Start(
@@ -180,9 +221,10 @@ func (r *discoveryReconciler) reconcile(obj ezkube.ClusterResourceId) (bool, err
 		return false, err
 	}
 
-	settings, err := localInputSnap.Settings().Find(r.settingsRef)
-	if err != nil {
-		return false, err
+	settings := r.getSettingsIfExists(ctx, localInputSnap)
+	if settings == nil {
+		// wait for another event to re-check for settings
+		return false, nil
 	}
 
 	outputSnap, err := r.translator.Translate(
@@ -211,7 +253,48 @@ func (r *discoveryReconciler) reconcile(obj ezkube.ClusterResourceId) (bool, err
 	r.history.SetInput(remoteInputSnap)
 	r.history.SetOutput(outputSnap)
 
+	recorder.RecordReconcileResult(
+		ctx,
+		remoteInputSnap.Generic(),
+		outputSnap.Generic(),
+		errs == nil,
+	)
+
 	return false, errs
+}
+
+// if we are waiting for settings, this will log a warning and return nil, nil
+// also logs and updates metrics for the reconciler state
+func (r *discoveryReconciler) getSettingsIfExists(ctx context.Context, snap input.SettingsSnapshot) *settingsv1.Settings {
+	settings, err := snap.Settings().Find(r.settingsRef)
+	if err != nil {
+		if r.state != stateWaitingForSettings {
+			// settings is not ready yet, we switch to waiting state
+			r.setReconcileState(ctx, stateWaitingForSettings)
+		}
+		return nil
+	}
+
+	if r.state != stateRunning {
+		// settings is ready, we switch to running state
+		r.setReconcileState(ctx, stateRunning)
+	}
+
+	return settings
+}
+
+func (r *discoveryReconciler) setReconcileState(ctx context.Context, state reconcilerState) {
+	reconcilerStateGauge.Set(state)
+	info := contextutils.LoggerFrom(ctx).Infof
+	switch state {
+	case stateBooting:
+		info("discovery reconciler is booting")
+	case stateWaitingForSettings:
+		info("discovery reconciler is waiting for settings object %v to be received", r.settingsRef)
+	case stateRunning:
+		info("discovery reconciler is running using settings object %v", r.settingsRef)
+	}
+	r.state = state
 }
 
 // returns true if the passed object is used for leader election

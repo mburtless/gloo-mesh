@@ -42,7 +42,7 @@ func TranslateWeightedDestination(
 		clusterDomains,
 	)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "resolving host")
 	}
 
 	return &networkingv1alpha3spec.HTTPRouteDestination{

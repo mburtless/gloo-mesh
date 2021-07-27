@@ -70,6 +70,7 @@ func (d *tlsDecorator) translateTlsSettings(
 	}, nil
 }
 
+// exported for use by destination rule translator
 func MapIstioTlsMode(tlsMode v1.TrafficPolicySpec_Policy_MTLS_Istio_TLSmode) (networkingv1alpha3spec.ClientTLSSettings_TLSmode, error) {
 	switch tlsMode {
 	case v1.TrafficPolicySpec_Policy_MTLS_Istio_DISABLE:

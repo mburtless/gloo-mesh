@@ -1,0 +1,14 @@
+changelog:
+  - type: FIX
+    description: Add logging and metrics for discovery and networking reconcilers.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/702
+    resolvesIssue: false
+  - type: FIX
+    description: Remove logging that occurs during the applier's wrapped translation.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/702
+    resolvesIssue: false
+  - type: FIX
+    description: Add context for vague errors.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/702
+    resolvesIssue: false
+

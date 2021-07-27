@@ -15,6 +15,8 @@ import (
 	"github.com/solo-io/go-utils/contextutils"
 	"go.uber.org/zap"
 
+	"github.com/rotisserie/eris"
+
 	pkiutil "istio.io/istio/security/pkg/pki/util"
 )
 
@@ -52,15 +54,15 @@ func GenCertForCSR(
 	// need to pre decode the data.
 	cert, err := pkiutil.ParsePemEncodedCertificate(signingCert)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "parsing PEM certificate bytes")
 	}
 	csr, err := pkiutil.ParsePemEncodedCSR(csrPem)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "parsing PEM certificate request bytes")
 	}
 	key, err := pkiutil.ParsePemEncodedKey(privateKey)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "parsing PEM key bytes")
 	}
 
 	newCertBytes, err := genCertFromCSR(
@@ -74,7 +76,7 @@ func GenCertForCSR(
 		true,
 	)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "generating certs for CSR")
 	}
 	// This block is the go way to encode the cert into the PEM format before returning it
 	block := &pem.Block{

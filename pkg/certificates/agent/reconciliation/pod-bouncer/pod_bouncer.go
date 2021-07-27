@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/rotisserie/eris"
 	corev1client "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	corev1sets "github.com/solo-io/external-apis/pkg/api/k8s/core/v1/sets"
 	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
@@ -137,7 +138,7 @@ func (p *podBouncer) BouncePods(
 		for _, pod := range podsToDelete {
 			contextutils.LoggerFrom(ctx).Debugf("deleting pod %v", sets.Key(pod))
 			if err := p.podClient.DeletePod(ctx, ezkube.MakeClientObjectKey(pod)); err != nil {
-				errs = multierror.Append(errs, err)
+				errs = multierror.Append(errs, eris.Wrapf(err, "bouncing pod %v", pod.Name))
 				continue
 			}
 			bouncedPods = append(bouncedPods, pod.Name)

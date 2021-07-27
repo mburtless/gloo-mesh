@@ -36,7 +36,7 @@ func NewClientsFromSettings(ctx context.Context, extensionsServerOptions []*sett
 		}
 		grpcConnection, err := dialOpts.Dial(ctx)
 		if err != nil {
-			return nil, err
+			return nil, eris.Wrap(err, "failed grpc dial")
 		}
 		extensionsClients = append(extensionsClients, v1beta1.NewNetworkingExtensionsClient(grpcConnection))
 	}
@@ -128,7 +128,7 @@ func (c *clientset) ConfigureServers(extensionsServerOptions []*settingsv1.GrpcS
 	newContext, newCancel := context.WithCancel(c.rootCtx)
 	newClients, err := NewClientsFromSettings(newContext, extensionsServerOptions)
 	if err != nil {
-		return err
+		return eris.Wrap(err, "initializing extensions clients")
 	}
 
 	c.cachedClients.lock.Lock()

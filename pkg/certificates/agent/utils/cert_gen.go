@@ -80,7 +80,7 @@ func GenerateCertificateSigningRequest(
 
 	csr, err = x509.CreateCertificateRequest(rand.Reader, template, priv)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "creating x509 certificate request")
 	}
 
 	// Encode the csr to PEM format before returning

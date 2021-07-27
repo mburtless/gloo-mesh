@@ -114,7 +114,7 @@ func (t *translator) translateAccessPolicy(
 	for _, sourceSelector := range accessPolicy.SourceSelector {
 		fromRule, err := t.buildSource(sourceSelector, meshes)
 		if err != nil {
-			return nil, err
+			return nil, eris.Wrap(err, "building from_rule")
 		}
 		fromRules = append(fromRules, fromRule)
 	}
@@ -161,12 +161,12 @@ func (t *translator) buildSource(
 	// Select by identity matcher.
 	wildcardPrincipals, namespaces, err := parseIdentityMatcher(sources.KubeIdentityMatcher, meshes)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "parsing identity matcher")
 	}
 	// Select by direct reference to ServiceAccounts
 	serviceAccountPrincipals, err := parseServiceAccountRefs(sources.KubeServiceAccountRefs, meshes)
 	if err != nil {
-		return nil, err
+		return nil, eris.Wrap(err, "parsing service account refs")
 	}
 
 	ruleFrom.Source.Principals = append(wildcardPrincipals, serviceAccountPrincipals...)
@@ -258,7 +258,7 @@ func getTrustDomainsForClusters(
 		for _, clusterName := range clusterNames {
 			trustDomain, err := getTrustDomainForCluster(clusterName, meshes)
 			if err != nil {
-				errs = multierror.Append(errs, err)
+				errs = multierror.Append(errs, eris.Wrapf(err, "getting trust domain for cluster %v", clusterName))
 				continue
 			}
 			trustDomains = append(trustDomains, trustDomain)

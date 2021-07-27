@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/rotisserie/eris"
+
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/destinationutils"
@@ -66,7 +68,7 @@ func getCreateMeshPatchesFunc() func(ctx context.Context, mesh *discoveryv1.Mesh
 			ClusterName: resourceCluster,
 		})
 		if err != nil {
-			return nil, err
+			return nil, eris.Wrapf(err, "constructing unique IP for service entry")
 		}
 
 		// create a service entry to represent our local hello server

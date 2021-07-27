@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/solo-io/gloo-mesh/pkg/common/reconciliation"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/rotisserie/eris"
 	"github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/agent/input"
@@ -36,6 +39,17 @@ var (
 		}
 		return labels
 	}
+
+	recorder = reconciliation.NewRecorder(
+		prometheus.CounterOpts{
+			Name: "gloo_mesh_cert_agent_reconciles_total",
+			Help: "The total number of reconciles (state resyncs) Cert Agent reconciler has performed.",
+		},
+		"api",
+		input.SnapshotGVKs,
+		"certs",
+		certagent.SnapshotGVKs,
+	)
 )
 
 type certAgentReconciler struct {
@@ -70,7 +84,7 @@ func (r *certAgentReconciler) reconcile(_ ezkube.ResourceId) (bool, error) {
 	inputSnap, err := r.builder.BuildSnapshot(r.ctx, "cert-agent", input.BuildOptions{})
 	if err != nil {
 		// failed to read from cache; should never happen
-		return false, err
+		return false, eris.Wrap(err, "failed to read from cache")
 	}
 
 	outputs := certagent.NewBuilder(r.ctx, "agent")
@@ -88,7 +102,7 @@ func (r *certAgentReconciler) reconcile(_ ezkube.ResourceId) (bool, error) {
 	}
 	outSnap, err := outputs.BuildSinglePartitionedSnapshot(agentLabels())
 	if err != nil {
-		return false, err
+		return false, eris.Wrap(err, "building output snapshot")
 	}
 
 	errHandler := errhandlers.AppendingErrHandler{}
@@ -101,6 +115,13 @@ func (r *certAgentReconciler) reconcile(_ ezkube.ResourceId) (bool, error) {
 	}); err != nil {
 		errs = multierror.Append(errs, err)
 	}
+
+	recorder.RecordReconcileResult(
+		r.ctx,
+		inputSnap.Generic(),
+		outputs.Generic(),
+		errs == nil,
+	)
 
 	return false, errs
 }

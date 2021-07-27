@@ -146,7 +146,7 @@ func TranslateMirror(
 			destinations,
 		)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, eris.Wrap(err, "constructing mirror for kube destination")
 		}
 	}
 

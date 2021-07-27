@@ -8,6 +8,12 @@ import (
 
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
+	"github.com/solo-io/gloo-mesh/pkg/common/reconciliation"
+	"github.com/solo-io/skv2/pkg/resource"
+
+	"github.com/rotisserie/eris"
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/skv2/pkg/stats"
 
@@ -41,6 +47,17 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+var recorder = reconciliation.NewRecorder(
+	prometheus.CounterOpts{
+		Name: "gloo_mesh_networking_reconciles_total",
+		Help: "The total number of reconciles (state resyncs) Networking reconciler has performed.",
+	},
+	"api",
+	input.LocalSnapshotGVKs,
+	"istio",
+	istio.SnapshotGVKs,
 )
 
 // function which defines how the Networking reconciler should be registered with internal components.
@@ -162,7 +179,7 @@ func Start(
 			},
 		)
 	}
-
+	contextutils.LoggerFrom(ctx).Debugw("starting input watches", "watch_gvks", input.LocalSnapshotGVKs)
 	reconciler, err := registerReconciler(
 		ctx,
 		r.reconcile,
@@ -189,11 +206,10 @@ func Start(
 
 // reconcile global state
 func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
-	contextutils.LoggerFrom(r.ctx).Debugf("object triggered resync: %T<%v>", obj, sets.Key(obj))
-
 	r.totalReconciles++
-
 	ctx := contextutils.WithLogger(r.ctx, fmt.Sprintf("reconcile-%v", r.totalReconciles))
+
+	contextutils.LoggerFrom(ctx).Debugf("object triggered resync: %T<%v>", obj, sets.Key(obj))
 
 	// build the input snapshot from the caches
 	inputSnap, err := r.localBuilder.BuildSnapshot(ctx, "mesh-networking", input.LocalBuildOptions{
@@ -204,7 +220,7 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 	})
 	if err != nil {
 		// failed to read from cache; should never happen
-		return false, err
+		return false, eris.Wrapf(err, "failed to build api snapshot from cache")
 	}
 
 	// Set last input snapshot for predicates
@@ -214,7 +230,7 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 
 	if err := r.syncSettings(&ctx, inputSnap); err != nil {
 		// fail early if settings failed to sync
-		return false, err
+		return false, eris.Wrapf(err, "failed to sync settings")
 	}
 
 	// nil istioInputSnap signals to downstream translators that intersecting config should not be detected
@@ -250,7 +266,7 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 		})
 		if err != nil {
 			// failed to read from cache; should never happen
-			return false, err
+			return false, eris.Wrapf(err, "failed to build user snapshot from cache")
 		}
 	}
 
@@ -261,10 +277,12 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 	var errs error
 
 	// translate and apply outputs
-	if err := r.applyTranslation(ctx, inputSnap, userSupplied); err != nil {
-		errs = multierror.Append(errs, err)
+	outputs, err := r.translateAndSyncOutputs(ctx, inputSnap, userSupplied)
+	if err != nil {
+		errs = multierror.Append(errs, eris.Wrap(err, "translation error"))
 	}
 
+	contextutils.LoggerFrom(ctx).Debugf("syncing input object statuses")
 	// update statuses of input objects
 	if err := inputSnap.SyncStatuses(ctx, r.mgmtClient, input.LocalSyncStatusOptions{
 		// keep this list up to date with all networking status outputs
@@ -284,8 +302,19 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 		ServiceDependency:       true,
 		CertificateVerification: true,
 	}); err != nil {
-		errs = multierror.Append(errs, err)
+		errs = multierror.Append(errs, eris.Wrap(err, "updating input object statuses"))
 	}
+
+	var outputSnap resource.ClusterSnapshot
+	if outputs != nil && outputs.Istio != nil {
+		outputSnap = outputs.Istio.Generic()
+	}
+	recorder.RecordReconcileResult(
+		ctx,
+		inputSnap.Generic(),
+		outputSnap,
+		errs == nil,
+	)
 
 	return false, errs
 }
@@ -320,23 +349,24 @@ func (r *networkingReconciler) isIgnoredSecret(obj metav1.Object) bool {
 	return !mtls.IsSigningCert(secret)
 }
 
-func (r *networkingReconciler) applyTranslation(ctx context.Context, in input.LocalSnapshot, userSupplied input.RemoteSnapshot) error {
+func (r *networkingReconciler) translateAndSyncOutputs(ctx context.Context, in input.LocalSnapshot, userSupplied input.RemoteSnapshot) (*translation.Outputs, error) {
 
 	outputSnap, err := r.translator.Translate(ctx, in, userSupplied, r.reporter)
 	if err != nil {
 		// internal translator errors should never happen
-		return err
+		return nil, err
 	}
 
 	r.history.SetInput(in)
 	r.history.SetOutput(outputSnap)
 
+	contextutils.LoggerFrom(ctx).Debugf("syncing outputs")
 	errHandler := newErrHandler(ctx, in)
 	if err := r.syncOutputs(ctx, in, outputSnap, errHandler); err != nil {
-		return multierror.Append(err, errHandler.Errors())
+		return nil, multierror.Append(err, errHandler.Errors())
 	}
 
-	return errHandler.Errors()
+	return outputSnap, errHandler.Errors()
 }
 
 // stores settings inside the context and initiates connections to extension servers.
@@ -344,7 +374,7 @@ func (r *networkingReconciler) applyTranslation(ctx context.Context, in input.Lo
 func (r *networkingReconciler) syncSettings(ctx *context.Context, in input.LocalSnapshot) error {
 	settings, err := in.Settings().Find(r.settingsRef)
 	if err != nil {
-		return err
+		return eris.Wrapf(err, "settings object does not exist")
 	}
 
 	*ctx = settingsutils.ContextWithSettings(*ctx, settings)
@@ -355,10 +385,14 @@ func (r *networkingReconciler) syncSettings(ctx *context.Context, in input.Local
 	}
 
 	// update configured NetworkExtensionServers for the extension clients which are called inside the translator.
-	return r.extensionClients.ConfigureServers(settings.Spec.NetworkingExtensionServers, func(_ *v1beta1.PushNotification) {
+	if err := r.extensionClients.ConfigureServers(settings.Spec.NetworkingExtensionServers, func(_ *v1beta1.PushNotification) {
 		// ignore error because underlying impl should never error here
 		_, _ = r.reconciler.ReconcileLocalGeneric(pushNotificationId)
-	})
+	}); err != nil {
+		return eris.Wrap(err, "failed to configure networking extensions clients")
+	}
+
+	return nil
 }
 
 // returns true if the passed object is a configmap which is of a type that is ignored by GlooMesh
@@ -374,6 +408,7 @@ func isIgnoredConfigMap(obj metav1.Object) bool {
 // build a verifier that ignores NoKindMatch errors for mesh-specific types
 // we expect these errors on clusters on which that mesh is not deployed
 func buildRemoteResourceVerifier(ctx context.Context) verifier.ServerResourceVerifier {
+	ctx = contextutils.WithLogger(ctx, "resource-verifier")
 	options := map[schema.GroupVersionKind]verifier.ServerVerifyOption{}
 	for groupVersion, kinds := range io.IstioNetworkingOutputTypes.Snapshot {
 		for _, kind := range kinds {

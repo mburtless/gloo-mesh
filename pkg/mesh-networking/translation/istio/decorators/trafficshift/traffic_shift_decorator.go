@@ -104,7 +104,7 @@ func (d *trafficShiftDecorator) translateTrafficShift(
 				sourceClusterName,
 			)
 			if err != nil {
-				return nil, err
+				return nil, eris.Wrap(err, "constructing traffic shift destination for kube")
 			}
 		case *networkingv1.WeightedDestination_VirtualDestination_:
 			var err error
@@ -113,7 +113,7 @@ func (d *trafficShiftDecorator) translateTrafficShift(
 				weightedDest.Weight,
 			)
 			if err != nil {
-				return nil, err
+				return nil, eris.Wrap(err, "constructing traffic shift destination for virtual destination")
 			}
 		default:
 			return nil, eris.Errorf("unsupported traffic shift destination type: %T", weightedDest.DestinationType)
