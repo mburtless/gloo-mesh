@@ -684,7 +684,9 @@ spec:
                                   type: object
                               type: object
                             staticDestination:
-                              description: Reference to a gloo mesh Static Destination
+                              description: |-
+                                Reference to a Gloo Mesh Static Destination.
+                                Roughly translates into a static cluster in envoy.
                               properties:
                                 name:
                                   description: name of the resource being referenced
@@ -694,7 +696,12 @@ spec:
                                   type: string
                               type: object
                             virtualDestination:
-                              description: Specify a VirtualDestination.
+                              description: |-
+                                Specify a VirtualDestination.
+                                Virtual destinations get a new hostname that services reference and route to,
+                                and then Gloo Mesh orchestrates locality-based load-balancing among the destinations.
+                                This is helpful to setup, for example, cluster-agnostic routing and failover with
+                                preference given to local services.
                               properties:
                                 name:
                                   description: The name of the VirtualDestination

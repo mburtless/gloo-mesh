@@ -32,7 +32,7 @@ jobs:
       run: |
         make install-go-tools
     - name: Gcloud Login
-      uses: google-github-actions/setup-gcloud@master
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@7159039b8c614f8ed6d9bd75af3f6113681a8ff4
       with:
         version: '290.0.1'
         project_id: ${{ secrets.GC_FIREBASE_GHA_PROJECT_ID }}

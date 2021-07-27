@@ -143,11 +143,16 @@ type WeightedDestination_KubeService struct {
 
 type WeightedDestination_VirtualDestination_ struct {
 	// Specify a VirtualDestination.
+	// Virtual destinations get a new hostname that services reference and route to,
+	// and then Gloo Mesh orchestrates locality-based load-balancing among the destinations.
+	// This is helpful to setup, for example, cluster-agnostic routing and failover with
+	// preference given to local services.
 	VirtualDestination *WeightedDestination_VirtualDestination `protobuf:"bytes,3,opt,name=virtual_destination,json=virtualDestination,proto3,oneof"`
 }
 
 type WeightedDestination_StaticDestination struct {
-	// Reference to a gloo mesh Static Destination
+	// Reference to a Gloo Mesh Static Destination.
+	// Roughly translates into a static cluster in envoy.
 	StaticDestination *v1.ObjectRef `protobuf:"bytes,4,opt,name=static_destination,json=staticDestination,proto3,oneof"`
 }
 

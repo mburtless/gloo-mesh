@@ -23,9 +23,14 @@ message WeightedDestination {
         KubeDestination kube_service = 2;
 
         // Specify a VirtualDestination.
+        // Virtual destinations get a new hostname that services reference and route to,
+        // and then Gloo Mesh orchestrates locality-based load-balancing among the destinations.
+        // This is helpful to setup, for example, cluster-agnostic routing and failover with
+        // preference given to local services.
         VirtualDestination virtual_destination = 3;
 
-        // Reference to a gloo mesh Static Destination
+        // Reference to a Gloo Mesh Static Destination.
+        // Roughly translates into a static cluster in envoy.
         .core.skv2.solo.io.ObjectRef static_destination  = 4;
 
         // Envoy will determine the cluster to route to by reading the value of the HTTP header named by cluster_header from the request headers.
