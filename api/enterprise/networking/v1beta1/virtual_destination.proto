@@ -31,6 +31,7 @@ message VirtualDestinationSpec {
     Port port = 2;
 
     // The VirtualDestination can be made visible to either a single Mesh, all Meshes grouped in a VirtualMesh or a subset of Meshes grouped in a VirtualMesh.
+    // Caveat: this VirtualDestination will be exported to the meshes for all backing destinations, regardless of what's specified here.
     oneof export_to {
 
         // The VirtualMesh that this VirtualDestination will be visible to.
@@ -38,6 +39,7 @@ message VirtualDestinationSpec {
 
         // The Meshes that this VirtualDestination will be visible to. If multiple meshes are specified, they must
         // all belong to the same VirtualMesh.
+        // Caveat: this VirtualDestination will be exported to the meshes for all selected backing destinations regardless of what's specified here.
         MeshList mesh_list = 4;
     }
 

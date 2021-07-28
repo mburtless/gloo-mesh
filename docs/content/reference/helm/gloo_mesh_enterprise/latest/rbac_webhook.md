@@ -12,7 +12,7 @@ weight: 2
 |adminSubjects|interface| ||
 |createAdminRole|interface| ||
 |licenseKey|interface| ||
-|rbacWebhook|struct|{"image":{"repository":"rbac-webhook","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"SERVICE_NAME","value":"rbac-webhook"},{"name":"SECRET_NAME","value":"rbac-webhook"},{"name":"VALIDATING_WEBHOOK_CONFIGURATION_NAME","value":"rbac-webhook"},{"name":"CERT_DIR","value":"/etc/certs/admission"},{"name":"WEBHOOK_PATH","value":"/admission"},{"name":"RBAC_PERMISSIVE_MODE","value":"false"},{"name":"LOG_LEVEL","value":"info"},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"serviceType":"ClusterIP","ports":{"webhook":8443}}|Configuration for the rbacWebhook deployment.|
+|rbacWebhook|struct|{"image":{"repository":"rbac-webhook","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"SERVICE_NAME","value":"rbac-webhook"},{"name":"SECRET_NAME","value":"rbac-webhook"},{"name":"VALIDATING_WEBHOOK_CONFIGURATION_NAME","value":"rbac-webhook"},{"name":"CERT_DIR","value":"/etc/certs/admission"},{"name":"WEBHOOK_PATH","value":"/admission"},{"name":"RBAC_PERMISSIVE_MODE","value":"false"},{"name":"LOG_LEVEL","value":"info"},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"webhook":8443}}|Configuration for the rbacWebhook deployment.|
 |rbacWebhook|struct|{"image":{"repository":"rbac-webhook","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"SERVICE_NAME","value":"rbac-webhook"},{"name":"SECRET_NAME","value":"rbac-webhook"},{"name":"VALIDATING_WEBHOOK_CONFIGURATION_NAME","value":"rbac-webhook"},{"name":"CERT_DIR","value":"/etc/certs/admission"},{"name":"WEBHOOK_PATH","value":"/admission"},{"name":"RBAC_PERMISSIVE_MODE","value":"false"},{"name":"LOG_LEVEL","value":"info"},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}}}||
 |rbacWebhook.image|struct|{"repository":"rbac-webhook","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |rbacWebhook.image.tag|string| |Tag for the container.|
@@ -48,6 +48,8 @@ weight: 2
 |rbacWebhook.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |rbacWebhook.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |rbacWebhook.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|rbacWebhook.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|rbacWebhook.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |rbacWebhook.serviceType|string|ClusterIP|Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |rbacWebhook.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |rbacWebhook.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|

@@ -90,8 +90,8 @@ func (t *translator) Translate(
 			continue
 		}
 
-		ingressContainerPort := appliedIngressGateway.GetContainerPort()
-		if ingressContainerPort == 0 {
+		ingressDestinationPort := appliedIngressGateway.GetPort()
+		if ingressDestinationPort == 0 {
 			contextutils.LoggerFrom(t.ctx).DPanicf("ingress gateway tls container port not found")
 			continue
 		}
@@ -100,7 +100,7 @@ func (t *translator) Translate(
 			BuildGatewayName(appliedIngressGateway),
 			istioNamespace,
 			istioCluster,
-			ingressContainerPort,
+			ingressDestinationPort,
 			federatedHostnameSuffix,
 			destination.Spec.GetKubeService().GetWorkloadSelectorLabels(),
 			virtualMesh.GetRef(),
@@ -112,7 +112,7 @@ func (t *translator) Translate(
 
 func (t *translator) buildGateway(
 	name, namespace, cluster string,
-	ingressContainerPort uint32,
+	ingressDestinationPort uint32,
 	federatedHostnameSuffix string,
 	ingressGatewayWorkloadLabels map[string]string,
 	virtualMeshRef ezkube.ResourceId,
@@ -127,7 +127,7 @@ func (t *translator) buildGateway(
 		Spec: networkingv1alpha3spec.Gateway{
 			Servers: []*networkingv1alpha3spec.Server{{
 				Port: &networkingv1alpha3spec.Port{
-					Number:   ingressContainerPort,
+					Number:   ingressDestinationPort,
 					Protocol: defaultGatewayProtocol,
 					Name:     defaults.IstioGatewayTlsPortName,
 				},

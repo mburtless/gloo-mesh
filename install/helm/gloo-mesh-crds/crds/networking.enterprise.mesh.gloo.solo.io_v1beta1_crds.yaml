@@ -530,6 +530,7 @@ spec:
               description: |-
                 The Meshes that this VirtualDestination will be visible to. If multiple meshes are specified, they must
                 all belong to the same VirtualMesh.
+                Caveat: this VirtualDestination will be exported to the meshes for all selected backing destinations regardless of what's specified here.
               properties:
                 meshes:
                   items:

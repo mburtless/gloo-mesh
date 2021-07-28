@@ -1,0 +1,12 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Update `AppliedIngressGateway` to distinguish between `destinationPort` (new field) and `externalDestinationPort`, both of which are needed for fixing the VirtualDestination implementation for N/S traffic.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/916
+    resolvesIssue: false
+  - type: FIX
+    description: Update VirtualDestination's `mesh_list` field with a caveat that the VD will be exported automatically to the meshes for all selected backing Destinations.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/916
+    resolvesIssue: false
+  - type: NON_USER_FACING
+    description: Use the ingress gateway Service port as the Gateway port, instead of targetPort.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/938

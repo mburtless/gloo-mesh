@@ -201,10 +201,11 @@ message MeshStatus {
         repeated string external_addresses = 2;
 
         // The port on the ingress gateway Destination designated for receiving cross cluster traffic.
-        uint32 destination_port = 3;
+        uint32 port = 3;
 
-        // The port on the ingress gateway's backing Workload(s) designated for receiving cross cluster traffic.
-        uint32 container_port = 4;
+        // The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic.
+        // May differ from the destination_port if the Kubernetes Service is of type NodePort.
+        uint32 external_port = 4;
     }
 
     // Describes a [VirtualMesh]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.virtual_mesh" >}}) that applies to this Mesh.

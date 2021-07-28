@@ -1581,18 +1581,6 @@ spec:
                 west traffic.
               items:
                 properties:
-                  containerPort:
-                    description: The port on the ingress gateway's backing Workload(s)
-                      designated for receiving cross cluster traffic.
-                    maximum: 4294967295
-                    minimum: 0
-                    type: integer
-                  destinationPort:
-                    description: The port on the ingress gateway Destination designated
-                      for receiving cross cluster traffic.
-                    maximum: 4294967295
-                    minimum: 0
-                    type: integer
                   destinationRef:
                     description: The Destination on the mesh that acts as an ingress
                       gateway for the mesh.
@@ -1610,6 +1598,19 @@ spec:
                     items:
                       type: string
                     type: array
+                  externalPort:
+                    description: |-
+                      The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic.
+                      May differ from the destination_port if the Kubernetes Service is of type NodePort.
+                    maximum: 4294967295
+                    minimum: 0
+                    type: integer
+                  port:
+                    description: The port on the ingress gateway Destination designated
+                      for receiving cross cluster traffic.
+                    maximum: 4294967295
+                    minimum: 0
+                    type: integer
                 type: object
               type: array
             appliedVirtualDestinations:
@@ -1668,7 +1669,20 @@ spec:
                       - required:
                         - permissive
                       properties:
-                        eastWestIngressGatewaySelectors:
+                        flatNetwork:
+                          description: |-
+                            If true, all multicluster traffic will be routed directly to the Kubernetes service endpoints of the Destinations,
+                            rather than through an ingress gateway. This mode requires a flat network environment.
+                            This feature is exclusive to Gloo Mesh Enterprise.
+                          type: boolean
+                        hostnameSuffix:
+                          description: |-
+                            Configure the suffix for hostnames of Destinations federated within this VirtualMesh.
+                            Currently this is only supported for Istio with [smart DNS proxying enabled](https://istio.io/latest/blog/2020/dns-proxy/),
+                            otherwise setting this field results in an error.
+                            If omitted, the hostname suffix defaults to "global".
+                          type: string
+                        ingressGatewaySelectors:
                           description: |-
                             Selects the Destination(s) acting as ingress gateways for cross cluster traffic.
                             The supplied IngressGatewaySelectors will be used to select ingress gateways for all Meshes in this VirtualMesh.
@@ -1744,19 +1758,6 @@ spec:
                                 type: string
                             type: object
                           type: array
-                        flatNetwork:
-                          description: |-
-                            If true, all multicluster traffic will be routed directly to the Kubernetes service endpoints of the Destinations,
-                            rather than through an ingress gateway. This mode requires a flat network environment.
-                            This feature is exclusive to Gloo Mesh Enterprise.
-                          type: boolean
-                        hostnameSuffix:
-                          description: |-
-                            Configure the suffix for hostnames of Destinations federated within this VirtualMesh.
-                            Currently this is only supported for Istio with [smart DNS proxying enabled](https://istio.io/latest/blog/2020/dns-proxy/),
-                            otherwise setting this field results in an error.
-                            If omitted, the hostname suffix defaults to "global".
-                          type: string
                         permissive:
                           description: |-
                             DEPRECATED: Use `selectors` with an empty selector (i.e. `{}`) for permissive semantics.

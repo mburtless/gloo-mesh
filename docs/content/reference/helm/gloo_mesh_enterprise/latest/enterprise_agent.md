@@ -35,7 +35,7 @@ weight: 2
 |istiodSidecar.istiodServiceAccount.name|string|istiod-service-account||
 |istiodSidecar.istiodServiceAccount.namespace|string|istio-system||
 |verbose|bool|false||
-|enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"serviceType":"ClusterIP","ports":{"grpc":9977,"http":9988}}|Configuration for the enterpriseAgent deployment.|
+|enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"grpc":9977,"http":9988}}|Configuration for the enterpriseAgent deployment.|
 |enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}}}||
 |enterpriseAgent.image|struct|{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |enterpriseAgent.image.tag|string| |Tag for the container.|
@@ -71,6 +71,8 @@ weight: 2
 |enterpriseAgent.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |enterpriseAgent.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |enterpriseAgent.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|enterpriseAgent.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|enterpriseAgent.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |enterpriseAgent.serviceType|string|ClusterIP|Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |enterpriseAgent.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |enterpriseAgent.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|

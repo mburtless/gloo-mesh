@@ -49,6 +49,7 @@ type VirtualDestinationSpec struct {
 	// The port on which the VirtualDestination listens.
 	Port *VirtualDestinationSpec_Port `protobuf:"bytes,2,opt,name=port,proto3" json:"port,omitempty"`
 	// The VirtualDestination can be made visible to either a single Mesh, all Meshes grouped in a VirtualMesh or a subset of Meshes grouped in a VirtualMesh.
+	// Caveat: this VirtualDestination will be exported to the meshes for all backing destinations, regardless of what's specified here.
 	//
 	// Types that are assignable to ExportTo:
 	//	*VirtualDestinationSpec_VirtualMesh
@@ -162,6 +163,7 @@ type VirtualDestinationSpec_VirtualMesh struct {
 type VirtualDestinationSpec_MeshList_ struct {
 	// The Meshes that this VirtualDestination will be visible to. If multiple meshes are specified, they must
 	// all belong to the same VirtualMesh.
+	// Caveat: this VirtualDestination will be exported to the meshes for all selected backing destinations regardless of what's specified here.
 	MeshList *VirtualDestinationSpec_MeshList `protobuf:"bytes,4,opt,name=mesh_list,json=meshList,proto3,oneof"`
 }
 

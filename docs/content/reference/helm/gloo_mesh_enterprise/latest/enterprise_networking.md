@@ -71,7 +71,7 @@ weight: 2
 |relay.additionalSans[]|string| |additional SANs to add to  relay-server cert|
 |relay.serverCommonName|string|enterprise-networking|CN (CommonName) to use for the relay-server cert. Default: enterprise-networking|
 |relay.rootCommonName|string|enterprise-networking-ca|CN (CommonName) to use for the relay-rooot cert. Default: enterprise-networking-ca|
-|enterpriseNetworking|struct|{"image":{"repository":"enterprise-networking","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"serviceType":"LoadBalancer","ports":{"grpc":9900,"http":8080}}|Configuration for the enterpriseNetworking deployment.|
+|enterpriseNetworking|struct|{"image":{"repository":"enterprise-networking","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"LoadBalancer","ports":{"grpc":9900,"http":8080}}|Configuration for the enterpriseNetworking deployment.|
 |enterpriseNetworking|struct|{"image":{"repository":"enterprise-networking","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}},{"name":"LICENSE_KEY","valueFrom":{"secretKeyRef":{"name":"gloo-mesh-enterprise-license","key":"key"}}}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}}}||
 |enterpriseNetworking.image|struct|{"repository":"enterprise-networking","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |enterpriseNetworking.image.tag|string| |Tag for the container.|
@@ -107,6 +107,8 @@ weight: 2
 |enterpriseNetworking.sidecars.<MAP_KEY>.resources.requests|map[string, struct]| ||
 |enterpriseNetworking.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|struct| ||
 |enterpriseNetworking.sidecars.<MAP_KEY>.resources.requests.<MAP_KEY>|string| ||
+|enterpriseNetworking.floatingUserId|bool|false|Allow the pod to be assigned a dynamic user ID.|
+|enterpriseNetworking.runAsUser|uint32|10101|Static user ID to run the containers as. Unused if floatingUserId is 'true'.|
 |enterpriseNetworking.serviceType|string|LoadBalancer|Specify the service type. Can be either "ClusterIP", "NodePort", "LoadBalancer", or "ExternalName".|
 |enterpriseNetworking.ports|map[string, uint32]| |Specify service ports as a map from port name to port number.|
 |enterpriseNetworking.ports.<MAP_KEY>|uint32| |Specify service ports as a map from port name to port number.|

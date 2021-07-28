@@ -57,6 +57,8 @@ func (v *applier) Apply(
 	input input.LocalSnapshot,
 	userSupplied input.RemoteSnapshot,
 ) {
+	ctx = contextutils.WithLogger(ctx, "applier")
+
 	reporter := newApplyReporter()
 
 	initializePolicyStatuses(input)
@@ -65,7 +67,7 @@ func (v *applier) Apply(
 
 	validateConfigTargetReferences(input)
 
-	applyPoliciesToConfigTargets(input)
+	applyPoliciesToConfigTargets(ctx, input)
 
 	// suppress logs from the applier's wrapped translation
 	silentContext := contextutils.WithExistingLogger(ctx, zap.NewNop().Sugar())
@@ -140,7 +142,7 @@ func validateConfigTargetReferences(input input.LocalSnapshot) {
 }
 
 // Apply networking configuration policies to relevant discovery entities.
-func applyPoliciesToConfigTargets(input input.LocalSnapshot) {
+func applyPoliciesToConfigTargets(ctx context.Context, input input.LocalSnapshot) {
 	for _, destination := range input.Destinations().List() {
 		destination.Status.AppliedTrafficPolicies = getAppliedTrafficPolicies(input.TrafficPolicies().List(), destination)
 		destination.Status.AppliedAccessPolicies = getAppliedAccessPolicies(input.AccessPolicies().List(), destination)
@@ -151,7 +153,7 @@ func applyPoliciesToConfigTargets(input input.LocalSnapshot) {
 	for _, mesh := range input.Meshes().List() {
 		mesh.Status.AppliedVirtualMesh = getAppliedVirtualMesh(input.VirtualMeshes().List(), mesh)
 		// getAppliedEastWestIngressGateways must be invoked after getAppliedVirtualMesh
-		mesh.Status.AppliedEastWestIngressGateways = getAppliedEastWestIngressGateways(input.VirtualMeshes(), mesh, input.Destinations())
+		mesh.Status.AppliedEastWestIngressGateways = getAppliedEastWestIngressGateways(ctx, input.VirtualMeshes(), mesh, input.Destinations())
 	}
 }
 
@@ -779,6 +781,7 @@ func getAppliedVirtualMesh(
 }
 
 func getAppliedEastWestIngressGateways(
+	ctx context.Context,
 	virtualMeshes networkingv1sets.VirtualMeshSet,
 	mesh *discoveryv1.Mesh,
 	destinations discoveryv1sets.DestinationSet,
@@ -789,10 +792,16 @@ func getAppliedEastWestIngressGateways(
 	}
 	virtualMesh, err := virtualMeshes.Find(mesh.Status.GetAppliedVirtualMesh().GetRef())
 	if err != nil {
-		// should never happen
+		contextutils.LoggerFrom(ctx).DPanicf("applied virtual mesh not found for ref %s", sets.Key(mesh.Status.GetAppliedVirtualMesh().GetRef()))
 		return nil
 	}
 
+	// if no specified ingress gateway selectors, fall back on defaults
+	if len(virtualMesh.Spec.GetFederation().GetIngressGatewaySelectors()) == 0 {
+		return getDefaultEastWestIngressGateways(mesh, destinations, virtualMesh)
+	}
+
+	// look up selected ingress gateways
 	var selectedIngressGatewayList []*discoveryv1.MeshStatus_AppliedIngressGateway
 	// Resolve all of the VirtualMesh’s ingress gateway selectors to a list of (Destination, tls port) tuples that belong to the mesh
 	// note: if multiple ingress selectors select the same Destination with different tls port names, we will only consider the port number selected by the first encountered selector
@@ -806,7 +815,7 @@ func getAppliedEastWestIngressGateways(
 		if !ezkube.RefsMatch(destination.Spec.GetMesh(), mesh) {
 			continue
 		}
-		for _, ingressGatewayServiceSelector := range virtualMesh.Spec.GetFederation().GetEastWestIngressGatewaySelectors() {
+		for _, ingressGatewayServiceSelector := range virtualMesh.Spec.GetFederation().GetIngressGatewaySelectors() {
 			if !selectorutils.SelectorMatchesDestination(ingressGatewayServiceSelector.GetDestinationSelectors(), destination) {
 				continue
 			}
@@ -832,10 +841,6 @@ func getAppliedEastWestIngressGateways(
 		}
 	}
 
-	if len(selectedIngressGatewayList) == 0 {
-		return getDefaultEastWestIngressGateways(mesh, destinations, virtualMesh)
-	}
-
 	return selectedIngressGatewayList
 }
 
@@ -851,6 +856,7 @@ func getDefaultEastWestIngressGateways(
 
 	var defaultIngressGatewayList []*discoveryv1.MeshStatus_AppliedIngressGateway
 
+	// TODO: remove once deprecated Mesh.spec.IngressGateways is removed
 	// first respect deprecated Mesh.spec.IngressGateways field
 	for _, ingressGatewayDestination := range mesh.Spec.GetIstio().GetIngressGateways() {
 
@@ -864,11 +870,20 @@ func getDefaultEastWestIngressGateways(
 			continue
 		}
 
+		// fetch destination port
+		var destinationPort uint32
+		for _, port := range destination.Spec.GetKubeService().GetPorts() {
+			// infer destination port based on external tls port
+			if port.Port == ingressGatewayDestination.ExternalTlsPort || port.NodePort == ingressGatewayDestination.ExternalTlsPort {
+				destinationPort = port.Port
+			}
+		}
+
 		defaultIngressGatewayList = append(defaultIngressGatewayList, &discoveryv1.MeshStatus_AppliedIngressGateway{
 			DestinationRef:    ezkube.MakeObjectRef(destination),
 			ExternalAddresses: getDestinationExternalAddresses(destination),
-			DestinationPort:   ingressGatewayDestination.ExternalTlsPort,
-			ContainerPort:     ingressGatewayDestination.TlsContainerPort,
+			Port:              destinationPort,
+			ExternalPort:      ingressGatewayDestination.ExternalTlsPort,
 		})
 	}
 	if len(defaultIngressGatewayList) > 0 {
@@ -923,27 +938,27 @@ func buildAppliedIngressGateway(
 ) (*discoveryv1.MeshStatus_AppliedIngressGateway, error) {
 	kubeService := destination.Spec.GetKubeService()
 
-	if destinationPort, containerPort := getExternalTlsPortNumberByName(kubeService, gatewayTlsPortName); destinationPort != 0 && containerPort != 0 {
+	if externalDestinationPort, destinationPort, err := getIngressPortsByName(kubeService, gatewayTlsPortName); err != nil {
+		return nil, eris.Errorf("ingress gateway destination ports info could not be determined for tls port name: %s", gatewayTlsPortName)
+	} else {
 		return &discoveryv1.MeshStatus_AppliedIngressGateway{
 			DestinationRef: &v1.ObjectRef{
 				Name:      destination.GetName(),
 				Namespace: destination.GetNamespace(),
 			},
 			ExternalAddresses: getDestinationExternalAddresses(destination),
-			DestinationPort:   destinationPort,
-			ContainerPort:     containerPort,
+			Port:              destinationPort,
+			ExternalPort:      externalDestinationPort,
 		}, nil
-	} else {
-		return nil, eris.Errorf("ingress gateway destination port info could not be determined for tls port name: %s", gatewayTlsPortName)
 	}
 }
 
 // return the externally addressable port with the given name
 // if portName is empty, default to "tls"
-func getExternalTlsPortNumberByName(
+func getIngressPortsByName(
 	kubeService *discoveryv1.DestinationSpec_KubeService,
 	portName string,
-) (destinationPort uint32, containerPort uint32) {
+) (externalDestinationPort uint32, destinationPort uint32, err error) {
 	if portName == "" {
 		portName = defaults.IstioGatewayTlsPortName
 	}
@@ -953,34 +968,23 @@ func getExternalTlsPortNumberByName(
 			continue
 		}
 
-		switch portType := port.GetTargetPort().(type) {
-		case *discoveryv1.DestinationSpec_KubeService_KubeServicePort_TargetPortNumber:
-			containerPort = portType.TargetPortNumber
-		case *discoveryv1.DestinationSpec_KubeService_KubeServicePort_TargetPortName:
-			// resolve port name to number using Workload
-			for _, epSubset := range kubeService.GetEndpointSubsets() {
-				// just use the first encountered container port
-				// TODO: account for target port names that point at multiple different container port numbers
-				if containerPort != 0 {
-					break
-				}
-				for _, epPort := range epSubset.GetPorts() {
-					if epPort.Name == portType.TargetPortName {
-						containerPort = epPort.Port
-						break
-					}
-				}
-			}
-		}
+		destinationPort = port.GetPort()
 
 		switch kubeService.ServiceType {
 		case discoveryv1.DestinationSpec_KubeService_NODE_PORT:
-			destinationPort = port.NodePort
+			externalDestinationPort = port.NodePort
 		case discoveryv1.DestinationSpec_KubeService_LOAD_BALANCER:
-			destinationPort = port.Port
+			externalDestinationPort = port.Port
 		}
+
+		break
 	}
-	return destinationPort, containerPort
+
+	if externalDestinationPort == 0 || destinationPort == 0 {
+		return 0, 0, eris.Errorf("ingress gateway destination ports info could not be determined for tls port name: %s", portName)
+	}
+
+	return externalDestinationPort, destinationPort, nil
 }
 
 // return the Meshes that the Destination is federated to, ignoring the Destination's parent Mesh

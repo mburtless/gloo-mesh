@@ -348,7 +348,7 @@ func FederationTest() {
 
 		By("able to select the default ingress gateway destination explicitly", func() {
 			defaultFederatedIngressGatewayVm := VirtualMesh.DeepCopy()
-			defaultFederatedIngressGatewayVm.Spec.Federation.EastWestIngressGatewaySelectors = []*commonv1.IngressGatewaySelector{
+			defaultFederatedIngressGatewayVm.Spec.Federation.IngressGatewaySelectors = []*commonv1.IngressGatewaySelector{
 				{
 					DestinationSelectors: []*commonv1.DestinationSelector{
 						{

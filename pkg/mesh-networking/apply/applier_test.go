@@ -764,7 +764,7 @@ var _ = Describe("Applier", func() {
 			applier = NewApplier(translator)
 		})
 
-		It("when ingress selectors are omitted, should first fallback on deprecated Mesh ingress gateway info", func() {
+		It("specified ingress selectors don't match any ingress gateway destinations if they don't exist", func() {
 
 			mesh := &discoveryv1.Mesh{
 				ObjectMeta: metav1.ObjectMeta{
@@ -805,6 +805,78 @@ var _ = Describe("Applier", func() {
 					Meshes: []*skv2corev1.ObjectRef{
 						ezkube.MakeObjectRef(mesh),
 					},
+					Federation: &networkingv1.VirtualMeshSpec_Federation{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+							{
+								DestinationSelectors: []*commonv1.DestinationSelector{
+									{
+										KubeServiceMatcher: &commonv1.DestinationSelector_KubeServiceMatcher{
+											Labels: map[string]string{
+												"matches": "nothing",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+
+			mesh.Status.AppliedVirtualMesh = &discoveryv1.MeshStatus_AppliedVirtualMesh{
+				Ref: &skv2corev1.ObjectRef{
+					Name:      "vm1",
+					Namespace: "ns",
+				},
+			}
+
+			snap.AddVirtualMeshes([]*networkingv1.VirtualMesh{defaultVirtualMesh})
+
+			applier.Apply(context.TODO(), snap.Build(), nil)
+
+			Expect(len(mesh.Status.AppliedEastWestIngressGateways)).To(Equal(0))
+		})
+
+		It("when ingress selectors are omitted, should first fallback on deprecated Mesh ingress gateway info", func() {
+
+			mesh := &discoveryv1.Mesh{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "mesh",
+					Namespace: "ns",
+				},
+				Spec: discoveryv1.MeshSpec{
+					Type: &discoveryv1.MeshSpec_Istio_{
+						Istio: &discoveryv1.MeshSpec_Istio{
+							Installation: &discoveryv1.MeshInstallation{
+								Namespace: "mesh-ns",
+								Cluster:   "cluster-name",
+								Version:   "latest",
+								PodLabels: map[string]string{"app": "istiod"},
+							},
+							IngressGateways: []*discoveryv1.MeshSpec_Istio_IngressGatewayInfo{
+								{
+									Name:            "svc-name1",
+									Namespace:       "svc-namespace",
+									ExternalTlsPort: 15678,
+								},
+							},
+						},
+					},
+				},
+			}
+
+			snap.AddDestinations(discoveryv1.DestinationSlice{destination1, destination2, destination3, destination4})
+			snap.AddMeshes(discoveryv1.MeshSlice{mesh})
+
+			defaultVirtualMesh := &networkingv1.VirtualMesh{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "vm1",
+					Namespace: "ns",
+				},
+				Spec: networkingv1.VirtualMeshSpec{
+					Meshes: []*skv2corev1.ObjectRef{
+						ezkube.MakeObjectRef(mesh),
+					},
 				},
 			}
 
@@ -824,8 +896,8 @@ var _ = Describe("Applier", func() {
 			Expect(mesh.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   5678,
-				ContainerPort:     95678,
+				Port:              5678,
+				ExternalPort:      15678,
 			}))
 		})
 
@@ -868,26 +940,26 @@ var _ = Describe("Applier", func() {
 			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   11234,
-				ContainerPort:     91234,
+				Port:              1234,
+				ExternalPort:      11234,
 			}))
 			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination2),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   11234,
-				ContainerPort:     91234,
+				Port:              1234,
+				ExternalPort:      11234,
 			}))
 			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination3),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   1234,
-				ContainerPort:     91234,
+				Port:              1234,
+				ExternalPort:      1234,
 			}))
 			Expect(mesh4.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination4),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   1234,
-				ContainerPort:     91234,
+				Port:              1234,
+				ExternalPort:      1234,
 			}))
 		})
 
@@ -904,7 +976,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh1),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -935,7 +1007,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh2),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -970,7 +1042,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh4),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -1030,33 +1102,33 @@ var _ = Describe("Applier", func() {
 			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   11234,
-				ContainerPort:     91234,
+				Port:              1234,
+				ExternalPort:      11234,
 			}))
 			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination2),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   15678,
-				ContainerPort:     95678,
+				Port:              5678,
+				ExternalPort:      15678,
 			}))
 			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination3),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
-				DestinationPort:   5678,
-				ContainerPort:     95678,
+				Port:              5678,
+				ExternalPort:      5678,
 			}))
 			Expect(mesh4.Status.AppliedEastWestIngressGateways).To(ConsistOf([]*discoveryv1.MeshStatus_AppliedIngressGateway{
 				{
 					DestinationRef:    ezkube.MakeObjectRef(destination4),
 					ExternalAddresses: []string{"external-dns-name", "external-ip"},
-					DestinationPort:   1234,
-					ContainerPort:     91234,
+					Port:              1234,
+					ExternalPort:      1234,
 				},
 				{
 					DestinationRef:    ezkube.MakeObjectRef(destination5),
 					ExternalAddresses: []string{"external-dns-name", "external-ip"},
-					DestinationPort:   1234,
-					ContainerPort:     91234,
+					Port:              1234,
+					ExternalPort:      1234,
 				},
 			}))
 		})
@@ -1133,7 +1205,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh1),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -1165,7 +1237,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh2),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -1203,7 +1275,7 @@ var _ = Describe("Applier", func() {
 						ezkube.MakeObjectRef(mesh3),
 					},
 					Federation: &networkingv1.VirtualMeshSpec_Federation{
-						EastWestIngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+						IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
 							{
 								DestinationSelectors: []*commonv1.DestinationSelector{
 									{
@@ -1244,7 +1316,7 @@ var _ = Describe("Applier", func() {
 			Expect(virtualMeshWithBadSelector2.Status.GetState()).To(Equal(commonv1.ApprovalState_INVALID))
 			Expect(len(virtualMeshWithBadSelector2.Status.Errors)).To(Equal(1))
 			Expect(virtualMeshWithBadSelector2.Status.Errors[0]).
-				To(Equal("ingress gateway destination port info could not be determined for tls port name: tls"))
+				To(Equal("ingress gateway destination ports info could not be determined for tls port name: tls"))
 
 			Expect(virtualMeshWithBadSelector3.Status.GetState()).To(Equal(commonv1.ApprovalState_INVALID))
 			Expect(len(virtualMeshWithBadSelector3.Status.Errors)).To(Equal(1))

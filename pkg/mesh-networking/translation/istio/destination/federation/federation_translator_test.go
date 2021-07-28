@@ -70,12 +70,12 @@ var _ = Describe("FederationTranslator", func() {
 					{
 						DestinationRef:    nil, // not used at this stage in translation
 						ExternalAddresses: []string{"mesh-gateway.dns.name"},
-						DestinationPort:   8181,
+						ExternalPort:      8181,
 					},
 					{
 						DestinationRef:    nil, // not used at this stage in translation
 						ExternalAddresses: []string{"172.18.0.2"},
-						DestinationPort:   8181,
+						ExternalPort:      8181,
 					},
 				},
 			},
