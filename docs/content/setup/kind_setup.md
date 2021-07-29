@@ -21,7 +21,7 @@ Once you have those pieces in place, you will simply run the following commands 
 ```bash
 # Create cluster-1
 # Set version, cluster name, and port
-kindImage=kindest/node:v1.17.5
+kindImage=kindest/node:v1.17.17@sha256:66f1d0d91a88b8a001811e2f1054af60eef3b669a9a74f9b6db871f2f1eeed00
 cluster=cluster-1
 port=32001
 

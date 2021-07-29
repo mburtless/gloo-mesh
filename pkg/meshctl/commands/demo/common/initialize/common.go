@@ -22,7 +22,7 @@ import (
 
 const (
 	// The default version of k8s under Linux is 1.18 https://github.com/solo-io/gloo-mesh/issues/700
-	kindImage      = "kindest/node:v1.17.5"
+	kindImage      = "kindest/node:v1.17.17@sha256:66f1d0d91a88b8a001811e2f1054af60eef3b669a9a74f9b6db871f2f1eeed00"
 	managementPort = "32001"
 	remotePort     = "32000"
 )
