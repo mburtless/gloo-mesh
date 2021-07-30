@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: enterprise-networking
+  annotations:
+    app.kubernetes.io/name: enterprise-networking2
+  name: enterprise-networking2
+  namespace: test
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: enterprise-networking
+  annotations:
+    app.kubernetes.io/name: enterprise-networking
+    crd.solo.io/crdMetadata: "{\"crds\":[{\"name\":\"destinations.discovery.mesh.gloo.solo.io\",\"hash\":\"7e30f8d386339cbb\"}],\"version\":\"1.1.0\"}"
+  name: enterprise-networking
+  namespace: test

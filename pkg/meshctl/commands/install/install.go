@@ -13,10 +13,13 @@ import (
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/enterprise"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/gloomesh"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm"
+	installutils "github.com/solo-io/gloo-mesh/pkg/meshctl/install/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/registration"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
+	validationconsts "github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
+	"github.com/solo-io/skv2/pkg/crdutils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -209,6 +212,18 @@ func enterpriseCommand(ctx context.Context, installOpts *Options) *cobra.Command
   meshctl install enterprise --license=<my_license> --skip-ui`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
+			var crdMD map[string]*crdutils.CRDMetadata
+			if !opts.SkipChecks {
+				crdMDForDeploy, err := installutils.GetCrdMetadataFromInstaller(ctx, validationconsts.MgmtDeployName, opts.getInstaller())
+				if err != nil {
+					// we don't want to error if we can't get the CRD metadata, as this might be a release without one.
+					// we may want to change that in the future.
+				} else {
+					crdMD = map[string]*crdutils.CRDMetadata{
+						validationconsts.MgmtDeployName: crdMDForDeploy,
+					}
+				}
+			}
 			checkCtx, err := validation.NewOutOfClusterCheckContext(
 				installOpts.KubeCfgPath,
 				installOpts.KubeContext,
@@ -219,12 +234,13 @@ func enterpriseCommand(ctx context.Context, installOpts *Options) *cobra.Command
 					RelayServerAddress: opts.RelayServerAddress,
 				},
 				opts.SkipChecks,
+				crdMD,
 			)
 			if err != nil {
 				return err
 			}
 
-			if foundFailure := checkCtx.RunChecks(ctx, checks.Server, checks.PreInstall); foundFailure {
+			if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PreInstall); foundFailure {
 				return eris.New("encountered failed pre-install checks")
 			}
 

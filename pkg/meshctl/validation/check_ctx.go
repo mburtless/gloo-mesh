@@ -2,6 +2,7 @@ package validation
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -14,7 +15,9 @@ import (
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
 	"github.com/solo-io/go-utils/contextutils"
+	"github.com/solo-io/skv2/pkg/crdutils"
 	skutils "github.com/solo-io/skv2/pkg/utils"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,6 +26,7 @@ import (
 
 type InClusterCheckContext struct {
 	checks.CommonContext
+	crdMetadata map[string]*crdutils.CRDMetadata
 }
 
 type OutOfClusterCheckContext struct {
@@ -32,6 +36,27 @@ type OutOfClusterCheckContext struct {
 	mgmtKubeContext string
 	localPort       uint32
 	remotePort      uint32
+	crdMetadata     map[string]*crdutils.CRDMetadata
+}
+
+func getCrdMetadataFromEnv() (map[string]*crdutils.CRDMetadata, error) {
+	// We expect this variable to be set by the k8s downward api
+	deploymentTested := os.Getenv(consts.DeploymentTestedDownwardApiEnvVar)
+	if deploymentTested == "" {
+		return nil, errors.New(consts.DeploymentTestedDownwardApiEnvVar + " env var not set")
+	}
+	crdJson := os.Getenv(consts.CrdMetadataDownwardApiEnvVar)
+	if crdJson == "" {
+		return nil, errors.New(consts.CrdMetadataDownwardApiEnvVar + " env var not set")
+	}
+	var crdMd crdutils.CRDMetadata
+	err := json.Unmarshal([]byte(crdJson), &crdMd)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]*crdutils.CRDMetadata{
+		deploymentTested: &crdMd,
+	}, nil
 }
 
 func NewInClusterCheckContext() (checks.CheckContext, error) {
@@ -53,7 +78,8 @@ func NewInClusterCheckContext() (checks.CheckContext, error) {
 		skipChecks = true
 	}
 
-	return &InClusterCheckContext{
+	// get the crd annotations from the downward api:
+	ret := &InClusterCheckContext{
 		CommonContext: checks.CommonContext{
 			Cli: kubeClient,
 			Env: checks.Environment{
@@ -64,7 +90,16 @@ func NewInClusterCheckContext() (checks.CheckContext, error) {
 			ServerParams: nil, // TODO pass in install / upgrade parameters, perhaps through CLI var args?
 			SkipChecks:   skipChecks,
 		},
-	}, nil
+	}
+
+	// We expect this variable to be set by the k8s downward api
+	crdMd, err := getCrdMetadataFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	ret.crdMetadata = crdMd
+
+	return ret, nil
 }
 
 // exposed for testing, allows injecting mock k8s client
@@ -74,10 +109,12 @@ func NewTestCheckContext(
 	localPort, remotePort uint32,
 	serverParams *checks.ServerParams,
 	ignoreChecks bool,
-) (checks.CheckContext, error) {
+	crdMd map[string]*crdutils.CRDMetadata,
+) checks.CheckContext {
 	return &OutOfClusterCheckContext{
-		remotePort: remotePort,
-		localPort:  localPort,
+		remotePort:  remotePort,
+		localPort:   localPort,
+		crdMetadata: crdMd,
 		CommonContext: checks.CommonContext{
 			Cli: client,
 			Env: checks.Environment{
@@ -88,7 +125,7 @@ func NewTestCheckContext(
 			ServerParams: serverParams,
 			SkipChecks:   ignoreChecks,
 		},
-	}, nil
+	}
 }
 
 func NewOutOfClusterCheckContext(
@@ -98,6 +135,7 @@ func NewOutOfClusterCheckContext(
 	localPort, remotePort uint32,
 	serverParams *checks.ServerParams,
 	ignoreChecks bool,
+	crdMd map[string]*crdutils.CRDMetadata,
 ) (checks.CheckContext, error) {
 	kubeClient, err := utils.BuildClient(mgmtKubeConfig, mgmtKubeContext)
 	if err != nil {
@@ -109,6 +147,7 @@ func NewOutOfClusterCheckContext(
 		localPort:       localPort,
 		mgmtKubeConfig:  mgmtKubeConfig,
 		mgmtKubeContext: mgmtKubeContext,
+		crdMetadata:     crdMd,
 		CommonContext: checks.CommonContext{
 			Cli: kubeClient,
 			Env: checks.Environment{
@@ -125,6 +164,10 @@ func NewOutOfClusterCheckContext(
 
 func (c *InClusterCheckContext) Context() checks.CommonContext {
 	return c.CommonContext
+}
+
+func (c *InClusterCheckContext) CRDMetadata(ctx context.Context, deploymentName string) (*crdutils.CRDMetadata, error) {
+	return c.crdMetadata[deploymentName], nil
 }
 
 func (c *InClusterCheckContext) AccessAdminPort(ctx context.Context, deployment string, op func(ctx context.Context, adminUrl *url.URL) (error, string)) (error, string) {
@@ -173,14 +216,6 @@ func (c *InClusterCheckContext) AccessAdminPort(ctx context.Context, deployment 
 	return op(ctx, adminUrl)
 }
 
-func (c *InClusterCheckContext) RunChecks(ctx context.Context, component checks.Component, st checks.Stage) bool {
-	if c.CommonContext.SkipChecks {
-		return true
-	}
-
-	return checks.RunChecks(ctx, c, component, st)
-}
-
 func (c *OutOfClusterCheckContext) Context() checks.CommonContext {
 	return c.CommonContext
 }
@@ -211,10 +246,34 @@ func (c *OutOfClusterCheckContext) AccessAdminPort(ctx context.Context, deployme
 	return op(portFwdContext, adminUrl)
 }
 
-func (c *OutOfClusterCheckContext) RunChecks(ctx context.Context, component checks.Component, st checks.Stage) bool {
-	if c.CommonContext.SkipChecks {
-		return true
+func (c *OutOfClusterCheckContext) CRDMetadata(ctx context.Context, deploymentName string) (*crdutils.CRDMetadata, error) {
+	if c.crdMetadata != nil {
+		if md, ok := c.crdMetadata[deploymentName]; ok {
+			return md, nil
+		}
+	}
+	// if not provided in construction, fetch from the cluster:
+	// read the annotations of the deployment
+	d, err := v1.NewDeploymentClient(c.Cli).GetDeployment(ctx, client.ObjectKey{
+		Namespace: c.Env.Namespace,
+		Name:      deploymentName,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return checks.RunChecks(ctx, c, component, st)
+	crdMeta, err := crdutils.ParseCRDMetadataFromAnnotations(d.Annotations)
+	if err != nil {
+		return nil, err
+	}
+	if crdMeta == nil {
+		return nil, eris.New("No crd information found")
+	}
+
+	if c.crdMetadata == nil {
+		c.crdMetadata = make(map[string]*crdutils.CRDMetadata)
+	}
+
+	c.crdMetadata[deploymentName] = crdMeta
+	return crdMeta, nil
 }

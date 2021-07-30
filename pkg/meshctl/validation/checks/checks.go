@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
 )
 
 var (
@@ -23,6 +25,15 @@ func toKey(Component Component, Stage Stage) mapKey {
 
 // checks for all components and stages are defined here
 func allChecks() map[mapKey][]Category {
+	//  We want to run this check
+	// in [pre-install, pre-upgrade, test] stages
+	crdUpgradeCheck := Category{
+		Name: "CRD Version Checks",
+		Checks: []Check{
+			NewCrdUpgradeCheck(consts.MgmtDeployName),
+		},
+	}
+
 	managementPlane := Category{
 		Name: "Gloo Mesh Installation",
 		Checks: []Check{
@@ -45,19 +56,30 @@ func allChecks() map[mapKey][]Category {
 		},
 	}
 
-	return map[mapKey][]Category{
+	allchecks := map[mapKey][]Category{
 		toKey(Server, PreInstall): {
 			serverParams,
+			crdUpgradeCheck,
 		},
 		toKey(Server, PostInstall): {
 			managementPlane,
 			configuration,
 		},
 	}
+
+	// test can include all post install checks, plus some more
+	allchecks[toKey(Server, Test)] = allchecks[toKey(Server, PostInstall)]
+	// extra checks to be done on test stage:
+	allchecks[toKey(Server, Test)] = append(allchecks[toKey(Server, Test)], crdUpgradeCheck)
+	return allchecks
 }
 
 // invoked by either meshctl or Helm hooks
+// execute the checks for the given component and stage, and return true if a failure was found
 func RunChecks(ctx context.Context, checkCtx CheckContext, c Component, st Stage) bool {
+	if checkCtx.Context().SkipChecks {
+		return false
+	}
 	var foundFailure bool
 
 	for _, category := range allChecks()[toKey(c, st)] {

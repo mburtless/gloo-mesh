@@ -12,6 +12,7 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,8 +22,7 @@ import (
 )
 
 const (
-	mgmtDeployName = "enterprise-networking"
-	clusterRegDoc  = "https://docs.solo.io/gloo-mesh/latest/setup/cluster_registration/enterprise_cluster_registration/"
+	clusterRegDoc = "https://docs.solo.io/gloo-mesh/latest/setup/cluster_registration/enterprise_cluster_registration/"
 )
 
 const (
@@ -55,7 +55,7 @@ type connectionStatus struct {
 func isEnterpriseVersion(ctx context.Context, c client.Client, installNamespace string) (bool, error) {
 	_, err := v1.NewDeploymentClient(c).GetDeployment(ctx, client.ObjectKey{
 		Namespace: installNamespace,
-		Name:      mgmtDeployName,
+		Name:      consts.MgmtDeployName,
 	})
 	if err != nil {
 		if kerrors.IsNotFound(err) {
@@ -200,7 +200,7 @@ func calculateClusterStatuses(
 func (d *enterpriseRegistrationCheck) getConnectedAgents(ctx context.Context, checkCtx CheckContext) (map[string]int, map[string]int, error, string) {
 
 	var parsedMetrics map[string]*dto.MetricFamily
-	err, hint := checkCtx.AccessAdminPort(ctx, mgmtDeployName, func(ctx context.Context, adminUrl *url.URL) (error, string) {
+	err, hint := checkCtx.AccessAdminPort(ctx, consts.MgmtDeployName, func(ctx context.Context, adminUrl *url.URL) (error, string) {
 		metricsUrl := adminUrl.ResolveReference(&url.URL{Path: "/metrics"}).String()
 		resp, err := http.DefaultClient.Get(metricsUrl)
 		if err != nil {

@@ -8,6 +8,7 @@ package groups
 
 import (
 	"github.com/solo-io/gloo-mesh/codegen/constants"
+	gmversion "github.com/solo-io/gloo-mesh/pkg/common/version"
 	"github.com/solo-io/skv2/codegen/model"
 	"github.com/solo-io/skv2/contrib"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -129,6 +130,7 @@ func MakeGroup(module, apiRoot, groupPrefix, version string, resourcesToGenerate
 		Module:                  module,
 		Resources:               resources,
 		RenderManifests:         true,
+		AddChartVersion:         gmversion.Version,
 		RenderValidationSchemas: true,
 		RenderTypes:             true,
 		RenderClients:           true,

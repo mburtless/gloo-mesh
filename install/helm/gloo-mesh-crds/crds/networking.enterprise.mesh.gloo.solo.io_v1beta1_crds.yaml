@@ -3,6 +3,9 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: fb0b97e72264e957
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -232,6 +235,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: 91a67f4cfbf9b440
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -330,6 +336,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: a8b86c9ad12a4e7d
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -909,6 +918,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: d1691cd70499af86
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -1811,6 +1823,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: 11edbc46fd85d83a
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -4384,6 +4399,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: 9601d9f489cf95e0
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -5953,6 +5971,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: 391680ee0d0494b2
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh
@@ -6159,6 +6180,9 @@ spec:
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    crd.solo.io/specHash: dfdaed06c5e25e3c
+    crd.solo.io/version: 1.1.0
   labels:
     app: gloo-mesh
     app.kubernetes.io/name: gloo-mesh

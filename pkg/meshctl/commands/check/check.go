@@ -52,12 +52,13 @@ func runChecks(ctx context.Context, opts *options) error {
 		opts.remotePort,
 		nil, // server post install check doesn't require validating install parameters
 		false,
+		nil, // in check we want to check the incluseter values so pass nil.
 	)
 	if err != nil {
 		return eris.Wrapf(err, "invalid kubeconfig")
 	}
 
-	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PostInstall); foundFailure {
+	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.Test); foundFailure {
 		return eris.New("Encountered failed checks.")
 	}
 	return nil

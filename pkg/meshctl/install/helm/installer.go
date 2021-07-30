@@ -44,6 +44,7 @@ type Installer struct {
 	Values      map[string]string
 	Verbose     bool
 	DryRun      bool
+	Output      io.Writer
 }
 
 func (i Installer) InstallChart(ctx context.Context) error {
@@ -56,12 +57,15 @@ func (i Installer) InstallChart(ctx context.Context) error {
 	verbose := i.Verbose
 	dryRun := i.DryRun
 
-	kubeClient, err := utils.BuildClient(kubeConfig, kubeContext)
-	if err != nil {
-		return err
-	}
-
+	// must only be used if not dry run.
+	var kubeClient client.Client
 	if !dryRun {
+		var err error
+		kubeClient, err = utils.BuildClient(kubeConfig, kubeContext)
+		if err != nil {
+			return err
+		}
+
 		if err = utils.EnsureNamespace(ctx, kubeClient, namespace); err != nil {
 			return eris.Wrapf(err, "creating namespace")
 		}
@@ -133,15 +137,21 @@ func (i Installer) InstallChart(ctx context.Context) error {
 
 	updateReleaseManifestWithCrds(chartObj, release)
 	// output to stdout
-	output(release, dryRun, isUpgrade)
+	i.output(release, dryRun, isUpgrade)
 
 	return nil
 }
 
-func output(release *release.Release, dryRun bool, isUpgrade bool) {
+func (i Installer) output(release *release.Release, dryRun bool, isUpgrade bool) {
+	var output io.Writer = os.Stdout
+
+	if i.Output != nil {
+		output = i.Output
+	}
+
 	if dryRun {
 		// dry run should only output a pipe-able manifest
-		fmt.Printf("%v", release.Manifest)
+		fmt.Fprintf(output, "%v", release.Manifest)
 	} else {
 		verb := "installing"
 		if isUpgrade {
@@ -153,6 +163,21 @@ func output(release *release.Release, dryRun bool, isUpgrade bool) {
 		)
 		logrus.Debugf("%v", release.Manifest)
 	}
+}
+
+func (i Installer) GetRenderedManifests(ctx context.Context) ([]byte, error) {
+	installer := i
+	// set dry run to true to get a manifest about to be installed
+	installer.DryRun = true
+	buf := bytes.NewBuffer(nil)
+	installer.Output = buf
+	err := installer.InstallChart(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// take the generated manifest:
+	renderedManifests := buf.Bytes()
+	return renderedManifests, nil
 }
 
 // Helm does not update CRDs upon upgrade, https://github.com/helm/helm/issues/7735

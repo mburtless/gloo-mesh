@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/rotisserie/eris"
 	externalapis "github.com/solo-io/external-apis/codegen"
@@ -17,7 +19,10 @@ import (
 	skv1alpha1 "github.com/solo-io/skv2/api/multicluster/v1alpha1"
 	"github.com/solo-io/skv2/codegen"
 	"github.com/solo-io/skv2/codegen/model"
+	"github.com/solo-io/skv2/codegen/render"
 	"github.com/solo-io/skv2/codegen/util"
+	"github.com/solo-io/skv2/pkg/crdutils"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func main() {
@@ -125,7 +130,46 @@ func run() error {
 	if err := os.Rename(vendoredMultiClusterCRDs, importedMultiClusterCRDs); err != nil {
 		return err
 	}
+	// we need to add the version to the CRD, as it is not included in the CRD (CRD is generated in skv2 that doesn't know the version of gloo mesh).
+	// spec hash is included.
+	if err := addVersionAnnotationToImportedMultiClusterCRD(importedMultiClusterCRDs); err != nil {
+		return err
+	}
+	return nil
+}
 
+// This function is needed because this CRD is not generated, thus we need to manually add the version annotation.
+// the specHash annotation should already be there.
+func addVersionAnnotationToImportedMultiClusterCRD(path string) error {
+	if version.Version == "" {
+		return nil
+	}
+	// note(yuval-k): in theory I can read the CRD as yaml, add the annotation and write back as yaml.
+	//  but that would remove the comments in the file which is not desireable.
+	// so instead, I'm going to read the file, and insert the version annotation right after the spec hash annotation.
+	var obj unstructured.Unstructured
+	// use the SetVersionForObject as it correctly trims the patch version. This is same
+	// code used in the CRD, so using it future proofs us.
+	render.SetVersionForObject(&obj, version.Version)
+	annotations := obj.GetAnnotations()
+	version := ""
+	if annotations != nil && annotations[crdutils.CRDVersionKey] != "" {
+		version = annotations[crdutils.CRDVersionKey]
+	} else {
+		return fmt.Errorf("failed to find the version annotation in the CRD")
+	}
+	versionAnnotationYaml := fmt.Sprintf("    %s: %s", crdutils.CRDVersionKey, version)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	specRegex, err := regexp.Compile("(?m)" + crdutils.CRDSpecHashKey + `:.*$`)
+	if err != nil {
+		return err
+	}
+	data = specRegex.ReplaceAll(data, []byte("$0\n"+versionAnnotationYaml))
+	os.WriteFile(path, data, 0644)
 	return nil
 }
 

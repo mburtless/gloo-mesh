@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/solo-io/skv2/pkg/crdutils"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -14,7 +15,11 @@ const (
 	PostInstall       = "post-install"
 	PreUpgrade        = "pre-upgrade"
 	PostUpgrade       = "post-upgrade"
-	Test              = "test"
+
+	// Test includes all post-install checks, and may include more checks that are make sure
+	// that all is well with the system (for example, run some pre-install checks to verify the
+	// environment is still OK).
+	Test = "test"
 )
 
 type Component string
@@ -57,9 +62,7 @@ type CheckContext interface {
 	Client() client.Client
 	AccessAdminPort(ctx context.Context, deployment string, op OperateOnAdminPort) (error, string)
 	Context() CommonContext
-
-	// execute the checks for the given component and stage, and return true if all checks passed
-	RunChecks(ctx context.Context, c Component, st Stage) bool
+	CRDMetadata(ctx context.Context, deploymentName string) (*crdutils.CRDMetadata, error)
 }
 
 type Check interface {
