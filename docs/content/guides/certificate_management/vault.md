@@ -2,7 +2,7 @@
 title: Vault PKI Integration
 menuTitle: Vault PKI Integration
 description: Guide to using Vault with Gloo Mesh Enterprise to manage Istio certificates
-weight: 30
+weight: 70
 ---
 
 {{% notice note %}} Gloo Mesh Enterprise is required for this feature. {{% /notice %}}
@@ -17,15 +17,16 @@ In addition to using Vault for the intermediate CA, this guide will also explore
 
 This guide assumes the following:
 
-  * Gloo Mesh Enterprise is [installed in relay mode and running on the `cluster-1`]({{% versioned_link_path fromRoot="/setup/install-gloo-mesh" %}})
-  * `gloo-mesh` is the installation namespace for Gloo Mesh
-  * `enterprise-networking` is deployed on `cluster-1` in the `gloo-mesh` namespace and exposes its gRPC server on port 9900
-  * `enterprise-agent` is deployed on both clusters and exposes its gRPC server on port 9977
-  * Both `cluster-1` and `cluster-2` are [registered with Gloo Mesh]({{% versioned_link_path fromRoot="/guides/#two-registered-clusters" %}})
-  * Istio is [installed on both clusters]({{% versioned_link_path fromRoot="/guides/installing_istio" %}}) clusters
-  * `istio-system` is the root namespace for both Istio deployments
-  * The `bookinfo` app is [installed into the two clusters]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployed-on-two-clusters" %}}) under the `bookinfo` namespace
-  * the following environment variables are set:
+* Gloo Mesh Enterprise is [installed in relay mode and running on the `cluster-1`]({{% versioned_link_path fromRoot="/setup/install-gloo-mesh" %}})
+* `gloo-mesh` is the installation namespace for Gloo Mesh
+* `enterprise-networking` is deployed on `cluster-1` in the `gloo-mesh` namespace and exposes its gRPC server on port 9900
+* `enterprise-agent` is deployed on both clusters and exposes its gRPC server on port 9977
+* Both `cluster-1` and `cluster-2` are [registered with Gloo Mesh]({{% versioned_link_path fromRoot="/guides/#two-registered-clusters" %}})
+* Istio is [installed on both clusters]({{% versioned_link_path fromRoot="/guides/installing_istio" %}}) clusters
+* `istio-system` is the root namespace for both Istio deployments
+* The `bookinfo` app is [installed into the two clusters]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployed-on-two-clusters" %}}) under the `bookinfo` namespace
+* the following environment variables are set:
+
 ```shell
 CONTEXT_1="cluster_1's_context"
 CONTEXT_2="cluster_2's_context"
@@ -36,11 +37,13 @@ CONTEXT_2="cluster_2's_context"
 {{% notice note %}} Installing Vault is an optional step. An existing Vault deployment may be used if you already have access to one. {{% /notice %}}
 
 1. Install Vault using helm
+
 ```shell
 helm repo add hashicorp https://helm.releases.hashicorp.com
 ```
 
 2. Generate root-cert and key for Vault
+
 ```shell
 openssl req -new -newkey rsa:4096 -x509 -sha256 \
     -days 3650 -nodes -out root-cert.pem -keyout root-key.pem \
@@ -48,6 +51,7 @@ openssl req -new -newkey rsa:4096 -x509 -sha256 \
 ```
 
 3. Let's install vault, and add our root-ca to each deployment
+
 ```shell
 for cluster in ${CONTEXT_1} ${CONTEXT_2}; do
 
@@ -137,6 +141,7 @@ spec:
 {{< /highlight >}}
 
 Run the following command to apply this `VirtualMesh` to the mgmt-cluster.
+
 ```shell
 cat << EOF | kubectl apply --context=${CONTEXT_1} -f -
 apiVersion: networking.mesh.gloo.solo.io/v1
@@ -176,12 +181,14 @@ EOF
 The new istio-agent sidecar (we'll install in the next step) will need to read and modify Gloo Mesh resources. To enable the necessary RBAC permissions, we are going to update our `enterprise-agent` helm release on both clusters.
 
 If your  Enterprise Agents were installed via helm, and those manifests are applied using GitOps then add the following values to your `values.yaml` file.
+
 ```yaml
 istiodSidecar:
   createRoleBinding: true
 ```
 
 Otherwise, run the following to update the currently deployed agent helm releases.
+
 ```shell
 for cluster in ${CONTEXT_1} ${CONTEXT_2}; do
   helm get values -n gloo-mesh enterprise-agent --kube-context="${cluster}" > $cluster-values.yaml
@@ -198,6 +205,7 @@ done
 Now that we have created our VirtualMesh to use Vault for the intermediate CA, we need to go ahead and modify our Istio installation to support fetching and dynamically reloading the intermediate CA from Vault.
 
 First things first, we need to get the verison of our components running in cluster:
+
 ```shell
 export MGMT_PLANE_VERSION=$(meshctl version | jq '.server[].components[] | select(.componentName == "enterprise-networking") | .images[] | select(.name == "enterprise-networking") | .version')
 ```
