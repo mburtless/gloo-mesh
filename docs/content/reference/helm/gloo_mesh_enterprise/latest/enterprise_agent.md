@@ -29,7 +29,7 @@ weight: 2
 |settingsRef|struct|{"name":"settings","namespace":"gloo-mesh"}|ref to the settings object that will be received from the networking server.|
 |settingsRef.name|string|settings||
 |settingsRef.namespace|string|gloo-mesh||
-|istiodSidecar|struct|{"createRoleBinding":false,"istiodServiceAccount":{"name":"istiod-service-account","namespace":"istio-system"}}|settings pretaining to the istiod sidecar deployment|
+|istiodSidecar|struct|{"createRoleBinding":false,"istiodServiceAccount":{"name":"istiod-service-account","namespace":"istio-system"}}|settings pertaining to the istiod sidecar deployment|
 |istiodSidecar.createRoleBinding|bool|false|create cluster role binding needed by istiod sidecar|
 |istiodSidecar.istiodServiceAccount|struct|{"name":"istiod-service-account","namespace":"istio-system"}|object reference to istiod service account|
 |istiodSidecar.istiodServiceAccount.name|string|istiod-service-account||

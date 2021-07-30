@@ -193,11 +193,13 @@ Extauth configuration for a Route or TrafficPolicy. Configures extauth for indiv
 <a name="extauth.networking.mesh.gloo.solo.io.GatewayExtauth.ApiVersion"></a>
 
 ### GatewayExtauth.ApiVersion
-Describes the transport protocol version to use when connecting to the ext auth server.
+Describes the transport protocol version to use when envoy connects to the ext auth server.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| V3 | 0 | Use v3 API. |
+| GLOO_MESH_AUTO | 0 | Use transport version that matches the version the default enterprise ext-auth-service uses. |
+| ENVOY_AUTO | 1 | Use envoy's auto transport version. This will change as envoy cycles through transport api versions. |
+| V3 | 2 | Use v3 API. |
 
 
  <!-- end enums -->

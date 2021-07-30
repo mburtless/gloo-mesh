@@ -60,10 +60,14 @@ message GatewayExtauth {
   // - 500 501 502 503 504 505 506 507 508 510 511
   uint32 status_on_error = 7;
 
-  // Describes the transport protocol version to use when connecting to the ext auth server.
+  // Describes the transport protocol version to use when envoy connects to the ext auth server.
   enum ApiVersion {
+    // Use transport version that matches the version the default enterprise ext-auth-service uses.
+    GLOO_MESH_AUTO = 0;
+    // Use envoy's auto transport version. This will change as envoy cycles through transport api versions.
+    ENVOY_AUTO = 1;
     // Use v3 API.
-    V3 = 0;
+    V3 = 2;
   }
 
   // Determines the API version for the `ext_authz` transport protocol that will be used by Envoy

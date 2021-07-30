@@ -1,0 +1,9 @@
+changelog:
+  - type: FIX
+    description: >-
+      Updated the extauth transport api to include new fields for matching the ext-auth-service transport version as
+      well as the default envoy transport api version. This fixes future upgrades such that the default behavior can
+      update as the ext-auth-service updates its transport api version with envoy. For users today, this is a non-change,
+      since the old and new default are both using the v3 api, and the v3 yaml option is still honored.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/527
+    resolvesIssue: false
