@@ -43,6 +43,8 @@ message VirtualGatewaySpec {
     // which serves HTTP Routes defined in a set of VirtualHosts.
     // Multiple `connectionHandlers` can be specified to provide different behavior
     // on the same Gateway, e.g. one for TCP and one for HTTP traffic.
+    // NOTE: Currently having multiple connection handlers is NOT supported. Only
+    // exactly ONE connection handler can be specified.
     repeated ConnectionHandler connection_handlers = 3;
 
     // Options applied to all clients who connect to this gateway

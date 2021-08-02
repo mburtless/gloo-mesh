@@ -14,6 +14,7 @@ import (
 	settingsv1 "github.com/solo-io/gloo-mesh/pkg/api/settings.mesh.gloo.solo.io/v1"
 	xdsv1beta1 "github.com/solo-io/gloo-mesh/pkg/api/xds.agent.enterprise.mesh.gloo.solo.io/v1beta1"
 	skv2multiclusterv1alpha1 "github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1"
+	soloapisv1alpha1 "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
 	istionetworkingv1alpha3 "istio.io/client-go/pkg/apis/networking/v1alpha3"
 	istiosecurityv1beta1 "istio.io/client-go/pkg/apis/security/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,6 +33,7 @@ var SchemeBuilder = runtime.SchemeBuilder{
 	enterprisenetworkingv1beta1.AddToScheme,
 	observabilityv1.AddToScheme,
 	settingsv1.AddToScheme,
+	soloapisv1alpha1.AddToScheme,
 
 	// external types
 	istiosecurityv1beta1.AddToScheme,

@@ -70,8 +70,93 @@ func (m *GatewayRateLimit) Equal(that interface{}) bool {
 		return false
 	}
 
-	if m.GetRateLimitBeforeAuth() != target.GetRateLimitBeforeAuth() {
+	return true
+}
+
+// Equal function
+func (m *RateLimitClient) Equal(that interface{}) bool {
+	if that == nil {
+		return m == nil
+	}
+
+	target, ok := that.(*RateLimitClient)
+	if !ok {
+		that2, ok := that.(RateLimitClient)
+		if ok {
+			target = &that2
+		} else {
+			return false
+		}
+	}
+	if target == nil {
+		return m == nil
+	} else if m == nil {
 		return false
+	}
+
+	switch m.ConfigType.(type) {
+
+	case *RateLimitClient_Raw:
+		if _, ok := target.ConfigType.(*RateLimitClient_Raw); !ok {
+			return false
+		}
+
+		if h, ok := interface{}(m.GetRaw()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetRaw()) {
+				return false
+			}
+		} else {
+			if !proto.Equal(m.GetRaw(), target.GetRaw()) {
+				return false
+			}
+		}
+
+	default:
+		// m is nil but target is not nil
+		if m.ConfigType != target.ConfigType {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Equal function
+func (m *RawRateLimit) Equal(that interface{}) bool {
+	if that == nil {
+		return m == nil
+	}
+
+	target, ok := that.(*RawRateLimit)
+	if !ok {
+		that2, ok := that.(RawRateLimit)
+		if ok {
+			target = &that2
+		} else {
+			return false
+		}
+	}
+	if target == nil {
+		return m == nil
+	} else if m == nil {
+		return false
+	}
+
+	if len(m.GetRateLimits()) != len(target.GetRateLimits()) {
+		return false
+	}
+	for idx, v := range m.GetRateLimits() {
+
+		if h, ok := interface{}(v).(equality.Equalizer); ok {
+			if !h.Equal(target.GetRateLimits()[idx]) {
+				return false
+			}
+		} else {
+			if !proto.Equal(v, target.GetRateLimits()[idx]) {
+				return false
+			}
+		}
+
 	}
 
 	return true
@@ -98,49 +183,44 @@ func (m *RouteRateLimit) Equal(that interface{}) bool {
 		return false
 	}
 
+	if h, ok := interface{}(m.GetRatelimitServerConfigSelector()).(equality.Equalizer); ok {
+		if !h.Equal(target.GetRatelimitServerConfigSelector()) {
+			return false
+		}
+	} else {
+		if !proto.Equal(m.GetRatelimitServerConfigSelector(), target.GetRatelimitServerConfigSelector()) {
+			return false
+		}
+	}
+
 	switch m.RateLimitConfigType.(type) {
 
-	case *RouteRateLimit_Basic:
-		if _, ok := target.RateLimitConfigType.(*RouteRateLimit_Basic); !ok {
+	case *RouteRateLimit_Raw:
+		if _, ok := target.RateLimitConfigType.(*RouteRateLimit_Raw); !ok {
 			return false
 		}
 
-		if h, ok := interface{}(m.GetBasic()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetBasic()) {
+		if h, ok := interface{}(m.GetRaw()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetRaw()) {
 				return false
 			}
 		} else {
-			if !proto.Equal(m.GetBasic(), target.GetBasic()) {
+			if !proto.Equal(m.GetRaw(), target.GetRaw()) {
 				return false
 			}
 		}
 
-	case *RouteRateLimit_Advanced:
-		if _, ok := target.RateLimitConfigType.(*RouteRateLimit_Advanced); !ok {
+	case *RouteRateLimit_RatelimitClientConfigRef:
+		if _, ok := target.RateLimitConfigType.(*RouteRateLimit_RatelimitClientConfigRef); !ok {
 			return false
 		}
 
-		if h, ok := interface{}(m.GetAdvanced()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetAdvanced()) {
+		if h, ok := interface{}(m.GetRatelimitClientConfigRef()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetRatelimitClientConfigRef()) {
 				return false
 			}
 		} else {
-			if !proto.Equal(m.GetAdvanced(), target.GetAdvanced()) {
-				return false
-			}
-		}
-
-	case *RouteRateLimit_ConfigRefs:
-		if _, ok := target.RateLimitConfigType.(*RouteRateLimit_ConfigRefs); !ok {
-			return false
-		}
-
-		if h, ok := interface{}(m.GetConfigRefs()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetConfigRefs()) {
-				return false
-			}
-		} else {
-			if !proto.Equal(m.GetConfigRefs(), target.GetConfigRefs()) {
+			if !proto.Equal(m.GetRatelimitClientConfigRef(), target.GetRatelimitClientConfigRef()) {
 				return false
 			}
 		}
@@ -150,181 +230,6 @@ func (m *RouteRateLimit) Equal(that interface{}) bool {
 		if m.RateLimitConfigType != target.RateLimitConfigType {
 			return false
 		}
-	}
-
-	return true
-}
-
-// Equal function
-func (m *RouteRateLimit_BasicRateLimit) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*RouteRateLimit_BasicRateLimit)
-	if !ok {
-		that2, ok := that.(RouteRateLimit_BasicRateLimit)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if h, ok := interface{}(m.GetAuthorizedLimits()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetAuthorizedLimits()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetAuthorizedLimits(), target.GetAuthorizedLimits()) {
-			return false
-		}
-	}
-
-	if h, ok := interface{}(m.GetAnonymousLimits()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetAnonymousLimits()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetAnonymousLimits(), target.GetAnonymousLimits()) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// Equal function
-func (m *RouteRateLimit_AdvancedRateLimit) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*RouteRateLimit_AdvancedRateLimit)
-	if !ok {
-		that2, ok := that.(RouteRateLimit_AdvancedRateLimit)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if len(m.GetActions()) != len(target.GetActions()) {
-		return false
-	}
-	for idx, v := range m.GetActions() {
-
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetActions()[idx]) {
-				return false
-			}
-		} else {
-			if !proto.Equal(v, target.GetActions()[idx]) {
-				return false
-			}
-		}
-
-	}
-
-	return true
-}
-
-// Equal function
-func (m *RouteRateLimit_BasicRateLimit_RateLimitRatio) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*RouteRateLimit_BasicRateLimit_RateLimitRatio)
-	if !ok {
-		that2, ok := that.(RouteRateLimit_BasicRateLimit_RateLimitRatio)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if m.GetUnit() != target.GetUnit() {
-		return false
-	}
-
-	if m.GetRequestsPerUnit() != target.GetRequestsPerUnit() {
-		return false
-	}
-
-	return true
-}
-
-// Equal function
-func (m *RouteRateLimit_AdvancedRateLimit_RateLimitActions) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*RouteRateLimit_AdvancedRateLimit_RateLimitActions)
-	if !ok {
-		that2, ok := that.(RouteRateLimit_AdvancedRateLimit_RateLimitActions)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if len(m.GetActions()) != len(target.GetActions()) {
-		return false
-	}
-	for idx, v := range m.GetActions() {
-
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetActions()[idx]) {
-				return false
-			}
-		} else {
-			if !proto.Equal(v, target.GetActions()[idx]) {
-				return false
-			}
-		}
-
-	}
-
-	if len(m.GetSetActions()) != len(target.GetSetActions()) {
-		return false
-	}
-	for idx, v := range m.GetSetActions() {
-
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetSetActions()[idx]) {
-				return false
-			}
-		} else {
-			if !proto.Equal(v, target.GetSetActions()[idx]) {
-				return false
-			}
-		}
-
 	}
 
 	return true

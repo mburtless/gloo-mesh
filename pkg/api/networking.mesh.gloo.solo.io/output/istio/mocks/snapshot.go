@@ -19,6 +19,8 @@ import (
 	output "github.com/solo-io/skv2/contrib/pkg/output"
 	multicluster "github.com/solo-io/skv2/pkg/multicluster"
 	resource "github.com/solo-io/skv2/pkg/resource"
+	v1alpha1 "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
+	v1alpha1sets "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1/sets"
 	v1alpha3 "istio.io/client-go/pkg/apis/networking/v1alpha3"
 	v1beta10 "istio.io/client-go/pkg/apis/security/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -195,6 +197,20 @@ func (m *MockSnapshot) PodBounceDirectives() []istio.LabeledPodBounceDirectiveSe
 func (mr *MockSnapshotMockRecorder) PodBounceDirectives() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodBounceDirectives", reflect.TypeOf((*MockSnapshot)(nil).PodBounceDirectives))
+}
+
+// RateLimitConfigs mocks base method.
+func (m *MockSnapshot) RateLimitConfigs() []istio.LabeledRateLimitConfigSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RateLimitConfigs")
+	ret0, _ := ret[0].([]istio.LabeledRateLimitConfigSet)
+	return ret0
+}
+
+// RateLimitConfigs indicates an expected call of RateLimitConfigs.
+func (mr *MockSnapshotMockRecorder) RateLimitConfigs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitConfigs", reflect.TypeOf((*MockSnapshot)(nil).RateLimitConfigs))
 }
 
 // ServiceEntries mocks base method.
@@ -903,6 +919,71 @@ func (mr *MockLabeledAuthorizationPolicySetMockRecorder) Set() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockLabeledAuthorizationPolicySet)(nil).Set))
 }
 
+// MockLabeledRateLimitConfigSet is a mock of LabeledRateLimitConfigSet interface.
+type MockLabeledRateLimitConfigSet struct {
+	ctrl     *gomock.Controller
+	recorder *MockLabeledRateLimitConfigSetMockRecorder
+}
+
+// MockLabeledRateLimitConfigSetMockRecorder is the mock recorder for MockLabeledRateLimitConfigSet.
+type MockLabeledRateLimitConfigSetMockRecorder struct {
+	mock *MockLabeledRateLimitConfigSet
+}
+
+// NewMockLabeledRateLimitConfigSet creates a new mock instance.
+func NewMockLabeledRateLimitConfigSet(ctrl *gomock.Controller) *MockLabeledRateLimitConfigSet {
+	mock := &MockLabeledRateLimitConfigSet{ctrl: ctrl}
+	mock.recorder = &MockLabeledRateLimitConfigSetMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockLabeledRateLimitConfigSet) EXPECT() *MockLabeledRateLimitConfigSetMockRecorder {
+	return m.recorder
+}
+
+// Generic mocks base method.
+func (m *MockLabeledRateLimitConfigSet) Generic() output.ResourceList {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Generic")
+	ret0, _ := ret[0].(output.ResourceList)
+	return ret0
+}
+
+// Generic indicates an expected call of Generic.
+func (mr *MockLabeledRateLimitConfigSetMockRecorder) Generic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Generic", reflect.TypeOf((*MockLabeledRateLimitConfigSet)(nil).Generic))
+}
+
+// Labels mocks base method.
+func (m *MockLabeledRateLimitConfigSet) Labels() map[string]string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Labels")
+	ret0, _ := ret[0].(map[string]string)
+	return ret0
+}
+
+// Labels indicates an expected call of Labels.
+func (mr *MockLabeledRateLimitConfigSetMockRecorder) Labels() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Labels", reflect.TypeOf((*MockLabeledRateLimitConfigSet)(nil).Labels))
+}
+
+// Set mocks base method.
+func (m *MockLabeledRateLimitConfigSet) Set() v1alpha1sets.RateLimitConfigSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Set")
+	ret0, _ := ret[0].(v1alpha1sets.RateLimitConfigSet)
+	return ret0
+}
+
+// Set indicates an expected call of Set.
+func (mr *MockLabeledRateLimitConfigSetMockRecorder) Set() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockLabeledRateLimitConfigSet)(nil).Set))
+}
+
 // MockBuilder is a mock of Builder interface.
 type MockBuilder struct {
 	ctrl     *gomock.Controller
@@ -1032,6 +1113,22 @@ func (m *MockBuilder) AddPodBounceDirectives(podBounceDirectives ...*v1.PodBounc
 func (mr *MockBuilderMockRecorder) AddPodBounceDirectives(podBounceDirectives ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPodBounceDirectives", reflect.TypeOf((*MockBuilder)(nil).AddPodBounceDirectives), podBounceDirectives...)
+}
+
+// AddRateLimitConfigs mocks base method.
+func (m *MockBuilder) AddRateLimitConfigs(rateLimitConfigs ...*v1alpha1.RateLimitConfig) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range rateLimitConfigs {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "AddRateLimitConfigs", varargs...)
+}
+
+// AddRateLimitConfigs indicates an expected call of AddRateLimitConfigs.
+func (mr *MockBuilderMockRecorder) AddRateLimitConfigs(rateLimitConfigs ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRateLimitConfigs", reflect.TypeOf((*MockBuilder)(nil).AddRateLimitConfigs), rateLimitConfigs...)
 }
 
 // AddServiceEntries mocks base method.
@@ -1264,6 +1361,20 @@ func (m *MockBuilder) GetPodBounceDirectives() v1sets.PodBounceDirectiveSet {
 func (mr *MockBuilderMockRecorder) GetPodBounceDirectives() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPodBounceDirectives", reflect.TypeOf((*MockBuilder)(nil).GetPodBounceDirectives))
+}
+
+// GetRateLimitConfigs mocks base method.
+func (m *MockBuilder) GetRateLimitConfigs() v1alpha1sets.RateLimitConfigSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRateLimitConfigs")
+	ret0, _ := ret[0].(v1alpha1sets.RateLimitConfigSet)
+	return ret0
+}
+
+// GetRateLimitConfigs indicates an expected call of GetRateLimitConfigs.
+func (mr *MockBuilderMockRecorder) GetRateLimitConfigs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimitConfigs", reflect.TypeOf((*MockBuilder)(nil).GetRateLimitConfigs))
 }
 
 // GetServiceEntries mocks base method.

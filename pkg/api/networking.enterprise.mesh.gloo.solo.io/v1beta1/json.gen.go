@@ -46,25 +46,47 @@ func (this *WasmDeploymentStatus) UnmarshalJSON(b []byte) error {
 	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for RateLimiterServerConfigSpec
-func (this *RateLimiterServerConfigSpec) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for RateLimitClientConfigSpec
+func (this *RateLimitClientConfigSpec) MarshalJSON() ([]byte, error) {
 	str, err := marshaller.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for RateLimiterServerConfigSpec
-func (this *RateLimiterServerConfigSpec) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for RateLimitClientConfigSpec
+func (this *RateLimitClientConfigSpec) UnmarshalJSON(b []byte) error {
 	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for RateLimiterServerConfigStatus
-func (this *RateLimiterServerConfigStatus) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for RateLimitClientConfigStatus
+func (this *RateLimitClientConfigStatus) MarshalJSON() ([]byte, error) {
 	str, err := marshaller.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for RateLimiterServerConfigStatus
-func (this *RateLimiterServerConfigStatus) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for RateLimitClientConfigStatus
+func (this *RateLimitClientConfigStatus) UnmarshalJSON(b []byte) error {
+	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for RateLimitServerConfigSpec
+func (this *RateLimitServerConfigSpec) MarshalJSON() ([]byte, error) {
+	str, err := marshaller.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for RateLimitServerConfigSpec
+func (this *RateLimitServerConfigSpec) UnmarshalJSON(b []byte) error {
+	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for RateLimitServerConfigStatus
+func (this *RateLimitServerConfigStatus) MarshalJSON() ([]byte, error) {
+	str, err := marshaller.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for RateLimitServerConfigStatus
+func (this *RateLimitServerConfigStatus) UnmarshalJSON(b []byte) error {
 	return unmarshaller.Unmarshal(bytes.NewReader(b), this)
 }
 

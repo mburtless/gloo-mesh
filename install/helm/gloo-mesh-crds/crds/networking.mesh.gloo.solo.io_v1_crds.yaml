@@ -551,36 +551,87 @@ spec:
                   - not:
                       anyOf:
                       - required:
-                        - basic
+                        - raw
                       - required:
-                        - advanced
-                      - required:
-                        - configRefs
+                        - ratelimitClientConfigRef
                   - required:
-                    - basic
+                    - raw
                   - required:
-                    - advanced
-                  - required:
-                    - configRefs
+                    - ratelimitClientConfigRef
                   properties:
-                    advanced:
-                      description: |-
-                        Partial config for GlooE rate-limiting based on Envoy's rate-limit service;
-                        supports Envoy's rate-limit service API. (reference here: https://github.com/lyft/ratelimit#configuration)
-                        Configure rate-limit *actions* here, which define how request characteristics get translated into
-                        descriptors used by the rate-limit service for rate-limiting. Configure rate-limit *descriptors* and
-                        their associated limits on the Gloo settings.
-                        Only one of `ratelimit` or `rate_limit_configs` can be set.
+                    ratelimitClientConfigRef:
+                      description: Reference to the RateLimitClientConfig that configures
+                        the rate limiting model
                       properties:
-                        actions:
+                        name:
+                          description: name of the resource being referenced
+                          type: string
+                        namespace:
+                          description: namespace of the resource being referenced
+                          type: string
+                      type: object
+                    ratelimitServerConfigSelector:
+                      description: Labels to the RateLimitServerConfig ref sent to
+                        the ratelimit server
+                      properties:
+                        expressions:
                           description: |-
-                            Define individual rate limits here. Each rate limit will be evaluated, if any rate limit
-                            would be throttled, the entire request returns a 429 (gets throttled)
+                            Expressions allow for more flexible object label matching, such as equality-based requirements, set-based requirements, or a combination of both.
+                            https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#equality-based-requirement
+                          items:
+                            properties:
+                              key:
+                                description: |-
+                                  Kubernetes label key, must conform to Kubernetes syntax requirements
+                                  https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set
+                                type: string
+                              operator:
+                                description: The operator can only be in, notin, =,
+                                  ==, !=, exists, ! (DoesNotExist), gt (GreaterThan),
+                                  lt (LessThan).
+                                enum:
+                                - Equals
+                                - DoubleEquals
+                                - NotEquals
+                                - In
+                                - NotIn
+                                - Exists
+                                - DoesNotExist
+                                - GreaterThan
+                                - LessThan
+                                type: string
+                              values:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                        labels:
+                          additionalProperties:
+                            type: string
+                          description: Select objects whose labels match the ones
+                            specified here.
+                          type: object
+                        namespaces:
+                          description: |-
+                            Select Objects in these namespaces. If omitted, Gloo Mesh will only select Objects in the same namespace
+                            as the parent resource (e.g. VirtualGateway) that owns this selector.
+                            The reserved value "*" can be used to select objects in all namespaces watched by Gloo Mesh.
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    raw:
+                      description: Configure the actions and/or set actions that determine
+                        how Envoy composes the descriptors
+                      properties:
+                        rateLimits:
+                          description: |-
+                            Actions specify how the client (Envoy) will compose the descriptors that
+                            will be sent to the server to make a rate limiting decision.
                           items:
                             properties:
                               actions:
-                                description: 'TODO: come up with descriptive names
-                                  and comments for these fields'
                                 items:
                                   oneOf:
                                   - not:
@@ -597,6 +648,8 @@ spec:
                                         - genericKey
                                       - required:
                                         - headerValueMatch
+                                      - required:
+                                        - metadata
                                   - required:
                                     - sourceCluster
                                   - required:
@@ -609,6 +662,8 @@ spec:
                                     - genericKey
                                   - required:
                                     - headerValueMatch
+                                  - required:
+                                    - metadata
                                   properties:
                                     destinationCluster:
                                       description: Rate limit on destination cluster.
@@ -754,6 +809,60 @@ spec:
                                                 type: string
                                             type: object
                                           type: array
+                                      type: object
+                                    metadata:
+                                      description: Rate limit on metadata.
+                                      properties:
+                                        defaultValue:
+                                          description: |-
+                                            An optional value to use if *metadata_key* is empty. If not set and
+                                            no value is present under the metadata_key then no descriptor is generated.
+                                          type: string
+                                        descriptorKey:
+                                          description: Required. The key to use in
+                                            the descriptor entry.
+                                          type: string
+                                        metadataKey:
+                                          description: |-
+                                            Required. Metadata struct that defines the key and path to retrieve the string value. A match will
+                                            only happen if the value in the metadata is of type string.
+                                          properties:
+                                            key:
+                                              description: |-
+                                                Required. The key name of Metadata to retrieve the Struct from the metadata.
+                                                Typically, it represents a builtin subsystem or custom extension.
+                                              type: string
+                                            path:
+                                              description: |-
+                                                Must have at least one element. The path to retrieve the Value from the Struct. It can be a prefix or a full path,
+                                                e.g. ``[prop, xyz]`` for a struct or ``[prop, foo]`` for a string in the example,
+                                                which depends on the particular scenario.
+
+                                                Note: Due to that only the key type segment is supported, the path can not specify a list
+                                                unless the list is the last segment.
+                                              items:
+                                                oneOf:
+                                                - not:
+                                                    anyOf:
+                                                    - required:
+                                                      - key
+                                                - required:
+                                                  - key
+                                                properties:
+                                                  key:
+                                                    description: Required. If specified,
+                                                      use the key to retrieve the
+                                                      value in a Struct.
+                                                    type: string
+                                                type: object
+                                              type: array
+                                          type: object
+                                        source:
+                                          description: Source of metadata
+                                          enum:
+                                          - DYNAMIC
+                                          - ROUTE_ENTRY
+                                          type: string
                                       type: object
                                     remoteAddress:
                                       description: Rate limit on remote address.
@@ -794,6 +903,8 @@ spec:
                                         - genericKey
                                       - required:
                                         - headerValueMatch
+                                      - required:
+                                        - metadata
                                   - required:
                                     - sourceCluster
                                   - required:
@@ -806,6 +917,8 @@ spec:
                                     - genericKey
                                   - required:
                                     - headerValueMatch
+                                  - required:
+                                    - metadata
                                   properties:
                                     destinationCluster:
                                       description: Rate limit on destination cluster.
@@ -952,6 +1065,60 @@ spec:
                                             type: object
                                           type: array
                                       type: object
+                                    metadata:
+                                      description: Rate limit on metadata.
+                                      properties:
+                                        defaultValue:
+                                          description: |-
+                                            An optional value to use if *metadata_key* is empty. If not set and
+                                            no value is present under the metadata_key then no descriptor is generated.
+                                          type: string
+                                        descriptorKey:
+                                          description: Required. The key to use in
+                                            the descriptor entry.
+                                          type: string
+                                        metadataKey:
+                                          description: |-
+                                            Required. Metadata struct that defines the key and path to retrieve the string value. A match will
+                                            only happen if the value in the metadata is of type string.
+                                          properties:
+                                            key:
+                                              description: |-
+                                                Required. The key name of Metadata to retrieve the Struct from the metadata.
+                                                Typically, it represents a builtin subsystem or custom extension.
+                                              type: string
+                                            path:
+                                              description: |-
+                                                Must have at least one element. The path to retrieve the Value from the Struct. It can be a prefix or a full path,
+                                                e.g. ``[prop, xyz]`` for a struct or ``[prop, foo]`` for a string in the example,
+                                                which depends on the particular scenario.
+
+                                                Note: Due to that only the key type segment is supported, the path can not specify a list
+                                                unless the list is the last segment.
+                                              items:
+                                                oneOf:
+                                                - not:
+                                                    anyOf:
+                                                    - required:
+                                                      - key
+                                                - required:
+                                                  - key
+                                                properties:
+                                                  key:
+                                                    description: Required. If specified,
+                                                      use the key to retrieve the
+                                                      value in a Struct.
+                                                    type: string
+                                                type: object
+                                              type: array
+                                          type: object
+                                        source:
+                                          description: Source of metadata
+                                          enum:
+                                          - DYNAMIC
+                                          - ROUTE_ENTRY
+                                          type: string
+                                      type: object
                                     remoteAddress:
                                       description: Rate limit on remote address.
                                       type: object
@@ -974,60 +1141,6 @@ spec:
                                       type: object
                                   type: object
                                 type: array
-                            type: object
-                          type: array
-                      type: object
-                    basic:
-                      description: Config for rate-limiting using simplified (gloo-specific)
-                        API
-                      properties:
-                        anonymousLimits:
-                          description: limits for unauthorized users
-                          properties:
-                            requestsPerUnit:
-                              maximum: 4294967295
-                              minimum: 0
-                              type: integer
-                            unit:
-                              enum:
-                              - UNKNOWN
-                              - SECOND
-                              - MINUTE
-                              - HOUR
-                              - DAY
-                              type: string
-                          type: object
-                        authorizedLimits:
-                          description: limits for authorized users
-                          properties:
-                            requestsPerUnit:
-                              maximum: 4294967295
-                              minimum: 0
-                              type: integer
-                            unit:
-                              enum:
-                              - UNKNOWN
-                              - SECOND
-                              - MINUTE
-                              - HOUR
-                              - DAY
-                              type: string
-                          type: object
-                      type: object
-                    configRefs:
-                      description: |-
-                        References to RateLimitConfig resources. This is used to configure the GlooE rate limit server.
-                        Only one of `ratelimit` or `rate_limit_configs` can be set.
-                      properties:
-                        refs:
-                          items:
-                            properties:
-                              name:
-                                description: name of the resource being referenced
-                                type: string
-                              namespace:
-                                description: namespace of the resource being referenced
-                                type: string
                             type: object
                           type: array
                       type: object

@@ -20,15 +20,27 @@ func (in *WasmDeploymentStatus) DeepCopyInto(out *WasmDeploymentStatus) {
 	*out = *p
 }
 
-// DeepCopyInto for the RateLimiterServerConfig.Spec
-func (in *RateLimiterServerConfigSpec) DeepCopyInto(out *RateLimiterServerConfigSpec) {
-	p := proto.Clone(in).(*RateLimiterServerConfigSpec)
+// DeepCopyInto for the RateLimitClientConfig.Spec
+func (in *RateLimitClientConfigSpec) DeepCopyInto(out *RateLimitClientConfigSpec) {
+	p := proto.Clone(in).(*RateLimitClientConfigSpec)
 	*out = *p
 }
 
-// DeepCopyInto for the RateLimiterServerConfig.Status
-func (in *RateLimiterServerConfigStatus) DeepCopyInto(out *RateLimiterServerConfigStatus) {
-	p := proto.Clone(in).(*RateLimiterServerConfigStatus)
+// DeepCopyInto for the RateLimitClientConfig.Status
+func (in *RateLimitClientConfigStatus) DeepCopyInto(out *RateLimitClientConfigStatus) {
+	p := proto.Clone(in).(*RateLimitClientConfigStatus)
+	*out = *p
+}
+
+// DeepCopyInto for the RateLimitServerConfig.Spec
+func (in *RateLimitServerConfigSpec) DeepCopyInto(out *RateLimitServerConfigSpec) {
+	p := proto.Clone(in).(*RateLimitServerConfigSpec)
+	*out = *p
+}
+
+// DeepCopyInto for the RateLimitServerConfig.Status
+func (in *RateLimitServerConfigStatus) DeepCopyInto(out *RateLimitServerConfigStatus) {
+	p := proto.Clone(in).(*RateLimitServerConfigStatus)
 	*out = *p
 }
 

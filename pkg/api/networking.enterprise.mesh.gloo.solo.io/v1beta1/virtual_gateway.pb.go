@@ -120,6 +120,8 @@ type VirtualGatewaySpec struct {
 	// which serves HTTP Routes defined in a set of VirtualHosts.
 	// Multiple `connectionHandlers` can be specified to provide different behavior
 	// on the same Gateway, e.g. one for TCP and one for HTTP traffic.
+	// NOTE: Currently having multiple connection handlers is NOT supported. Only
+	// exactly ONE connection handler can be specified.
 	ConnectionHandlers []*VirtualGatewaySpec_ConnectionHandler `protobuf:"bytes,3,rep,name=connection_handlers,json=connectionHandlers,proto3" json:"connection_handlers,omitempty"`
 	// Options applied to all clients who connect to this gateway
 	Options *VirtualGatewaySpec_GatewayOptions `protobuf:"bytes,4,opt,name=options,proto3" json:"options,omitempty"`

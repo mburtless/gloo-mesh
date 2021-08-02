@@ -58,7 +58,9 @@ These docs describe Gloo Mesh CRDs.
 
   - [CertificateVerification]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.certificate_verification#networking.enterprise.mesh.gloo.solo.io.CertificateVerificationSpec" >}})
 
-  - [RateLimiterServerConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.rate_limit_server_config#networking.enterprise.mesh.gloo.solo.io.RateLimiterServerConfigSpec" >}})
+  - [RateLimitClientConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.rate_limit_client_config#networking.enterprise.mesh.gloo.solo.io.RateLimitClientConfigSpec" >}})
+
+  - [RateLimitServerConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.rate_limit_server_config#networking.enterprise.mesh.gloo.solo.io.RateLimitServerConfigSpec" >}})
 
   - [RouteTable]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.route_table#networking.enterprise.mesh.gloo.solo.io.RouteTableSpec" >}})
 

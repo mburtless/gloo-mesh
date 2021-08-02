@@ -26,14 +26,14 @@ var (
 )
 
 // Equal function
-func (m *RateLimiterServerConfigSpec) Equal(that interface{}) bool {
+func (m *RateLimitServerConfigSpec) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*RateLimiterServerConfigSpec)
+	target, ok := that.(*RateLimitServerConfigSpec)
 	if !ok {
-		that2, ok := that.(RateLimiterServerConfigSpec)
+		that2, ok := that.(RateLimitServerConfigSpec)
 		if ok {
 			target = &that2
 		} else {
@@ -46,29 +46,26 @@ func (m *RateLimiterServerConfigSpec) Equal(that interface{}) bool {
 		return false
 	}
 
-	if len(m.GetServerConfigRefs()) != len(target.GetServerConfigRefs()) {
-		return false
-	}
-	for idx, v := range m.GetServerConfigRefs() {
+	switch m.ConfigType.(type) {
 
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetServerConfigRefs()[idx]) {
+	case *RateLimitServerConfigSpec_Raw_:
+		if _, ok := target.ConfigType.(*RateLimitServerConfigSpec_Raw_); !ok {
+			return false
+		}
+
+		if h, ok := interface{}(m.GetRaw()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetRaw()) {
 				return false
 			}
 		} else {
-			if !proto.Equal(v, target.GetServerConfigRefs()[idx]) {
+			if !proto.Equal(m.GetRaw(), target.GetRaw()) {
 				return false
 			}
 		}
 
-	}
-
-	if h, ok := interface{}(m.GetRateLimitConfig()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetRateLimitConfig()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetRateLimitConfig(), target.GetRateLimitConfig()) {
+	default:
+		// m is nil but target is not nil
+		if m.ConfigType != target.ConfigType {
 			return false
 		}
 	}
@@ -77,14 +74,14 @@ func (m *RateLimiterServerConfigSpec) Equal(that interface{}) bool {
 }
 
 // Equal function
-func (m *RateLimiterServerConfigStatus) Equal(that interface{}) bool {
+func (m *RateLimitServerConfigStatus) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*RateLimiterServerConfigStatus)
+	target, ok := that.(*RateLimitServerConfigStatus)
 	if !ok {
-		that2, ok := that.(RateLimiterServerConfigStatus)
+		that2, ok := that.(RateLimitServerConfigStatus)
 		if ok {
 			target = &that2
 		} else {
@@ -123,17 +120,62 @@ func (m *RateLimiterServerConfigStatus) Equal(that interface{}) bool {
 
 	}
 
-	if len(m.GetConfiguredServers()) != len(target.GetConfiguredServers()) {
+	if m.GetState() != target.GetState() {
 		return false
 	}
-	for idx, v := range m.GetConfiguredServers() {
+
+	return true
+}
+
+// Equal function
+func (m *RateLimitServerConfigSpec_Raw) Equal(that interface{}) bool {
+	if that == nil {
+		return m == nil
+	}
+
+	target, ok := that.(*RateLimitServerConfigSpec_Raw)
+	if !ok {
+		that2, ok := that.(RateLimitServerConfigSpec_Raw)
+		if ok {
+			target = &that2
+		} else {
+			return false
+		}
+	}
+	if target == nil {
+		return m == nil
+	} else if m == nil {
+		return false
+	}
+
+	if len(m.GetDescriptors()) != len(target.GetDescriptors()) {
+		return false
+	}
+	for idx, v := range m.GetDescriptors() {
 
 		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetConfiguredServers()[idx]) {
+			if !h.Equal(target.GetDescriptors()[idx]) {
 				return false
 			}
 		} else {
-			if !proto.Equal(v, target.GetConfiguredServers()[idx]) {
+			if !proto.Equal(v, target.GetDescriptors()[idx]) {
+				return false
+			}
+		}
+
+	}
+
+	if len(m.GetSetDescriptors()) != len(target.GetSetDescriptors()) {
+		return false
+	}
+	for idx, v := range m.GetSetDescriptors() {
+
+		if h, ok := interface{}(v).(equality.Equalizer); ok {
+			if !h.Equal(target.GetSetDescriptors()[idx]) {
+				return false
+			}
+		} else {
+			if !proto.Equal(v, target.GetSetDescriptors()[idx]) {
 				return false
 			}
 		}

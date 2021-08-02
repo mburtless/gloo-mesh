@@ -16,6 +16,7 @@ import (
 	v1beta1sets0 "github.com/solo-io/gloo-mesh/pkg/api/xds.agent.enterprise.mesh.gloo.solo.io/v1beta1/sets"
 	multicluster "github.com/solo-io/skv2/pkg/multicluster"
 	resource "github.com/solo-io/skv2/pkg/resource"
+	v1alpha1sets "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1/sets"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -180,6 +181,20 @@ func (m *MockRemoteSnapshot) PodBounceDirectives() v1sets.PodBounceDirectiveSet 
 func (mr *MockRemoteSnapshotMockRecorder) PodBounceDirectives() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PodBounceDirectives", reflect.TypeOf((*MockRemoteSnapshot)(nil).PodBounceDirectives))
+}
+
+// RateLimitConfigs mocks base method.
+func (m *MockRemoteSnapshot) RateLimitConfigs() v1alpha1sets.RateLimitConfigSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RateLimitConfigs")
+	ret0, _ := ret[0].(v1alpha1sets.RateLimitConfigSet)
+	return ret0
+}
+
+// RateLimitConfigs indicates an expected call of RateLimitConfigs.
+func (mr *MockRemoteSnapshotMockRecorder) RateLimitConfigs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitConfigs", reflect.TypeOf((*MockRemoteSnapshot)(nil).RateLimitConfigs))
 }
 
 // ServiceEntries mocks base method.

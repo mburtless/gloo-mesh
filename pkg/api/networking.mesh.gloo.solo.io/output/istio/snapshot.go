@@ -31,6 +31,9 @@ import (
 
 	security_istio_io_v1beta1_sets "github.com/solo-io/external-apis/pkg/api/istio/security.istio.io/v1beta1/sets"
 	security_istio_io_v1beta1 "istio.io/client-go/pkg/apis/security/v1beta1"
+
+	ratelimit_solo_io_v1alpha1 "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
+	ratelimit_solo_io_v1alpha1_sets "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1/sets"
 )
 
 // this error can occur if constructing a Partitioned Snapshot from a resource
@@ -95,6 +98,12 @@ var SnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1beta1",
 		Kind:    "AuthorizationPolicy",
 	},
+
+	schema.GroupVersionKind{
+		Group:   "ratelimit.solo.io",
+		Version: "v1alpha1",
+		Kind:    "RateLimitConfig",
+	},
 }
 
 // the snapshot of output resources produced by a translation
@@ -120,6 +129,8 @@ type Snapshot interface {
 	Sidecars() []LabeledSidecarSet
 	// return the set of AuthorizationPolicies with a given set of labels
 	AuthorizationPolicies() []LabeledAuthorizationPolicySet
+	// return the set of RateLimitConfigs with a given set of labels
+	RateLimitConfigs() []LabeledRateLimitConfigSet
 
 	// apply the snapshot to the local cluster, garbage collecting stale resources
 	ApplyLocalCluster(ctx context.Context, clusterClient client.Client, errHandler output.ErrorHandler)
@@ -150,6 +161,7 @@ type snapshot struct {
 	virtualServices       []LabeledVirtualServiceSet
 	sidecars              []LabeledSidecarSet
 	authorizationPolicies []LabeledAuthorizationPolicySet
+	rateLimitConfigs      []LabeledRateLimitConfigSet
 	clusters              []string
 }
 
@@ -166,6 +178,7 @@ func NewSnapshot(
 	virtualServices []LabeledVirtualServiceSet,
 	sidecars []LabeledSidecarSet,
 	authorizationPolicies []LabeledAuthorizationPolicySet,
+	rateLimitConfigs []LabeledRateLimitConfigSet,
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) Snapshot {
 	return &snapshot{
@@ -181,6 +194,7 @@ func NewSnapshot(
 		virtualServices:       virtualServices,
 		sidecars:              sidecars,
 		authorizationPolicies: authorizationPolicies,
+		rateLimitConfigs:      rateLimitConfigs,
 		clusters:              clusters,
 	}
 }
@@ -204,6 +218,8 @@ func NewLabelPartitionedSnapshot(
 	sidecars networking_istio_io_v1alpha3_sets.SidecarSet,
 
 	authorizationPolicies security_istio_io_v1beta1_sets.AuthorizationPolicySet,
+
+	rateLimitConfigs ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet,
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
@@ -247,6 +263,10 @@ func NewLabelPartitionedSnapshot(
 	if err != nil {
 		return nil, err
 	}
+	partitionedRateLimitConfigs, err := partitionRateLimitConfigsByLabel(labelKey, rateLimitConfigs)
+	if err != nil {
+		return nil, err
+	}
 
 	return NewSnapshot(
 		name,
@@ -261,6 +281,7 @@ func NewLabelPartitionedSnapshot(
 		partitionedVirtualServices,
 		partitionedSidecars,
 		partitionedAuthorizationPolicies,
+		partitionedRateLimitConfigs,
 		clusters...,
 	), nil
 }
@@ -284,6 +305,8 @@ func NewSinglePartitionedSnapshot(
 	sidecars networking_istio_io_v1alpha3_sets.SidecarSet,
 
 	authorizationPolicies security_istio_io_v1beta1_sets.AuthorizationPolicySet,
+
+	rateLimitConfigs ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet,
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
@@ -327,6 +350,10 @@ func NewSinglePartitionedSnapshot(
 	if err != nil {
 		return nil, err
 	}
+	labeledRateLimitConfigs, err := NewLabeledRateLimitConfigSet(rateLimitConfigs, snapshotLabels)
+	if err != nil {
+		return nil, err
+	}
 
 	return NewSnapshot(
 		name,
@@ -341,6 +368,7 @@ func NewSinglePartitionedSnapshot(
 		[]LabeledVirtualServiceSet{labeledVirtualServices},
 		[]LabeledSidecarSet{labeledSidecars},
 		[]LabeledAuthorizationPolicySet{labeledAuthorizationPolicies},
+		[]LabeledRateLimitConfigSet{labeledRateLimitConfigs},
 		clusters...,
 	), nil
 }
@@ -377,6 +405,9 @@ func (s *snapshot) ApplyLocalCluster(ctx context.Context, cli client.Client, err
 		genericLists = append(genericLists, outputSet.Generic())
 	}
 	for _, outputSet := range s.authorizationPolicies {
+		genericLists = append(genericLists, outputSet.Generic())
+	}
+	for _, outputSet := range s.rateLimitConfigs {
 		genericLists = append(genericLists, outputSet.Generic())
 	}
 
@@ -418,6 +449,9 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		genericLists = append(genericLists, outputSet.Generic())
 	}
 	for _, outputSet := range s.authorizationPolicies {
+		genericLists = append(genericLists, outputSet.Generic())
+	}
+	for _, outputSet := range s.rateLimitConfigs {
 		genericLists = append(genericLists, outputSet.Generic())
 	}
 
@@ -549,6 +583,18 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 				Group:   "security.istio.io",
 				Version: "v1beta1",
 				Kind:    "AuthorizationPolicy",
+			}
+			handleObject(cluster, gvk, obj)
+		}
+	}
+
+	for _, set := range s.rateLimitConfigs {
+		for _, obj := range set.Set().List() {
+			cluster := obj.GetClusterName()
+			gvk := schema.GroupVersionKind{
+				Group:   "ratelimit.solo.io",
+				Version: "v1alpha1",
+				Kind:    "RateLimitConfig",
 			}
 			handleObject(cluster, gvk, obj)
 		}
@@ -995,6 +1041,50 @@ func partitionAuthorizationPoliciesByLabel(labelKey string, set security_istio_i
 	return partitionedAuthorizationPolicies, nil
 }
 
+func partitionRateLimitConfigsByLabel(labelKey string, set ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet) ([]LabeledRateLimitConfigSet, error) {
+	setsByLabel := map[string]ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet{}
+
+	for _, obj := range set.List() {
+		if obj.Labels == nil {
+			return nil, MissingRequiredLabelError(labelKey, "RateLimitConfig", obj)
+		}
+		labelValue := obj.Labels[labelKey]
+		if labelValue == "" {
+			return nil, MissingRequiredLabelError(labelKey, "RateLimitConfig", obj)
+		}
+
+		setForValue, ok := setsByLabel[labelValue]
+		if !ok {
+			setForValue = ratelimit_solo_io_v1alpha1_sets.NewRateLimitConfigSet()
+			setsByLabel[labelValue] = setForValue
+		}
+		setForValue.Insert(obj)
+	}
+
+	// partition by label key
+	var partitionedRateLimitConfigs []LabeledRateLimitConfigSet
+
+	for labelValue, setForValue := range setsByLabel {
+		labels := map[string]string{labelKey: labelValue}
+
+		partitionedSet, err := NewLabeledRateLimitConfigSet(setForValue, labels)
+		if err != nil {
+			return nil, err
+		}
+
+		partitionedRateLimitConfigs = append(partitionedRateLimitConfigs, partitionedSet)
+	}
+
+	// sort for idempotency
+	sort.SliceStable(partitionedRateLimitConfigs, func(i, j int) bool {
+		leftLabelValue := partitionedRateLimitConfigs[i].Labels()[labelKey]
+		rightLabelValue := partitionedRateLimitConfigs[j].Labels()[labelKey]
+		return leftLabelValue < rightLabelValue
+	})
+
+	return partitionedRateLimitConfigs, nil
+}
+
 func (s snapshot) IssuedCertificates() []LabeledIssuedCertificateSet {
 	return s.issuedCertificates
 }
@@ -1033,6 +1123,10 @@ func (s snapshot) Sidecars() []LabeledSidecarSet {
 
 func (s snapshot) AuthorizationPolicies() []LabeledAuthorizationPolicySet {
 	return s.authorizationPolicies
+}
+
+func (s snapshot) RateLimitConfigs() []LabeledRateLimitConfigSet {
+	return s.rateLimitConfigs
 }
 
 func (s snapshot) MarshalJSON() ([]byte, error) {
@@ -1091,6 +1185,12 @@ func (s snapshot) MarshalJSON() ([]byte, error) {
 		authorizationPolicySet = authorizationPolicySet.Union(set.Set())
 	}
 	snapshotMap["authorizationPolicies"] = authorizationPolicySet.List()
+
+	rateLimitConfigSet := ratelimit_solo_io_v1alpha1_sets.NewRateLimitConfigSet()
+	for _, set := range s.rateLimitConfigs {
+		rateLimitConfigSet = rateLimitConfigSet.Union(set.Set())
+	}
+	snapshotMap["rateLimitConfigs"] = rateLimitConfigSet.List()
 
 	snapshotMap["clusters"] = s.clusters
 
@@ -1777,6 +1877,74 @@ func (l labeledAuthorizationPolicySet) Generic() output.ResourceList {
 	}
 }
 
+// LabeledRateLimitConfigSet represents a set of rateLimitConfigs
+// which share a common set of labels.
+// These labels are used to find diffs between RateLimitConfigSets.
+type LabeledRateLimitConfigSet interface {
+	// returns the set of Labels shared by this RateLimitConfigSet
+	Labels() map[string]string
+
+	// returns the set of RateLimitConfiges with the given labels
+	Set() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet
+
+	// converts the set to a generic format which can be applied by the Snapshot.Apply functions
+	Generic() output.ResourceList
+}
+
+type labeledRateLimitConfigSet struct {
+	set    ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet
+	labels map[string]string
+}
+
+func NewLabeledRateLimitConfigSet(set ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet, labels map[string]string) (LabeledRateLimitConfigSet, error) {
+	// validate that each RateLimitConfig contains the labels, else this is not a valid LabeledRateLimitConfigSet
+	for _, item := range set.List() {
+		for k, v := range labels {
+			// k=v must be present in the item
+			if item.Labels[k] != v {
+				return nil, eris.Errorf("internal error: %v=%v missing on RateLimitConfig %v", k, v, item.Name)
+			}
+		}
+	}
+
+	return &labeledRateLimitConfigSet{set: set, labels: labels}, nil
+}
+
+func (l *labeledRateLimitConfigSet) Labels() map[string]string {
+	return l.labels
+}
+
+func (l *labeledRateLimitConfigSet) Set() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet {
+	return l.set
+}
+
+func (l labeledRateLimitConfigSet) Generic() output.ResourceList {
+	var desiredResources []ezkube.Object
+	for _, desired := range l.set.List() {
+		desiredResources = append(desiredResources, desired)
+	}
+
+	// enable list func for garbage collection
+	listFunc := func(ctx context.Context, cli client.Client) ([]ezkube.Object, error) {
+		var list ratelimit_solo_io_v1alpha1.RateLimitConfigList
+		if err := cli.List(ctx, &list, client.MatchingLabels(l.labels)); err != nil {
+			return nil, err
+		}
+		var items []ezkube.Object
+		for _, item := range list.Items {
+			item := item // pike
+			items = append(items, &item)
+		}
+		return items, nil
+	}
+
+	return output.ResourceList{
+		Resources:    desiredResources,
+		ListFunc:     listFunc,
+		ResourceKind: "RateLimitConfig",
+	}
+}
+
 type builder struct {
 	ctx      context.Context
 	name     string
@@ -1795,6 +1963,8 @@ type builder struct {
 	sidecars         networking_istio_io_v1alpha3_sets.SidecarSet
 
 	authorizationPolicies security_istio_io_v1beta1_sets.AuthorizationPolicySet
+
+	rateLimitConfigs ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet
 }
 
 func NewBuilder(ctx context.Context, name string) *builder {
@@ -1815,6 +1985,8 @@ func NewBuilder(ctx context.Context, name string) *builder {
 		sidecars:         networking_istio_io_v1alpha3_sets.NewSidecarSet(),
 
 		authorizationPolicies: security_istio_io_v1beta1_sets.NewAuthorizationPolicySet(),
+
+		rateLimitConfigs: ratelimit_solo_io_v1alpha1_sets.NewRateLimitConfigSet(),
 	}
 }
 
@@ -1881,6 +2053,12 @@ type Builder interface {
 
 	// get the collected AuthorizationPolicies
 	GetAuthorizationPolicies() security_istio_io_v1beta1_sets.AuthorizationPolicySet
+
+	// add RateLimitConfigs to the collected outputs
+	AddRateLimitConfigs(rateLimitConfigs ...*ratelimit_solo_io_v1alpha1.RateLimitConfig)
+
+	// get the collected RateLimitConfigs
+	GetRateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet
 
 	// build the collected outputs into a label-partitioned snapshot
 	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
@@ -1988,6 +2166,14 @@ func (b *builder) AddAuthorizationPolicies(authorizationPolicies ...*security_is
 		b.authorizationPolicies.Insert(obj)
 	}
 }
+func (b *builder) AddRateLimitConfigs(rateLimitConfigs ...*ratelimit_solo_io_v1alpha1.RateLimitConfig) {
+	for _, obj := range rateLimitConfigs {
+		if obj == nil {
+			continue
+		}
+		b.rateLimitConfigs.Insert(obj)
+	}
+}
 
 func (b *builder) GetIssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
 	return b.issuedCertificates
@@ -2023,6 +2209,10 @@ func (b *builder) GetAuthorizationPolicies() security_istio_io_v1beta1_sets.Auth
 	return b.authorizationPolicies
 }
 
+func (b *builder) GetRateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet {
+	return b.rateLimitConfigs
+}
+
 func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
@@ -2041,6 +2231,8 @@ func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, erro
 		b.sidecars,
 
 		b.authorizationPolicies,
+
+		b.rateLimitConfigs,
 		b.clusters...,
 	)
 }
@@ -2063,6 +2255,8 @@ func (b *builder) BuildSinglePartitionedSnapshot(snapshotLabels map[string]strin
 		b.sidecars,
 
 		b.authorizationPolicies,
+
+		b.rateLimitConfigs,
 		b.clusters...,
 	)
 }
@@ -2093,6 +2287,8 @@ func (b *builder) Merge(other Builder) {
 	b.AddSidecars(other.GetSidecars().List()...)
 
 	b.AddAuthorizationPolicies(other.GetAuthorizationPolicies().List()...)
+
+	b.AddRateLimitConfigs(other.GetRateLimitConfigs().List()...)
 	for _, cluster := range other.Clusters() {
 		b.AddCluster(cluster)
 	}
@@ -2136,6 +2332,10 @@ func (b *builder) Clone() Builder {
 
 	for _, authorizationPolicy := range b.GetAuthorizationPolicies().List() {
 		clone.AddAuthorizationPolicies(authorizationPolicy.DeepCopy())
+	}
+
+	for _, rateLimitConfig := range b.GetRateLimitConfigs().List() {
+		clone.AddRateLimitConfigs(rateLimitConfig.DeepCopy())
 	}
 	for _, cluster := range b.Clusters() {
 		clone.AddCluster(cluster)
@@ -2244,6 +2444,16 @@ func (b *builder) Generic() resource.ClusterSnapshot {
 		clusterSnapshots.Insert(cluster, gvk, obj)
 	}
 
+	for _, obj := range b.GetRateLimitConfigs().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "ratelimit.solo.io",
+			Version: "v1alpha1",
+			Kind:    "RateLimitConfig",
+		}
+		clusterSnapshots.Insert(cluster, gvk, obj)
+	}
+
 	return clusterSnapshots
 }
 
@@ -2343,6 +2553,16 @@ func (b *builder) ForEachObject(handleObject func(cluster string, gvk schema.Gro
 			Group:   "security.istio.io",
 			Version: "v1beta1",
 			Kind:    "AuthorizationPolicy",
+		}
+		handleObject(cluster, gvk, obj)
+	}
+
+	for _, obj := range b.GetRateLimitConfigs().List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "ratelimit.solo.io",
+			Version: "v1alpha1",
+			Kind:    "RateLimitConfig",
 		}
 		handleObject(cluster, gvk, obj)
 	}

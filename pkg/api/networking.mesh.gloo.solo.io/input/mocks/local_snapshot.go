@@ -185,18 +185,32 @@ func (mr *MockLocalSnapshotMockRecorder) Meshes() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Meshes", reflect.TypeOf((*MockLocalSnapshot)(nil).Meshes))
 }
 
-// RateLimiterServerConfigs mocks base method.
-func (m *MockLocalSnapshot) RateLimiterServerConfigs() v1beta1sets.RateLimiterServerConfigSet {
+// RateLimitClientConfigs mocks base method.
+func (m *MockLocalSnapshot) RateLimitClientConfigs() v1beta1sets.RateLimitClientConfigSet {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RateLimiterServerConfigs")
-	ret0, _ := ret[0].(v1beta1sets.RateLimiterServerConfigSet)
+	ret := m.ctrl.Call(m, "RateLimitClientConfigs")
+	ret0, _ := ret[0].(v1beta1sets.RateLimitClientConfigSet)
 	return ret0
 }
 
-// RateLimiterServerConfigs indicates an expected call of RateLimiterServerConfigs.
-func (mr *MockLocalSnapshotMockRecorder) RateLimiterServerConfigs() *gomock.Call {
+// RateLimitClientConfigs indicates an expected call of RateLimitClientConfigs.
+func (mr *MockLocalSnapshotMockRecorder) RateLimitClientConfigs() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimiterServerConfigs", reflect.TypeOf((*MockLocalSnapshot)(nil).RateLimiterServerConfigs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitClientConfigs", reflect.TypeOf((*MockLocalSnapshot)(nil).RateLimitClientConfigs))
+}
+
+// RateLimitServerConfigs mocks base method.
+func (m *MockLocalSnapshot) RateLimitServerConfigs() v1beta1sets.RateLimitServerConfigSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RateLimitServerConfigs")
+	ret0, _ := ret[0].(v1beta1sets.RateLimitServerConfigSet)
+	return ret0
+}
+
+// RateLimitServerConfigs indicates an expected call of RateLimitServerConfigs.
+func (mr *MockLocalSnapshotMockRecorder) RateLimitServerConfigs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitServerConfigs", reflect.TypeOf((*MockLocalSnapshot)(nil).RateLimitServerConfigs))
 }
 
 // RouteTables mocks base method.

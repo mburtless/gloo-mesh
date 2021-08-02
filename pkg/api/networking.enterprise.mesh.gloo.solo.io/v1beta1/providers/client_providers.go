@@ -45,31 +45,59 @@ func WasmDeploymentClientFromConfigFactoryProvider() WasmDeploymentClientFromCon
 	}
 }
 
-// Provider for RateLimiterServerConfigClient from Clientset
-func RateLimiterServerConfigClientFromClientsetProvider(clients networking_enterprise_mesh_gloo_solo_io_v1beta1.Clientset) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimiterServerConfigClient {
-	return clients.RateLimiterServerConfigs()
+// Provider for RateLimitClientConfigClient from Clientset
+func RateLimitClientConfigClientFromClientsetProvider(clients networking_enterprise_mesh_gloo_solo_io_v1beta1.Clientset) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitClientConfigClient {
+	return clients.RateLimitClientConfigs()
 }
 
-// Provider for RateLimiterServerConfig Client from Client
-func RateLimiterServerConfigClientProvider(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimiterServerConfigClient {
-	return networking_enterprise_mesh_gloo_solo_io_v1beta1.NewRateLimiterServerConfigClient(client)
+// Provider for RateLimitClientConfig Client from Client
+func RateLimitClientConfigClientProvider(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitClientConfigClient {
+	return networking_enterprise_mesh_gloo_solo_io_v1beta1.NewRateLimitClientConfigClient(client)
 }
 
-type RateLimiterServerConfigClientFactory func(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimiterServerConfigClient
+type RateLimitClientConfigClientFactory func(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitClientConfigClient
 
-func RateLimiterServerConfigClientFactoryProvider() RateLimiterServerConfigClientFactory {
-	return RateLimiterServerConfigClientProvider
+func RateLimitClientConfigClientFactoryProvider() RateLimitClientConfigClientFactory {
+	return RateLimitClientConfigClientProvider
 }
 
-type RateLimiterServerConfigClientFromConfigFactory func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimiterServerConfigClient, error)
+type RateLimitClientConfigClientFromConfigFactory func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitClientConfigClient, error)
 
-func RateLimiterServerConfigClientFromConfigFactoryProvider() RateLimiterServerConfigClientFromConfigFactory {
-	return func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimiterServerConfigClient, error) {
+func RateLimitClientConfigClientFromConfigFactoryProvider() RateLimitClientConfigClientFromConfigFactory {
+	return func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitClientConfigClient, error) {
 		clients, err := networking_enterprise_mesh_gloo_solo_io_v1beta1.NewClientsetFromConfig(cfg)
 		if err != nil {
 			return nil, err
 		}
-		return clients.RateLimiterServerConfigs(), nil
+		return clients.RateLimitClientConfigs(), nil
+	}
+}
+
+// Provider for RateLimitServerConfigClient from Clientset
+func RateLimitServerConfigClientFromClientsetProvider(clients networking_enterprise_mesh_gloo_solo_io_v1beta1.Clientset) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitServerConfigClient {
+	return clients.RateLimitServerConfigs()
+}
+
+// Provider for RateLimitServerConfig Client from Client
+func RateLimitServerConfigClientProvider(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitServerConfigClient {
+	return networking_enterprise_mesh_gloo_solo_io_v1beta1.NewRateLimitServerConfigClient(client)
+}
+
+type RateLimitServerConfigClientFactory func(client client.Client) networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitServerConfigClient
+
+func RateLimitServerConfigClientFactoryProvider() RateLimitServerConfigClientFactory {
+	return RateLimitServerConfigClientProvider
+}
+
+type RateLimitServerConfigClientFromConfigFactory func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitServerConfigClient, error)
+
+func RateLimitServerConfigClientFromConfigFactoryProvider() RateLimitServerConfigClientFromConfigFactory {
+	return func(cfg *rest.Config) (networking_enterprise_mesh_gloo_solo_io_v1beta1.RateLimitServerConfigClient, error) {
+		clients, err := networking_enterprise_mesh_gloo_solo_io_v1beta1.NewClientsetFromConfig(cfg)
+		if err != nil {
+			return nil, err
+		}
+		return clients.RateLimitServerConfigs(), nil
 	}
 }
 

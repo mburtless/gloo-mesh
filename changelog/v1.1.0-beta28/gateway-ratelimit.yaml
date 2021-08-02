@@ -1,0 +1,4 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Add gateway ingress rate limiting feature.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/526

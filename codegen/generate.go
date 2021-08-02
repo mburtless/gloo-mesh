@@ -22,6 +22,7 @@ import (
 	"github.com/solo-io/skv2/codegen/render"
 	"github.com/solo-io/skv2/codegen/util"
 	"github.com/solo-io/skv2/pkg/crdutils"
+	soloapi_codegen "github.com/solo-io/solo-apis/codegen"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -77,11 +78,14 @@ var (
 
 	vendoredMultiClusterCRDs = "vendor_any/github.com/solo-io/skv2/crds/multicluster.solo.io_v1alpha1_crds.yaml"
 	importedMultiClusterCRDs = glooMeshCrdsManifestRoot + "/crds/multicluster.solo.io_v1alpha1_crds.yaml"
+	vendoredRatelimitCRDs    = "vendor_any/github.com/solo-io/solo-apis/crds/ratelimit.solo.io_v1alpha1_crds.yaml"
+	importedRatelimitCRDs    = glooMeshCrdsManifestRoot + "/crds/ratelimit.solo.io_v1alpha1_crds.yaml"
 
 	snapshotApiGroups = map[string][]model.Group{
 		"":                                 groups.AllGeneratedGroups,
 		"github.com/solo-io/external-apis": externalapis.Groups,
 		"github.com/solo-io/skv2":          {skv1alpha1.Group},
+		"github.com/solo-io/solo-apis":     soloapi_codegen.RateLimiterGroups(),
 	}
 
 	project = gloomeshmodel.Project{
@@ -164,12 +168,18 @@ func addVersionAnnotationToImportedMultiClusterCRD(path string) error {
 		return err
 	}
 
+	// copy solo-apis ratelimit crds into helm chart
+	if err := os.Rename(vendoredRatelimitCRDs, importedRatelimitCRDs); err != nil {
+		return err
+	}
+
 	specRegex, err := regexp.Compile("(?m)" + crdutils.CRDSpecHashKey + `:.*$`)
 	if err != nil {
 		return err
 	}
 	data = specRegex.ReplaceAll(data, []byte("$0\n"+versionAnnotationYaml))
 	os.WriteFile(path, data, 0644)
+
 	return nil
 }
 

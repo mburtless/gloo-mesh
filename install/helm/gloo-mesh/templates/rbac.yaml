@@ -119,7 +119,8 @@ rules:
   resources:
   - certificateverifications
   - wasmdeployments
-  - ratelimiterserverconfigs
+  - ratelimitclientconfigs
+  - ratelimitserverconfigs
   - virtualdestinations
   - virtualgateways
   - virtualhosts
@@ -183,7 +184,8 @@ rules:
   resources:
   - certificateverifications/status
   - wasmdeployments/status
-  - ratelimiterserverconfigs/status
+  - ratelimitclientconfigs/status
+  - ratelimitserverconfigs/status
   - virtualdestinations/status
   - virtualgateways/status
   - virtualhosts/status
@@ -237,6 +239,12 @@ rules:
   - serviceentries
   - gateways
   - sidecars
+  verbs:
+  - '*'
+- apiGroups:
+  - ratelimit.solo.io
+  resources:
+  - ratelimitconfigs
   verbs:
   - '*'
 - apiGroups:

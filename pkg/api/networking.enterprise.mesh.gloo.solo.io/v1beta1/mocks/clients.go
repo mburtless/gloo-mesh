@@ -88,18 +88,32 @@ func (mr *MockClientsetMockRecorder) CertificateVerifications() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CertificateVerifications", reflect.TypeOf((*MockClientset)(nil).CertificateVerifications))
 }
 
-// RateLimiterServerConfigs mocks base method.
-func (m *MockClientset) RateLimiterServerConfigs() v1beta1.RateLimiterServerConfigClient {
+// RateLimitClientConfigs mocks base method.
+func (m *MockClientset) RateLimitClientConfigs() v1beta1.RateLimitClientConfigClient {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RateLimiterServerConfigs")
-	ret0, _ := ret[0].(v1beta1.RateLimiterServerConfigClient)
+	ret := m.ctrl.Call(m, "RateLimitClientConfigs")
+	ret0, _ := ret[0].(v1beta1.RateLimitClientConfigClient)
 	return ret0
 }
 
-// RateLimiterServerConfigs indicates an expected call of RateLimiterServerConfigs.
-func (mr *MockClientsetMockRecorder) RateLimiterServerConfigs() *gomock.Call {
+// RateLimitClientConfigs indicates an expected call of RateLimitClientConfigs.
+func (mr *MockClientsetMockRecorder) RateLimitClientConfigs() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimiterServerConfigs", reflect.TypeOf((*MockClientset)(nil).RateLimiterServerConfigs))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitClientConfigs", reflect.TypeOf((*MockClientset)(nil).RateLimitClientConfigs))
+}
+
+// RateLimitServerConfigs mocks base method.
+func (m *MockClientset) RateLimitServerConfigs() v1beta1.RateLimitServerConfigClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RateLimitServerConfigs")
+	ret0, _ := ret[0].(v1beta1.RateLimitServerConfigClient)
+	return ret0
+}
+
+// RateLimitServerConfigs indicates an expected call of RateLimitServerConfigs.
+func (mr *MockClientsetMockRecorder) RateLimitServerConfigs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimitServerConfigs", reflect.TypeOf((*MockClientset)(nil).RateLimitServerConfigs))
 }
 
 // RouteTables mocks base method.
@@ -690,508 +704,1012 @@ func (mr *MockMulticlusterWasmDeploymentClientMockRecorder) Cluster(cluster inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterWasmDeploymentClient)(nil).Cluster), cluster)
 }
 
-// MockRateLimiterServerConfigReader is a mock of RateLimiterServerConfigReader interface.
-type MockRateLimiterServerConfigReader struct {
+// MockRateLimitClientConfigReader is a mock of RateLimitClientConfigReader interface.
+type MockRateLimitClientConfigReader struct {
 	ctrl     *gomock.Controller
-	recorder *MockRateLimiterServerConfigReaderMockRecorder
+	recorder *MockRateLimitClientConfigReaderMockRecorder
 }
 
-// MockRateLimiterServerConfigReaderMockRecorder is the mock recorder for MockRateLimiterServerConfigReader.
-type MockRateLimiterServerConfigReaderMockRecorder struct {
-	mock *MockRateLimiterServerConfigReader
+// MockRateLimitClientConfigReaderMockRecorder is the mock recorder for MockRateLimitClientConfigReader.
+type MockRateLimitClientConfigReaderMockRecorder struct {
+	mock *MockRateLimitClientConfigReader
 }
 
-// NewMockRateLimiterServerConfigReader creates a new mock instance.
-func NewMockRateLimiterServerConfigReader(ctrl *gomock.Controller) *MockRateLimiterServerConfigReader {
-	mock := &MockRateLimiterServerConfigReader{ctrl: ctrl}
-	mock.recorder = &MockRateLimiterServerConfigReaderMockRecorder{mock}
+// NewMockRateLimitClientConfigReader creates a new mock instance.
+func NewMockRateLimitClientConfigReader(ctrl *gomock.Controller) *MockRateLimitClientConfigReader {
+	mock := &MockRateLimitClientConfigReader{ctrl: ctrl}
+	mock.recorder = &MockRateLimitClientConfigReaderMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRateLimiterServerConfigReader) EXPECT() *MockRateLimiterServerConfigReaderMockRecorder {
+func (m *MockRateLimitClientConfigReader) EXPECT() *MockRateLimitClientConfigReaderMockRecorder {
 	return m.recorder
 }
 
-// GetRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigReader) GetRateLimiterServerConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimiterServerConfig, error) {
+// GetRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigReader) GetRateLimitClientConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimitClientConfig, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRateLimiterServerConfig", ctx, key)
-	ret0, _ := ret[0].(*v1beta1.RateLimiterServerConfig)
+	ret := m.ctrl.Call(m, "GetRateLimitClientConfig", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.RateLimitClientConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRateLimiterServerConfig indicates an expected call of GetRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigReaderMockRecorder) GetRateLimiterServerConfig(ctx, key interface{}) *gomock.Call {
+// GetRateLimitClientConfig indicates an expected call of GetRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigReaderMockRecorder) GetRateLimitClientConfig(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigReader)(nil).GetRateLimiterServerConfig), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigReader)(nil).GetRateLimitClientConfig), ctx, key)
 }
 
-// ListRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigReader) ListRateLimiterServerConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimiterServerConfigList, error) {
+// ListRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigReader) ListRateLimitClientConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimitClientConfigList, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "ListRateLimiterServerConfig", varargs...)
-	ret0, _ := ret[0].(*v1beta1.RateLimiterServerConfigList)
+	ret := m.ctrl.Call(m, "ListRateLimitClientConfig", varargs...)
+	ret0, _ := ret[0].(*v1beta1.RateLimitClientConfigList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRateLimiterServerConfig indicates an expected call of ListRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigReaderMockRecorder) ListRateLimiterServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+// ListRateLimitClientConfig indicates an expected call of ListRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigReaderMockRecorder) ListRateLimitClientConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigReader)(nil).ListRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigReader)(nil).ListRateLimitClientConfig), varargs...)
 }
 
-// MockRateLimiterServerConfigWriter is a mock of RateLimiterServerConfigWriter interface.
-type MockRateLimiterServerConfigWriter struct {
+// MockRateLimitClientConfigWriter is a mock of RateLimitClientConfigWriter interface.
+type MockRateLimitClientConfigWriter struct {
 	ctrl     *gomock.Controller
-	recorder *MockRateLimiterServerConfigWriterMockRecorder
+	recorder *MockRateLimitClientConfigWriterMockRecorder
 }
 
-// MockRateLimiterServerConfigWriterMockRecorder is the mock recorder for MockRateLimiterServerConfigWriter.
-type MockRateLimiterServerConfigWriterMockRecorder struct {
-	mock *MockRateLimiterServerConfigWriter
+// MockRateLimitClientConfigWriterMockRecorder is the mock recorder for MockRateLimitClientConfigWriter.
+type MockRateLimitClientConfigWriterMockRecorder struct {
+	mock *MockRateLimitClientConfigWriter
 }
 
-// NewMockRateLimiterServerConfigWriter creates a new mock instance.
-func NewMockRateLimiterServerConfigWriter(ctrl *gomock.Controller) *MockRateLimiterServerConfigWriter {
-	mock := &MockRateLimiterServerConfigWriter{ctrl: ctrl}
-	mock.recorder = &MockRateLimiterServerConfigWriterMockRecorder{mock}
+// NewMockRateLimitClientConfigWriter creates a new mock instance.
+func NewMockRateLimitClientConfigWriter(ctrl *gomock.Controller) *MockRateLimitClientConfigWriter {
+	mock := &MockRateLimitClientConfigWriter{ctrl: ctrl}
+	mock.recorder = &MockRateLimitClientConfigWriterMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRateLimiterServerConfigWriter) EXPECT() *MockRateLimiterServerConfigWriterMockRecorder {
+func (m *MockRateLimitClientConfigWriter) EXPECT() *MockRateLimitClientConfigWriterMockRecorder {
 	return m.recorder
 }
 
-// CreateRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) CreateRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.CreateOption) error {
+// CreateRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) CreateRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.CreateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "CreateRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "CreateRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateRateLimiterServerConfig indicates an expected call of CreateRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) CreateRateLimiterServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// CreateRateLimitClientConfig indicates an expected call of CreateRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) CreateRateLimitClientConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).CreateRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).CreateRateLimitClientConfig), varargs...)
 }
 
-// DeleteAllOfRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) DeleteAllOfRateLimiterServerConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+// DeleteAllOfRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) DeleteAllOfRateLimitClientConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "DeleteAllOfRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "DeleteAllOfRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteAllOfRateLimiterServerConfig indicates an expected call of DeleteAllOfRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) DeleteAllOfRateLimiterServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+// DeleteAllOfRateLimitClientConfig indicates an expected call of DeleteAllOfRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) DeleteAllOfRateLimitClientConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).DeleteAllOfRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).DeleteAllOfRateLimitClientConfig), varargs...)
 }
 
-// DeleteRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) DeleteRateLimiterServerConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+// DeleteRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) DeleteRateLimitClientConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, key}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "DeleteRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "DeleteRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteRateLimiterServerConfig indicates an expected call of DeleteRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) DeleteRateLimiterServerConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+// DeleteRateLimitClientConfig indicates an expected call of DeleteRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) DeleteRateLimitClientConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, key}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).DeleteRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).DeleteRateLimitClientConfig), varargs...)
 }
 
-// PatchRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) PatchRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+// PatchRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) PatchRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, patch client.Patch, opts ...client.PatchOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj, patch}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "PatchRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "PatchRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PatchRateLimiterServerConfig indicates an expected call of PatchRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) PatchRateLimiterServerConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+// PatchRateLimitClientConfig indicates an expected call of PatchRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) PatchRateLimitClientConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj, patch}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).PatchRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).PatchRateLimitClientConfig), varargs...)
 }
 
-// UpdateRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) UpdateRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.UpdateOption) error {
+// UpdateRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) UpdateRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.UpdateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpdateRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "UpdateRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateRateLimiterServerConfig indicates an expected call of UpdateRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) UpdateRateLimiterServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// UpdateRateLimitClientConfig indicates an expected call of UpdateRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) UpdateRateLimitClientConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).UpdateRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).UpdateRateLimitClientConfig), varargs...)
 }
 
-// UpsertRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigWriter) UpsertRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, transitionFuncs ...v1beta1.RateLimiterServerConfigTransitionFunction) error {
+// UpsertRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigWriter) UpsertRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, transitionFuncs ...v1beta1.RateLimitClientConfigTransitionFunction) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range transitionFuncs {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpsertRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "UpsertRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpsertRateLimiterServerConfig indicates an expected call of UpsertRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigWriterMockRecorder) UpsertRateLimiterServerConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+// UpsertRateLimitClientConfig indicates an expected call of UpsertRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigWriterMockRecorder) UpsertRateLimitClientConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigWriter)(nil).UpsertRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigWriter)(nil).UpsertRateLimitClientConfig), varargs...)
 }
 
-// MockRateLimiterServerConfigStatusWriter is a mock of RateLimiterServerConfigStatusWriter interface.
-type MockRateLimiterServerConfigStatusWriter struct {
+// MockRateLimitClientConfigStatusWriter is a mock of RateLimitClientConfigStatusWriter interface.
+type MockRateLimitClientConfigStatusWriter struct {
 	ctrl     *gomock.Controller
-	recorder *MockRateLimiterServerConfigStatusWriterMockRecorder
+	recorder *MockRateLimitClientConfigStatusWriterMockRecorder
 }
 
-// MockRateLimiterServerConfigStatusWriterMockRecorder is the mock recorder for MockRateLimiterServerConfigStatusWriter.
-type MockRateLimiterServerConfigStatusWriterMockRecorder struct {
-	mock *MockRateLimiterServerConfigStatusWriter
+// MockRateLimitClientConfigStatusWriterMockRecorder is the mock recorder for MockRateLimitClientConfigStatusWriter.
+type MockRateLimitClientConfigStatusWriterMockRecorder struct {
+	mock *MockRateLimitClientConfigStatusWriter
 }
 
-// NewMockRateLimiterServerConfigStatusWriter creates a new mock instance.
-func NewMockRateLimiterServerConfigStatusWriter(ctrl *gomock.Controller) *MockRateLimiterServerConfigStatusWriter {
-	mock := &MockRateLimiterServerConfigStatusWriter{ctrl: ctrl}
-	mock.recorder = &MockRateLimiterServerConfigStatusWriterMockRecorder{mock}
+// NewMockRateLimitClientConfigStatusWriter creates a new mock instance.
+func NewMockRateLimitClientConfigStatusWriter(ctrl *gomock.Controller) *MockRateLimitClientConfigStatusWriter {
+	mock := &MockRateLimitClientConfigStatusWriter{ctrl: ctrl}
+	mock.recorder = &MockRateLimitClientConfigStatusWriterMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRateLimiterServerConfigStatusWriter) EXPECT() *MockRateLimiterServerConfigStatusWriterMockRecorder {
+func (m *MockRateLimitClientConfigStatusWriter) EXPECT() *MockRateLimitClientConfigStatusWriterMockRecorder {
 	return m.recorder
 }
 
-// PatchRateLimiterServerConfigStatus mocks base method.
-func (m *MockRateLimiterServerConfigStatusWriter) PatchRateLimiterServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+// PatchRateLimitClientConfigStatus mocks base method.
+func (m *MockRateLimitClientConfigStatusWriter) PatchRateLimitClientConfigStatus(ctx context.Context, obj *v1beta1.RateLimitClientConfig, patch client.Patch, opts ...client.PatchOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj, patch}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "PatchRateLimiterServerConfigStatus", varargs...)
+	ret := m.ctrl.Call(m, "PatchRateLimitClientConfigStatus", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PatchRateLimiterServerConfigStatus indicates an expected call of PatchRateLimiterServerConfigStatus.
-func (mr *MockRateLimiterServerConfigStatusWriterMockRecorder) PatchRateLimiterServerConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+// PatchRateLimitClientConfigStatus indicates an expected call of PatchRateLimitClientConfigStatus.
+func (mr *MockRateLimitClientConfigStatusWriterMockRecorder) PatchRateLimitClientConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj, patch}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimiterServerConfigStatus", reflect.TypeOf((*MockRateLimiterServerConfigStatusWriter)(nil).PatchRateLimiterServerConfigStatus), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitClientConfigStatus", reflect.TypeOf((*MockRateLimitClientConfigStatusWriter)(nil).PatchRateLimitClientConfigStatus), varargs...)
 }
 
-// UpdateRateLimiterServerConfigStatus mocks base method.
-func (m *MockRateLimiterServerConfigStatusWriter) UpdateRateLimiterServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.UpdateOption) error {
+// UpdateRateLimitClientConfigStatus mocks base method.
+func (m *MockRateLimitClientConfigStatusWriter) UpdateRateLimitClientConfigStatus(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.UpdateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpdateRateLimiterServerConfigStatus", varargs...)
+	ret := m.ctrl.Call(m, "UpdateRateLimitClientConfigStatus", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateRateLimiterServerConfigStatus indicates an expected call of UpdateRateLimiterServerConfigStatus.
-func (mr *MockRateLimiterServerConfigStatusWriterMockRecorder) UpdateRateLimiterServerConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// UpdateRateLimitClientConfigStatus indicates an expected call of UpdateRateLimitClientConfigStatus.
+func (mr *MockRateLimitClientConfigStatusWriterMockRecorder) UpdateRateLimitClientConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimiterServerConfigStatus", reflect.TypeOf((*MockRateLimiterServerConfigStatusWriter)(nil).UpdateRateLimiterServerConfigStatus), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitClientConfigStatus", reflect.TypeOf((*MockRateLimitClientConfigStatusWriter)(nil).UpdateRateLimitClientConfigStatus), varargs...)
 }
 
-// MockRateLimiterServerConfigClient is a mock of RateLimiterServerConfigClient interface.
-type MockRateLimiterServerConfigClient struct {
+// MockRateLimitClientConfigClient is a mock of RateLimitClientConfigClient interface.
+type MockRateLimitClientConfigClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockRateLimiterServerConfigClientMockRecorder
+	recorder *MockRateLimitClientConfigClientMockRecorder
 }
 
-// MockRateLimiterServerConfigClientMockRecorder is the mock recorder for MockRateLimiterServerConfigClient.
-type MockRateLimiterServerConfigClientMockRecorder struct {
-	mock *MockRateLimiterServerConfigClient
+// MockRateLimitClientConfigClientMockRecorder is the mock recorder for MockRateLimitClientConfigClient.
+type MockRateLimitClientConfigClientMockRecorder struct {
+	mock *MockRateLimitClientConfigClient
 }
 
-// NewMockRateLimiterServerConfigClient creates a new mock instance.
-func NewMockRateLimiterServerConfigClient(ctrl *gomock.Controller) *MockRateLimiterServerConfigClient {
-	mock := &MockRateLimiterServerConfigClient{ctrl: ctrl}
-	mock.recorder = &MockRateLimiterServerConfigClientMockRecorder{mock}
+// NewMockRateLimitClientConfigClient creates a new mock instance.
+func NewMockRateLimitClientConfigClient(ctrl *gomock.Controller) *MockRateLimitClientConfigClient {
+	mock := &MockRateLimitClientConfigClient{ctrl: ctrl}
+	mock.recorder = &MockRateLimitClientConfigClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRateLimiterServerConfigClient) EXPECT() *MockRateLimiterServerConfigClientMockRecorder {
+func (m *MockRateLimitClientConfigClient) EXPECT() *MockRateLimitClientConfigClientMockRecorder {
 	return m.recorder
 }
 
-// CreateRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) CreateRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.CreateOption) error {
+// CreateRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) CreateRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.CreateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "CreateRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "CreateRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateRateLimiterServerConfig indicates an expected call of CreateRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) CreateRateLimiterServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// CreateRateLimitClientConfig indicates an expected call of CreateRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) CreateRateLimitClientConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).CreateRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).CreateRateLimitClientConfig), varargs...)
 }
 
-// DeleteAllOfRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) DeleteAllOfRateLimiterServerConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+// DeleteAllOfRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) DeleteAllOfRateLimitClientConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "DeleteAllOfRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "DeleteAllOfRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteAllOfRateLimiterServerConfig indicates an expected call of DeleteAllOfRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) DeleteAllOfRateLimiterServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+// DeleteAllOfRateLimitClientConfig indicates an expected call of DeleteAllOfRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) DeleteAllOfRateLimitClientConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).DeleteAllOfRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).DeleteAllOfRateLimitClientConfig), varargs...)
 }
 
-// DeleteRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) DeleteRateLimiterServerConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+// DeleteRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) DeleteRateLimitClientConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, key}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "DeleteRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "DeleteRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteRateLimiterServerConfig indicates an expected call of DeleteRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) DeleteRateLimiterServerConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+// DeleteRateLimitClientConfig indicates an expected call of DeleteRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) DeleteRateLimitClientConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, key}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).DeleteRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).DeleteRateLimitClientConfig), varargs...)
 }
 
-// GetRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) GetRateLimiterServerConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimiterServerConfig, error) {
+// GetRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) GetRateLimitClientConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimitClientConfig, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRateLimiterServerConfig", ctx, key)
-	ret0, _ := ret[0].(*v1beta1.RateLimiterServerConfig)
+	ret := m.ctrl.Call(m, "GetRateLimitClientConfig", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.RateLimitClientConfig)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRateLimiterServerConfig indicates an expected call of GetRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) GetRateLimiterServerConfig(ctx, key interface{}) *gomock.Call {
+// GetRateLimitClientConfig indicates an expected call of GetRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) GetRateLimitClientConfig(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).GetRateLimiterServerConfig), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).GetRateLimitClientConfig), ctx, key)
 }
 
-// ListRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) ListRateLimiterServerConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimiterServerConfigList, error) {
+// ListRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) ListRateLimitClientConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimitClientConfigList, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "ListRateLimiterServerConfig", varargs...)
-	ret0, _ := ret[0].(*v1beta1.RateLimiterServerConfigList)
+	ret := m.ctrl.Call(m, "ListRateLimitClientConfig", varargs...)
+	ret0, _ := ret[0].(*v1beta1.RateLimitClientConfigList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRateLimiterServerConfig indicates an expected call of ListRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) ListRateLimiterServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+// ListRateLimitClientConfig indicates an expected call of ListRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) ListRateLimitClientConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).ListRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).ListRateLimitClientConfig), varargs...)
 }
 
-// PatchRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) PatchRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+// PatchRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) PatchRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, patch client.Patch, opts ...client.PatchOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj, patch}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "PatchRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "PatchRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PatchRateLimiterServerConfig indicates an expected call of PatchRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) PatchRateLimiterServerConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+// PatchRateLimitClientConfig indicates an expected call of PatchRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) PatchRateLimitClientConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj, patch}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).PatchRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).PatchRateLimitClientConfig), varargs...)
 }
 
-// PatchRateLimiterServerConfigStatus mocks base method.
-func (m *MockRateLimiterServerConfigClient) PatchRateLimiterServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+// PatchRateLimitClientConfigStatus mocks base method.
+func (m *MockRateLimitClientConfigClient) PatchRateLimitClientConfigStatus(ctx context.Context, obj *v1beta1.RateLimitClientConfig, patch client.Patch, opts ...client.PatchOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj, patch}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "PatchRateLimiterServerConfigStatus", varargs...)
+	ret := m.ctrl.Call(m, "PatchRateLimitClientConfigStatus", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PatchRateLimiterServerConfigStatus indicates an expected call of PatchRateLimiterServerConfigStatus.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) PatchRateLimiterServerConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+// PatchRateLimitClientConfigStatus indicates an expected call of PatchRateLimitClientConfigStatus.
+func (mr *MockRateLimitClientConfigClientMockRecorder) PatchRateLimitClientConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj, patch}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimiterServerConfigStatus", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).PatchRateLimiterServerConfigStatus), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitClientConfigStatus", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).PatchRateLimitClientConfigStatus), varargs...)
 }
 
-// UpdateRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) UpdateRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.UpdateOption) error {
+// UpdateRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) UpdateRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.UpdateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpdateRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "UpdateRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateRateLimiterServerConfig indicates an expected call of UpdateRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) UpdateRateLimiterServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// UpdateRateLimitClientConfig indicates an expected call of UpdateRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) UpdateRateLimitClientConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).UpdateRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).UpdateRateLimitClientConfig), varargs...)
 }
 
-// UpdateRateLimiterServerConfigStatus mocks base method.
-func (m *MockRateLimiterServerConfigClient) UpdateRateLimiterServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, opts ...client.UpdateOption) error {
+// UpdateRateLimitClientConfigStatus mocks base method.
+func (m *MockRateLimitClientConfigClient) UpdateRateLimitClientConfigStatus(ctx context.Context, obj *v1beta1.RateLimitClientConfig, opts ...client.UpdateOption) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpdateRateLimiterServerConfigStatus", varargs...)
+	ret := m.ctrl.Call(m, "UpdateRateLimitClientConfigStatus", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateRateLimiterServerConfigStatus indicates an expected call of UpdateRateLimiterServerConfigStatus.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) UpdateRateLimiterServerConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+// UpdateRateLimitClientConfigStatus indicates an expected call of UpdateRateLimitClientConfigStatus.
+func (mr *MockRateLimitClientConfigClientMockRecorder) UpdateRateLimitClientConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimiterServerConfigStatus", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).UpdateRateLimiterServerConfigStatus), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitClientConfigStatus", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).UpdateRateLimitClientConfigStatus), varargs...)
 }
 
-// UpsertRateLimiterServerConfig mocks base method.
-func (m *MockRateLimiterServerConfigClient) UpsertRateLimiterServerConfig(ctx context.Context, obj *v1beta1.RateLimiterServerConfig, transitionFuncs ...v1beta1.RateLimiterServerConfigTransitionFunction) error {
+// UpsertRateLimitClientConfig mocks base method.
+func (m *MockRateLimitClientConfigClient) UpsertRateLimitClientConfig(ctx context.Context, obj *v1beta1.RateLimitClientConfig, transitionFuncs ...v1beta1.RateLimitClientConfigTransitionFunction) error {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, obj}
 	for _, a := range transitionFuncs {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "UpsertRateLimiterServerConfig", varargs...)
+	ret := m.ctrl.Call(m, "UpsertRateLimitClientConfig", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpsertRateLimiterServerConfig indicates an expected call of UpsertRateLimiterServerConfig.
-func (mr *MockRateLimiterServerConfigClientMockRecorder) UpsertRateLimiterServerConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+// UpsertRateLimitClientConfig indicates an expected call of UpsertRateLimitClientConfig.
+func (mr *MockRateLimitClientConfigClientMockRecorder) UpsertRateLimitClientConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimiterServerConfig", reflect.TypeOf((*MockRateLimiterServerConfigClient)(nil).UpsertRateLimiterServerConfig), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimitClientConfig", reflect.TypeOf((*MockRateLimitClientConfigClient)(nil).UpsertRateLimitClientConfig), varargs...)
 }
 
-// MockMulticlusterRateLimiterServerConfigClient is a mock of MulticlusterRateLimiterServerConfigClient interface.
-type MockMulticlusterRateLimiterServerConfigClient struct {
+// MockMulticlusterRateLimitClientConfigClient is a mock of MulticlusterRateLimitClientConfigClient interface.
+type MockMulticlusterRateLimitClientConfigClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockMulticlusterRateLimiterServerConfigClientMockRecorder
+	recorder *MockMulticlusterRateLimitClientConfigClientMockRecorder
 }
 
-// MockMulticlusterRateLimiterServerConfigClientMockRecorder is the mock recorder for MockMulticlusterRateLimiterServerConfigClient.
-type MockMulticlusterRateLimiterServerConfigClientMockRecorder struct {
-	mock *MockMulticlusterRateLimiterServerConfigClient
+// MockMulticlusterRateLimitClientConfigClientMockRecorder is the mock recorder for MockMulticlusterRateLimitClientConfigClient.
+type MockMulticlusterRateLimitClientConfigClientMockRecorder struct {
+	mock *MockMulticlusterRateLimitClientConfigClient
 }
 
-// NewMockMulticlusterRateLimiterServerConfigClient creates a new mock instance.
-func NewMockMulticlusterRateLimiterServerConfigClient(ctrl *gomock.Controller) *MockMulticlusterRateLimiterServerConfigClient {
-	mock := &MockMulticlusterRateLimiterServerConfigClient{ctrl: ctrl}
-	mock.recorder = &MockMulticlusterRateLimiterServerConfigClientMockRecorder{mock}
+// NewMockMulticlusterRateLimitClientConfigClient creates a new mock instance.
+func NewMockMulticlusterRateLimitClientConfigClient(ctrl *gomock.Controller) *MockMulticlusterRateLimitClientConfigClient {
+	mock := &MockMulticlusterRateLimitClientConfigClient{ctrl: ctrl}
+	mock.recorder = &MockMulticlusterRateLimitClientConfigClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockMulticlusterRateLimiterServerConfigClient) EXPECT() *MockMulticlusterRateLimiterServerConfigClientMockRecorder {
+func (m *MockMulticlusterRateLimitClientConfigClient) EXPECT() *MockMulticlusterRateLimitClientConfigClientMockRecorder {
 	return m.recorder
 }
 
 // Cluster mocks base method.
-func (m *MockMulticlusterRateLimiterServerConfigClient) Cluster(cluster string) (v1beta1.RateLimiterServerConfigClient, error) {
+func (m *MockMulticlusterRateLimitClientConfigClient) Cluster(cluster string) (v1beta1.RateLimitClientConfigClient, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Cluster", cluster)
-	ret0, _ := ret[0].(v1beta1.RateLimiterServerConfigClient)
+	ret0, _ := ret[0].(v1beta1.RateLimitClientConfigClient)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Cluster indicates an expected call of Cluster.
-func (mr *MockMulticlusterRateLimiterServerConfigClientMockRecorder) Cluster(cluster interface{}) *gomock.Call {
+func (mr *MockMulticlusterRateLimitClientConfigClientMockRecorder) Cluster(cluster interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterRateLimiterServerConfigClient)(nil).Cluster), cluster)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterRateLimitClientConfigClient)(nil).Cluster), cluster)
+}
+
+// MockRateLimitServerConfigReader is a mock of RateLimitServerConfigReader interface.
+type MockRateLimitServerConfigReader struct {
+	ctrl     *gomock.Controller
+	recorder *MockRateLimitServerConfigReaderMockRecorder
+}
+
+// MockRateLimitServerConfigReaderMockRecorder is the mock recorder for MockRateLimitServerConfigReader.
+type MockRateLimitServerConfigReaderMockRecorder struct {
+	mock *MockRateLimitServerConfigReader
+}
+
+// NewMockRateLimitServerConfigReader creates a new mock instance.
+func NewMockRateLimitServerConfigReader(ctrl *gomock.Controller) *MockRateLimitServerConfigReader {
+	mock := &MockRateLimitServerConfigReader{ctrl: ctrl}
+	mock.recorder = &MockRateLimitServerConfigReaderMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRateLimitServerConfigReader) EXPECT() *MockRateLimitServerConfigReaderMockRecorder {
+	return m.recorder
+}
+
+// GetRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigReader) GetRateLimitServerConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimitServerConfig, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRateLimitServerConfig", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.RateLimitServerConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRateLimitServerConfig indicates an expected call of GetRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigReaderMockRecorder) GetRateLimitServerConfig(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigReader)(nil).GetRateLimitServerConfig), ctx, key)
+}
+
+// ListRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigReader) ListRateLimitServerConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimitServerConfigList, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(*v1beta1.RateLimitServerConfigList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRateLimitServerConfig indicates an expected call of ListRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigReaderMockRecorder) ListRateLimitServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigReader)(nil).ListRateLimitServerConfig), varargs...)
+}
+
+// MockRateLimitServerConfigWriter is a mock of RateLimitServerConfigWriter interface.
+type MockRateLimitServerConfigWriter struct {
+	ctrl     *gomock.Controller
+	recorder *MockRateLimitServerConfigWriterMockRecorder
+}
+
+// MockRateLimitServerConfigWriterMockRecorder is the mock recorder for MockRateLimitServerConfigWriter.
+type MockRateLimitServerConfigWriterMockRecorder struct {
+	mock *MockRateLimitServerConfigWriter
+}
+
+// NewMockRateLimitServerConfigWriter creates a new mock instance.
+func NewMockRateLimitServerConfigWriter(ctrl *gomock.Controller) *MockRateLimitServerConfigWriter {
+	mock := &MockRateLimitServerConfigWriter{ctrl: ctrl}
+	mock.recorder = &MockRateLimitServerConfigWriterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRateLimitServerConfigWriter) EXPECT() *MockRateLimitServerConfigWriterMockRecorder {
+	return m.recorder
+}
+
+// CreateRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) CreateRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.CreateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRateLimitServerConfig indicates an expected call of CreateRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) CreateRateLimitServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).CreateRateLimitServerConfig), varargs...)
+}
+
+// DeleteAllOfRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) DeleteAllOfRateLimitServerConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteAllOfRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAllOfRateLimitServerConfig indicates an expected call of DeleteAllOfRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) DeleteAllOfRateLimitServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).DeleteAllOfRateLimitServerConfig), varargs...)
+}
+
+// DeleteRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) DeleteRateLimitServerConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRateLimitServerConfig indicates an expected call of DeleteRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) DeleteRateLimitServerConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, key}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).DeleteRateLimitServerConfig), varargs...)
+}
+
+// PatchRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) PatchRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchRateLimitServerConfig indicates an expected call of PatchRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) PatchRateLimitServerConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).PatchRateLimitServerConfig), varargs...)
+}
+
+// UpdateRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) UpdateRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRateLimitServerConfig indicates an expected call of UpdateRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) UpdateRateLimitServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).UpdateRateLimitServerConfig), varargs...)
+}
+
+// UpsertRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigWriter) UpsertRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, transitionFuncs ...v1beta1.RateLimitServerConfigTransitionFunction) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range transitionFuncs {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpsertRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertRateLimitServerConfig indicates an expected call of UpsertRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigWriterMockRecorder) UpsertRateLimitServerConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigWriter)(nil).UpsertRateLimitServerConfig), varargs...)
+}
+
+// MockRateLimitServerConfigStatusWriter is a mock of RateLimitServerConfigStatusWriter interface.
+type MockRateLimitServerConfigStatusWriter struct {
+	ctrl     *gomock.Controller
+	recorder *MockRateLimitServerConfigStatusWriterMockRecorder
+}
+
+// MockRateLimitServerConfigStatusWriterMockRecorder is the mock recorder for MockRateLimitServerConfigStatusWriter.
+type MockRateLimitServerConfigStatusWriterMockRecorder struct {
+	mock *MockRateLimitServerConfigStatusWriter
+}
+
+// NewMockRateLimitServerConfigStatusWriter creates a new mock instance.
+func NewMockRateLimitServerConfigStatusWriter(ctrl *gomock.Controller) *MockRateLimitServerConfigStatusWriter {
+	mock := &MockRateLimitServerConfigStatusWriter{ctrl: ctrl}
+	mock.recorder = &MockRateLimitServerConfigStatusWriterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRateLimitServerConfigStatusWriter) EXPECT() *MockRateLimitServerConfigStatusWriterMockRecorder {
+	return m.recorder
+}
+
+// PatchRateLimitServerConfigStatus mocks base method.
+func (m *MockRateLimitServerConfigStatusWriter) PatchRateLimitServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimitServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchRateLimitServerConfigStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchRateLimitServerConfigStatus indicates an expected call of PatchRateLimitServerConfigStatus.
+func (mr *MockRateLimitServerConfigStatusWriterMockRecorder) PatchRateLimitServerConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitServerConfigStatus", reflect.TypeOf((*MockRateLimitServerConfigStatusWriter)(nil).PatchRateLimitServerConfigStatus), varargs...)
+}
+
+// UpdateRateLimitServerConfigStatus mocks base method.
+func (m *MockRateLimitServerConfigStatusWriter) UpdateRateLimitServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateRateLimitServerConfigStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRateLimitServerConfigStatus indicates an expected call of UpdateRateLimitServerConfigStatus.
+func (mr *MockRateLimitServerConfigStatusWriterMockRecorder) UpdateRateLimitServerConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitServerConfigStatus", reflect.TypeOf((*MockRateLimitServerConfigStatusWriter)(nil).UpdateRateLimitServerConfigStatus), varargs...)
+}
+
+// MockRateLimitServerConfigClient is a mock of RateLimitServerConfigClient interface.
+type MockRateLimitServerConfigClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockRateLimitServerConfigClientMockRecorder
+}
+
+// MockRateLimitServerConfigClientMockRecorder is the mock recorder for MockRateLimitServerConfigClient.
+type MockRateLimitServerConfigClientMockRecorder struct {
+	mock *MockRateLimitServerConfigClient
+}
+
+// NewMockRateLimitServerConfigClient creates a new mock instance.
+func NewMockRateLimitServerConfigClient(ctrl *gomock.Controller) *MockRateLimitServerConfigClient {
+	mock := &MockRateLimitServerConfigClient{ctrl: ctrl}
+	mock.recorder = &MockRateLimitServerConfigClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRateLimitServerConfigClient) EXPECT() *MockRateLimitServerConfigClientMockRecorder {
+	return m.recorder
+}
+
+// CreateRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) CreateRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.CreateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRateLimitServerConfig indicates an expected call of CreateRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) CreateRateLimitServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).CreateRateLimitServerConfig), varargs...)
+}
+
+// DeleteAllOfRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) DeleteAllOfRateLimitServerConfig(ctx context.Context, opts ...client.DeleteAllOfOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteAllOfRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAllOfRateLimitServerConfig indicates an expected call of DeleteAllOfRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) DeleteAllOfRateLimitServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllOfRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).DeleteAllOfRateLimitServerConfig), varargs...)
+}
+
+// DeleteRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) DeleteRateLimitServerConfig(ctx context.Context, key client.ObjectKey, opts ...client.DeleteOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteRateLimitServerConfig indicates an expected call of DeleteRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) DeleteRateLimitServerConfig(ctx, key interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, key}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).DeleteRateLimitServerConfig), varargs...)
+}
+
+// GetRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) GetRateLimitServerConfig(ctx context.Context, key client.ObjectKey) (*v1beta1.RateLimitServerConfig, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRateLimitServerConfig", ctx, key)
+	ret0, _ := ret[0].(*v1beta1.RateLimitServerConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRateLimitServerConfig indicates an expected call of GetRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) GetRateLimitServerConfig(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).GetRateLimitServerConfig), ctx, key)
+}
+
+// ListRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) ListRateLimitServerConfig(ctx context.Context, opts ...client.ListOption) (*v1beta1.RateLimitServerConfigList, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ListRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(*v1beta1.RateLimitServerConfigList)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRateLimitServerConfig indicates an expected call of ListRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) ListRateLimitServerConfig(ctx interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).ListRateLimitServerConfig), varargs...)
+}
+
+// PatchRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) PatchRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchRateLimitServerConfig indicates an expected call of PatchRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) PatchRateLimitServerConfig(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).PatchRateLimitServerConfig), varargs...)
+}
+
+// PatchRateLimitServerConfigStatus mocks base method.
+func (m *MockRateLimitServerConfigClient) PatchRateLimitServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimitServerConfig, patch client.Patch, opts ...client.PatchOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj, patch}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PatchRateLimitServerConfigStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PatchRateLimitServerConfigStatus indicates an expected call of PatchRateLimitServerConfigStatus.
+func (mr *MockRateLimitServerConfigClientMockRecorder) PatchRateLimitServerConfigStatus(ctx, obj, patch interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj, patch}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PatchRateLimitServerConfigStatus", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).PatchRateLimitServerConfigStatus), varargs...)
+}
+
+// UpdateRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) UpdateRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRateLimitServerConfig indicates an expected call of UpdateRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) UpdateRateLimitServerConfig(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).UpdateRateLimitServerConfig), varargs...)
+}
+
+// UpdateRateLimitServerConfigStatus mocks base method.
+func (m *MockRateLimitServerConfigClient) UpdateRateLimitServerConfigStatus(ctx context.Context, obj *v1beta1.RateLimitServerConfig, opts ...client.UpdateOption) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpdateRateLimitServerConfigStatus", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRateLimitServerConfigStatus indicates an expected call of UpdateRateLimitServerConfigStatus.
+func (mr *MockRateLimitServerConfigClientMockRecorder) UpdateRateLimitServerConfigStatus(ctx, obj interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRateLimitServerConfigStatus", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).UpdateRateLimitServerConfigStatus), varargs...)
+}
+
+// UpsertRateLimitServerConfig mocks base method.
+func (m *MockRateLimitServerConfigClient) UpsertRateLimitServerConfig(ctx context.Context, obj *v1beta1.RateLimitServerConfig, transitionFuncs ...v1beta1.RateLimitServerConfigTransitionFunction) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, obj}
+	for _, a := range transitionFuncs {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpsertRateLimitServerConfig", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertRateLimitServerConfig indicates an expected call of UpsertRateLimitServerConfig.
+func (mr *MockRateLimitServerConfigClientMockRecorder) UpsertRateLimitServerConfig(ctx, obj interface{}, transitionFuncs ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, obj}, transitionFuncs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertRateLimitServerConfig", reflect.TypeOf((*MockRateLimitServerConfigClient)(nil).UpsertRateLimitServerConfig), varargs...)
+}
+
+// MockMulticlusterRateLimitServerConfigClient is a mock of MulticlusterRateLimitServerConfigClient interface.
+type MockMulticlusterRateLimitServerConfigClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockMulticlusterRateLimitServerConfigClientMockRecorder
+}
+
+// MockMulticlusterRateLimitServerConfigClientMockRecorder is the mock recorder for MockMulticlusterRateLimitServerConfigClient.
+type MockMulticlusterRateLimitServerConfigClientMockRecorder struct {
+	mock *MockMulticlusterRateLimitServerConfigClient
+}
+
+// NewMockMulticlusterRateLimitServerConfigClient creates a new mock instance.
+func NewMockMulticlusterRateLimitServerConfigClient(ctrl *gomock.Controller) *MockMulticlusterRateLimitServerConfigClient {
+	mock := &MockMulticlusterRateLimitServerConfigClient{ctrl: ctrl}
+	mock.recorder = &MockMulticlusterRateLimitServerConfigClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockMulticlusterRateLimitServerConfigClient) EXPECT() *MockMulticlusterRateLimitServerConfigClientMockRecorder {
+	return m.recorder
+}
+
+// Cluster mocks base method.
+func (m *MockMulticlusterRateLimitServerConfigClient) Cluster(cluster string) (v1beta1.RateLimitServerConfigClient, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cluster", cluster)
+	ret0, _ := ret[0].(v1beta1.RateLimitServerConfigClient)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Cluster indicates an expected call of Cluster.
+func (mr *MockMulticlusterRateLimitServerConfigClientMockRecorder) Cluster(cluster interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cluster", reflect.TypeOf((*MockMulticlusterRateLimitServerConfigClient)(nil).Cluster), cluster)
 }
 
 // MockVirtualDestinationReader is a mock of VirtualDestinationReader interface.
