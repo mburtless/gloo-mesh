@@ -215,7 +215,7 @@ func (t *translator) configureSharedTrust(
 			// Pre-Validate secret to ensure it's formatted properly
 			secret, err := t.secrets.Find(typedCaSource.Secret)
 			if err != nil {
-				return eris.Wrapf(err, "Could not find provided ca signing secret (%s).", sets.Key(secret))
+				return eris.Wrapf(err, "Could not find provided ca signing secret (%s).", sets.Key(typedCaSource.Secret))
 			}
 
 			caData := secrets.CADataFromSecretData(secret.Data)
