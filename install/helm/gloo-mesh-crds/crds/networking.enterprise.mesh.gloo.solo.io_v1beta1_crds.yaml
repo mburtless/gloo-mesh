@@ -2410,6 +2410,14 @@ spec:
                     type: string
                 type: object
               type: array
+            state:
+              description: The state of the overall resource.
+              enum:
+              - PENDING
+              - ACCEPTED
+              - INVALID
+              - FAILED
+              type: string
             warnings:
               description: Any warnings found while processing this generation of
                 the resource.
@@ -5215,6 +5223,14 @@ spec:
                     type: string
                 type: object
               type: array
+            state:
+              description: The state of the overall resource.
+              enum:
+              - PENDING
+              - ACCEPTED
+              - INVALID
+              - FAILED
+              type: string
             warnings:
               description: Any warnings found while processing this generation of
                 the resource.
@@ -6901,6 +6917,14 @@ spec:
                     type: string
                 type: object
               type: array
+            state:
+              description: The state of the overall resource.
+              enum:
+              - PENDING
+              - ACCEPTED
+              - INVALID
+              - FAILED
+              type: string
             warnings:
               description: Any warnings found while processing this generation of
                 the resource.

@@ -4,6 +4,7 @@ package networking.enterprise.mesh.gloo.solo.io;
 option go_package = "github.com/solo-io/gloo-mesh/pkg/api/networking.enterprise.mesh.gloo.solo.io/v1beta1";
 
 import "github.com/solo-io/skv2/api/core/v1/core.proto";
+import "github.com/solo-io/gloo-mesh/api/common/v1/validation_state.proto";
 import "github.com/solo-io/gloo-mesh/api/enterprise/networking/v1beta1/route.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/traffic_policy.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/applied_policies.proto";
@@ -52,6 +53,9 @@ message VirtualHostStatus {
     // If the `observedGeneration` does not match `metadata.generation`,
     // Gloo Mesh has not processed the most recent version of this resource.
     int64 observed_generation = 1;
+
+    // The state of the overall resource.
+    .common.mesh.gloo.solo.io.ApprovalState state = 7;
 
     // Any errors found while processing this generation of the resource.
     repeated string errors = 2;

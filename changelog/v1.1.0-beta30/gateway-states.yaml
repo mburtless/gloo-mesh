@@ -1,0 +1,5 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Add state to VirtualHost, VirtualGateway, RouteTable resources.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/913
+    resolvesIssue: false

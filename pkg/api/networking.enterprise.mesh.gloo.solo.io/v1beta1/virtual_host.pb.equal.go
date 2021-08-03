@@ -12,6 +12,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	equality "github.com/solo-io/protoc-gen-ext/pkg/equality"
+
+	v1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 )
 
 // ensure the imports are used
@@ -23,6 +25,8 @@ var (
 	_ = strings.Compare
 	_ = equality.Equalizer(nil)
 	_ = proto.Message(nil)
+
+	_ = v1.ApprovalState(0)
 )
 
 // Equal function
@@ -143,6 +147,10 @@ func (m *VirtualHostStatus) Equal(that interface{}) bool {
 	}
 
 	if m.GetObservedGeneration() != target.GetObservedGeneration() {
+		return false
+	}
+
+	if m.GetState() != target.GetState() {
 		return false
 	}
 

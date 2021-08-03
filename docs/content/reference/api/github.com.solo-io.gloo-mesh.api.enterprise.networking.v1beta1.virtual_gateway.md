@@ -467,6 +467,7 @@ TODO: Fill in more options<br>gateway-level options (only apply to gateway/liste
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | observedGeneration | int64 |  | The most recent generation observed in the the VirtualGateway metadata. If the `observedGeneration` does not match `metadata.generation`, Gloo Mesh has not processed the most recent version of this resource. |
+  | state | [common.mesh.gloo.solo.io.ApprovalState]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.validation_state#common.mesh.gloo.solo.io.ApprovalState" >}}) |  | The state of the overall resource. |
   | errors | []string | repeated | Any errors found while processing this generation of the resource. |
   | warnings | []string | repeated | Any warnings found while processing this generation of the resource. |
   | selectedGateways | [][networking.enterprise.mesh.gloo.solo.io.SelectedGatewayWorkload]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SelectedGatewayWorkload" >}}) | repeated |  |
