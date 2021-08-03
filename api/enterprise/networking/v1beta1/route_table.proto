@@ -68,5 +68,4 @@ message SelectedBy {
     // VirtualGateway, VirtualHost, or RouteTable.
     string type = 3;
 
-    // TODO: Path selected upon?
 }

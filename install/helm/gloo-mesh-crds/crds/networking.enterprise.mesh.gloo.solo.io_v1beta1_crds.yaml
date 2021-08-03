@@ -5172,6 +5172,13 @@ spec:
                               type: integer
                           type: object
                         type: array
+                      pathRewrite:
+                        description: |-
+                          Replace the path specified in the matcher with this value before passing upstream.
+                          When a prefix matcher is used, only the prefix portion of the path is rewritten.
+                          When an exact matcher is used, the whole path is replaced.
+                          Rewriting the path when a regex matcher is used is currently unsupported.
+                        type: string
                     type: object
                 type: object
               type: array
@@ -6853,6 +6860,13 @@ spec:
                               type: integer
                           type: object
                         type: array
+                      pathRewrite:
+                        description: |-
+                          Replace the path specified in the matcher with this value before passing upstream.
+                          When a prefix matcher is used, only the prefix portion of the path is rewritten.
+                          When an exact matcher is used, the whole path is replaced.
+                          Rewriting the path when a regex matcher is used is currently unsupported.
+                        type: string
                     type: object
                 type: object
               type: array

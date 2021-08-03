@@ -1,0 +1,5 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Added path rewrite to the gateway route API.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/777
+    resolvesIssue: false

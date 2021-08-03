@@ -352,5 +352,9 @@ func (m *Route_RouteAction) Equal(that interface{}) bool {
 
 	}
 
+	if strings.Compare(m.GetPathRewrite(), target.GetPathRewrite()) != 0 {
+		return false
+	}
+
 	return true
 }

@@ -57,7 +57,7 @@ message Route {
 
     // Specify labels for this route, which are used by other resources (e.g. TrafficPolicy) to
     // select specific routes within a given gateway object.
-    map<string, string> labels = 10;
+    map<string, string> labels = 8;
 
     // RouteActions are used to route matched requests to upstreams.
     message RouteAction {
@@ -65,6 +65,12 @@ message Route {
         // Some destinations require additional configuration for the route (e.g. AWS upstreams require a function name
         // to be specified).
         repeated .networking.mesh.gloo.solo.io.WeightedDestination destinations = 1;
+
+        // Replace the path specified in the matcher with this value before passing upstream.
+        // When a prefix matcher is used, only the prefix portion of the path is rewritten.
+        // When an exact matcher is used, the whole path is replaced.
+        // Rewriting the path when a regex matcher is used is currently unsupported.
+        string path_rewrite = 2;
     }
 
 }
@@ -117,7 +123,6 @@ message RedirectAction {
     }
 }
 
-// TODO: Shuold we be using v4alpha now? https://github.com/envoyproxy/envoy/blob/5a8bfa20dc3c85ecb61826d122696ecaa75dffa0/api/envoy/config/route/v4alpha/route_components.proto#L1396
 // Note: This message needs to be at this level (rather than nested) due to cue restrictions.
 // DirectResponseAction is copied directly from https://github.com/envoyproxy/envoy/blob/master/api/envoy/api/v2/route/route.proto
 message DirectResponseAction {
