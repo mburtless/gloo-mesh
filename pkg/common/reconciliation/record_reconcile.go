@@ -22,6 +22,7 @@ type Recorder struct {
 	outputGvks []schema.GroupVersionKind
 
 	counter *prometheus.CounterVec
+	count   int
 }
 
 // NOTE: Only one Recorder should be initialized for each unique metric.
@@ -100,9 +101,12 @@ func (r *Recorder) RecordReconcileResult(
 	metricLabelValues = append(metricLabelValues, fmt.Sprintf("%v", outputTotal))
 	loggerKeysAndValues = append(loggerKeysAndValues, "output_total", outputTotal)
 
-	contextutils.LoggerFrom(ctx).Debugw("reconcile complete", loggerKeysAndValues...)
-
 	r.counter.WithLabelValues(metricLabelValues...).Inc()
+	r.count++
+
+	loggerKeysAndValues = append(loggerKeysAndValues, "total_reconciles", r.count)
+
+	contextutils.LoggerFrom(ctx).Debugw("reconcile complete", loggerKeysAndValues...)
 }
 
 func gvkLabel(gvk schema.GroupVersionKind) string {

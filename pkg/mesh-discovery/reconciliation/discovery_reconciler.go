@@ -35,8 +35,6 @@ import (
 	"github.com/solo-io/skv2/contrib/pkg/sets"
 	"github.com/solo-io/skv2/pkg/ezkube"
 	"github.com/solo-io/skv2/pkg/multicluster"
-	skpredicate "github.com/solo-io/skv2/pkg/predicate"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -137,8 +135,8 @@ func Start(
 		settingsRef:           settingsRef,
 	}
 
-	filterDiscoveryEvents := skpredicate.SimplePredicate{
-		Filter: skpredicate.SimpleEventFilterFunc(isLeaderElectionObject),
+	discoveryPredicates := []predicate.Predicate{
+		reconciliation.FilterLeaderElectionObject,
 	}
 
 	if clusters != nil {
@@ -154,7 +152,7 @@ func Start(
 					Meshes: reconcile.Options{
 						Verifier: verifier,
 					},
-					Predicates: []predicate.Predicate{filterDiscoveryEvents},
+					Predicates: discoveryPredicates,
 				},
 				Local:             input.LocalReconcileOptions{},
 				ReconcileInterval: time.Second / 2,
@@ -172,7 +170,7 @@ func Start(
 			reconcile.Options{
 				Verifier: verifier,
 			},
-			filterDiscoveryEvents,
+			discoveryPredicates...,
 		); err != nil {
 			return err
 		}
@@ -295,10 +293,4 @@ func (r *discoveryReconciler) setReconcileState(ctx context.Context, state recon
 		info("discovery reconciler is running using settings object %v", r.settingsRef)
 	}
 	r.state = state
-}
-
-// returns true if the passed object is used for leader election
-func isLeaderElectionObject(obj metav1.Object) bool {
-	_, isLeaderElectionObj := obj.GetAnnotations()["control-plane.alpha.kubernetes.io/leader"]
-	return isLeaderElectionObj
 }

@@ -35,7 +35,7 @@ type DependencyFactory interface {
 		in input.DiscoveryInputSnapshot,
 	) workload.Translator
 
-	MakeDestinationTranslator() destination.Translator
+	MakeDestinationTranslator(ctx context.Context) destination.Translator
 }
 
 type DependencyFactoryImpl struct{}
@@ -72,7 +72,7 @@ func (d DependencyFactoryImpl) MakeWorkloadTranslator(
 	return workload.NewTranslator(ctx, workloadDetector)
 }
 
-func (d DependencyFactoryImpl) MakeDestinationTranslator() destination.Translator {
-	return destination.NewTranslator(destinationdetector.NewDestinationDetector())
+func (d DependencyFactoryImpl) MakeDestinationTranslator(ctx context.Context) destination.Translator {
+	return destination.NewTranslator(ctx, destinationdetector.NewDestinationDetector())
 
 }

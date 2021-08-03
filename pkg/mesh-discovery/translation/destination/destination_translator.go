@@ -30,8 +30,11 @@ type translator struct {
 	destinationDetector detector.DestinationDetector
 }
 
-func NewTranslator(destinationDetector detector.DestinationDetector) Translator {
-	return &translator{destinationDetector: destinationDetector}
+func NewTranslator(ctx context.Context, destinationDetector detector.DestinationDetector) Translator {
+	return &translator{
+		ctx:                 ctx,
+		destinationDetector: destinationDetector,
+	}
 }
 
 func (t *translator) TranslateDestinations(

@@ -85,7 +85,7 @@ var _ = Describe("Translator", func() {
 
 		mockDependencyFactory.EXPECT().MakeMeshTranslator(ctx).Return(mockMeshTranslator)
 		mockDependencyFactory.EXPECT().MakeWorkloadTranslator(ctx, inRemote).Return(mockWorkloadTranslator)
-		mockDependencyFactory.EXPECT().MakeDestinationTranslator().Return(mockDestinationTranslator)
+		mockDependencyFactory.EXPECT().MakeDestinationTranslator(ctx).Return(mockDestinationTranslator)
 
 		labeledMeta := metav1.ObjectMeta{Labels: labelutils.ClusterLabels("cluster")}
 

@@ -44,7 +44,7 @@ func (t translator) Translate(
 
 	workloadTranslator := t.dependencies.MakeWorkloadTranslator(ctx, in)
 
-	destinationTranslator := t.dependencies.MakeDestinationTranslator()
+	destinationTranslator := t.dependencies.MakeDestinationTranslator(ctx)
 
 	meshes := meshTranslator.TranslateMeshes(in, settings)
 

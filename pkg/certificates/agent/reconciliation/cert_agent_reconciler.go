@@ -75,7 +75,16 @@ func Start(
 		podBouncer:  podBouncer,
 		translator:  translator,
 	}
-	_, err := input.RegisterSingleClusterReconciler(ctx, mgr, d.reconcile, time.Second/2, reconcile.Options{})
+	_, err := input.RegisterSingleClusterReconciler(
+		ctx,
+		mgr,
+		d.reconcile,
+		time.Second/2,
+		reconcile.Options{},
+		reconciliation.FilterLeaderElectionObject,
+		reconciliation.FilterServiceAccountTokenSecret,
+		reconciliation.FilterKubeSystemConfigMap,
+	)
 	return err
 }
 
