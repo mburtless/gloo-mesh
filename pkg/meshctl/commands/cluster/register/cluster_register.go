@@ -61,6 +61,7 @@ func (o *options) addToFlags(flags *pflag.FlagSet) {
 	flags.StringVar(&o.MgmtNamespace, "mgmt-namespace", defaults.DefaultPodNamespace, "namespace of the Gloo Mesh control plane in which the secret for the registered cluster will be created")
 	flags.StringVar(&o.RemoteNamespace, "remote-namespace", defaults.DefaultPodNamespace, "namespace in the target cluster where a service account enabling remote access will be created.\nIf the namespace does not exist it will be created.")
 	flags.StringVar(&o.ClusterDomain, "cluster-domain", defaults.DefaultClusterDomain, "The Cluster Domain used by the Kubernetes DNS Service in the registered cluster. \nRead more: https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/")
+	flags.StringVar(&o.Version, "version", "", "Version of Gloo Mesh agent to install. Defaults to the version of the Gloo Mesh server.")
 }
 
 func communityCommand(ctx context.Context, regOpts *options) *cobra.Command {
@@ -136,6 +137,7 @@ bootstrap token from the gloo-mesh cluster, if these are not explicitly provided
 			logrus.Infof("Registering cluster")
 			opts.Options = registration.Options(*regOpts)
 			opts.ClusterName = args[0]
+
 			return enterprise.RegisterCluster(ctx, enterprise.RegistrationOptions(opts))
 		},
 	}
@@ -161,7 +163,7 @@ func (o *EnterpriseOptions) addToFlags(flags *pflag.FlagSet) {
 
 	flags.StringVar(&o.TokenSecretName, "token-secret-name", "", "Secret name for the bootstrap token. This token will be used to bootstrap a client certificate from relay server. Not needed if you already have a client certificate.")
 	flags.StringVar(&o.TokenSecretNamespace, "token-secret-namespace", "", "Secret namespace for the bootstrap token.")
-	flags.StringVar(&o.TokenSecretKey, "token-secret-key", "token", "Secret data entry key for the bootstrap token.")
+	flags.StringVar(&o.TokenSecretKey, "token-secret-key", enterprise.DefaultTokenSecretKey, "Secret data entry key for the bootstrap token.")
 
 	flags.StringVar(&o.AgentChartPathOverride, "enterprise-agent-chart-file", "",
 		"Path to a local Helm chart for installing the Enterprise Agent.\n"+
@@ -171,4 +173,6 @@ func (o *EnterpriseOptions) addToFlags(flags *pflag.FlagSet) {
 		"Path to a Helm values.yaml file for customizing the installation of the Enterprise Agent.\n"+
 			"If unset, this command will install the Enterprise Agent with default Helm values.",
 	)
+
+	flags.BoolVar(&o.SkipChecks, "skip-checks", false, "If true, skip the agent pre-install checks.")
 }

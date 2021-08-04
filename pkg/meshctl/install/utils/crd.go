@@ -29,7 +29,7 @@ func GetCrdMetadataFromManifests(deploy string, manifests []byte) (*crdutils.CRD
 }
 
 // Retrieves the CRD metadata for the chart that's about to be installed.
-func GetCrdMetadataFromInstaller(ctx context.Context, deploy string, installer helm.Installer) (*crdutils.CRDMetadata, error) {
+func GetCrdMetadataFromInstaller(ctx context.Context, deploy string, installer *helm.Installer) (*crdutils.CRDMetadata, error) {
 	// take the generated manifest:
 	renderedManifests, err := installer.GetRenderedManifests(ctx)
 	if err != nil {

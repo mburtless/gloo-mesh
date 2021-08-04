@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/rotisserie/eris"
-	appsv1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
-	corev1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	apps_v1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -19,19 +17,19 @@ func NewDeploymentsCheck() Check {
 }
 
 func (d *deploymentsCheck) GetDescription() string {
-	return "Gloo Mesh pods are running"
+	return "Gloo Mesh Pods Status"
 }
 
 func (d *deploymentsCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
 	installNamespace := checkCtx.Environment().Namespace
-	namespaceClient := corev1.NewNamespaceClient(checkCtx.Client())
+	namespaceClient := checkCtx.Context().CoreClientset.Namespaces()
 	_, err := namespaceClient.GetNamespace(ctx, installNamespace)
 	if err != nil {
 		return &Result{
 			Errors: []error{eris.Wrapf(err, "specified namespace %s doesn't exist", installNamespace)},
 		}
 	}
-	deploymentClient := appsv1.NewDeploymentClient(checkCtx.Client())
+	deploymentClient := checkCtx.Context().AppsClientset.Deployments()
 	deployments, err := deploymentClient.ListDeployment(ctx, client.InNamespace(installNamespace))
 	if err != nil {
 		return &Result{

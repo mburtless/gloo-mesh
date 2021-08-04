@@ -3,6 +3,7 @@ package registration
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/solo-io/gloo-mesh/codegen/io"
@@ -51,7 +52,7 @@ func (o Options) GetChartPath(ctx context.Context, override, template string) (s
 	}
 	// If the user provides a version, use it when building the chart path
 	if o.Version != "" {
-		return fmt.Sprintf(template, o.Version), nil
+		return fmt.Sprintf(template, strings.TrimPrefix(o.Version, "v")), nil
 	}
 	// Otherwise find the version of Gloo Mesh that's running
 	kubeConfigPath := o.MgmtKubeConfigPath

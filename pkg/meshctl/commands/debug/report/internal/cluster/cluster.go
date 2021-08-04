@@ -62,7 +62,7 @@ func ParsePath(path string) (namespace string, deployment, pod string, container
 	return pv[0], pv[1], pv[2], pv[3], nil
 }
 
-// GetClusterResources returns cluster resources for the given REST config and k8s Clientset.
+// GetClusterResources returns cluster resources for the given REST config and k8s AppsClientset.
 func GetClusterResources(ctx context.Context, clientset *kubernetes.Clientset) (*Resources, error) {
 	var errs []string
 	out := &Resources{

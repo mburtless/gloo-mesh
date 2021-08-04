@@ -33,6 +33,7 @@ The edition registered must match the edition installed on the management cluste
       --remote-context string     name of the kubeconfig context to use for the remote cluster
       --remote-namespace string   namespace in the target cluster where a service account enabling remote access will be created.
                                   If the namespace does not exist it will be created. (default "gloo-mesh")
+      --version string            Version of Gloo Mesh agent to install. Defaults to the version of the Gloo Mesh server.
 ```
 
 ### Options inherited from parent commands

@@ -4,6 +4,11 @@ import (
 	"context"
 	"net/url"
 
+	apiextv1beta1 "github.com/solo-io/external-apis/pkg/api/k8s/apiextensions.k8s.io/v1beta1"
+	appsv1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
+	corev1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
+	networkingv1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
+	skv2multiclusterv1alpha1 "github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1"
 	"github.com/solo-io/skv2/pkg/crdutils"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -15,11 +20,6 @@ const (
 	PostInstall       = "post-install"
 	PreUpgrade        = "pre-upgrade"
 	PostUpgrade       = "post-upgrade"
-
-	// Test includes all post-install checks, and may include more checks that are make sure
-	// that all is well with the system (for example, run some pre-install checks to verify the
-	// environment is still OK).
-	Test = "test"
 )
 
 type Component string
@@ -40,26 +40,41 @@ type Environment struct {
 
 type OperateOnAdminPort = func(ctx context.Context, adminUrl *url.URL) (error, string)
 
+// agent install/upgrade parameters
+type AgentParams struct {
+	RelayServerAddress string
+	RelayAuthority     string
+	Insecure           bool
+
+	RootCertSecretRef   client.ObjectKey
+	ClientCertSecretRef client.ObjectKey
+}
+
 type CommonContext struct {
 	// if true, skip checks
 	SkipChecks bool
 
 	Env Environment
-	Cli client.Client
-	// server install or upgrade parameters
-	ServerParams *ServerParams
+
+	RelayDialer RelayDialer
+	AgentParams *AgentParams
+
+	CrdMetadata map[string]*crdutils.CRDMetadata
+
+	// k8s clients
+	AppsClientset           appsv1.Clientset
+	CoreClientset           corev1.Clientset
+	NetworkingClientset     networkingv1.Clientset
+	KubernetesClusterClient skv2multiclusterv1alpha1.KubernetesClusterClient
+	CrdClient               apiextv1beta1.CustomResourceDefinitionClient
 }
 
 func (c *CommonContext) Environment() Environment {
 	return c.Env
 }
-func (c *CommonContext) Client() client.Client {
-	return c.Cli
-}
 
 type CheckContext interface {
 	Environment() Environment
-	Client() client.Client
 	AccessAdminPort(ctx context.Context, deployment string, op OperateOnAdminPort) (error, string)
 	Context() CommonContext
 	CRDMetadata(ctx context.Context, deploymentName string) (*crdutils.CRDMetadata, error)

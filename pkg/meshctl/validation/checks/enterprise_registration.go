@@ -42,7 +42,7 @@ func NewEnterpriseRegistrationCheck() *enterpriseRegistrationCheck {
 }
 
 func (d *enterpriseRegistrationCheck) GetDescription() string {
-	return "Gloo Mesh agents are connected for each registered cluster"
+	return "Gloo Mesh Agents Connectivity"
 }
 
 type connectionStatus struct {
@@ -52,8 +52,8 @@ type connectionStatus struct {
 	agentsPushing int
 }
 
-func isEnterpriseVersion(ctx context.Context, c client.Client, installNamespace string) (bool, error) {
-	_, err := v1.NewDeploymentClient(c).GetDeployment(ctx, client.ObjectKey{
+func isEnterpriseVersion(ctx context.Context, deploymentClient v1.DeploymentClient, installNamespace string) (bool, error) {
+	_, err := deploymentClient.GetDeployment(ctx, client.ObjectKey{
 		Namespace: installNamespace,
 		Name:      consts.MgmtDeployName,
 	})
@@ -67,7 +67,7 @@ func isEnterpriseVersion(ctx context.Context, c client.Client, installNamespace 
 }
 
 func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
-	shouldRunCheck, err := isEnterpriseVersion(ctx, checkCtx.Client(), checkCtx.Environment().Namespace)
+	shouldRunCheck, err := isEnterpriseVersion(ctx, checkCtx.Context().AppsClientset.Deployments(), checkCtx.Environment().Namespace)
 	if err != nil {
 		return &Result{
 			Errors: []error{err},
@@ -86,7 +86,7 @@ func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckCon
 
 	installNamespace := checkCtx.Environment().Namespace
 	// get registered clusters
-	registeredClusters, err := v1alpha1.NewKubernetesClusterClient(checkCtx.Client()).ListKubernetesCluster(ctx, client.InNamespace(installNamespace))
+	registeredClusters, err := checkCtx.Context().KubernetesClusterClient.ListKubernetesCluster(ctx, client.InNamespace(installNamespace))
 	if err != nil {
 		return &Result{
 			Errors: []error{err},
@@ -97,7 +97,7 @@ func (d *enterpriseRegistrationCheck) Run(ctx context.Context, checkCtx CheckCon
 
 	// emit a warning that there are no registered clusters
 	if len(registeredClusters.Items) == 0 {
-		result.AddHint("You don't have any registered clusters. you may want to create a KubernetesCluster CR.", clusterRegDoc)
+		result.AddHint("No registered clusters detected. To register a remote cluster that has a deployed Gloo Mesh agent, add a KubernetesCluster CR.", clusterRegDoc)
 		return result
 	}
 

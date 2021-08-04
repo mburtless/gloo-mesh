@@ -58,7 +58,7 @@ func RootCommand(ctx context.Context) *cobra.Command {
 		mesh.Command(ctx),
 		install.Command(ctx, globalFlags),
 		uninstall.Command(ctx, globalFlags),
-		check.Command(ctx),
+		check.Command(ctx, false),
 		dashboard.Command(ctx),
 		version.Command(ctx),
 		initpluginmanager.Command(ctx),

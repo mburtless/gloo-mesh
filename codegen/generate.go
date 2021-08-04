@@ -168,18 +168,12 @@ func addVersionAnnotationToImportedMultiClusterCRD(path string) error {
 		return err
 	}
 
-	// copy solo-apis ratelimit crds into helm chart
-	if err := os.Rename(vendoredRatelimitCRDs, importedRatelimitCRDs); err != nil {
-		return err
-	}
-
 	specRegex, err := regexp.Compile("(?m)" + crdutils.CRDSpecHashKey + `:.*$`)
 	if err != nil {
 		return err
 	}
 	data = specRegex.ReplaceAll(data, []byte("$0\n"+versionAnnotationYaml))
 	os.WriteFile(path, data, 0644)
-
 	return nil
 }
 

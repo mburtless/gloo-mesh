@@ -18,21 +18,20 @@ func NewNetworkingCrdCheck() Check {
 }
 
 func (c *networkingCrdCheck) GetDescription() string {
-	return "Gloo Mesh networking configuration resources are in a valid state"
+	return "Gloo Mesh Networking Configuration Resources"
 }
 
 func (c *networkingCrdCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
-	client := checkCtx.Client()
 	failure := new(Result)
-	tpList, err := networkingv1.NewTrafficPolicyClient(client).ListTrafficPolicy(ctx)
+	tpList, err := checkCtx.Context().NetworkingClientset.TrafficPolicies().ListTrafficPolicy(ctx)
 	if err != nil {
 		failure.AddError(err)
 	}
-	apList, err := networkingv1.NewAccessPolicyClient(client).ListAccessPolicy(ctx)
+	apList, err := checkCtx.Context().NetworkingClientset.AccessPolicies().ListAccessPolicy(ctx)
 	if err != nil {
 		failure.AddError(err)
 	}
-	vmList, err := networkingv1.NewVirtualMeshClient(client).ListVirtualMesh(ctx)
+	vmList, err := checkCtx.Context().NetworkingClientset.VirtualMeshes().ListVirtualMesh(ctx)
 	if err != nil {
 		failure.AddError(err)
 	}

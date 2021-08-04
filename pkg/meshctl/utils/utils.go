@@ -13,6 +13,7 @@ import (
 	"github.com/solo-io/go-utils/tarutils"
 	"github.com/solo-io/skv2/pkg/multicluster/kubeconfig"
 	"github.com/spf13/afero"
+	apiextensions_k8s_io_v1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 
@@ -29,6 +30,11 @@ func BuildClient(kubeConfigPath, kubeContext string) (client.Client, error) {
 
 	scheme := scheme.Scheme
 	if err := schemes.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+
+	// needed for in-cluster CRD check
+	if err = apiextensions_k8s_io_v1beta1.AddToScheme(scheme); err != nil {
 		return nil, err
 	}
 

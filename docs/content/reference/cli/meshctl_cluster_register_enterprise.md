@@ -47,6 +47,7 @@ meshctl cluster register enterprise [cluster name] [flags]
       --relay-server-insecure                  Communicate with the relay server over an insecure connection.
       --root-ca-secret-name string             Secret name for the root CA for communication with relay server.
       --root-ca-secret-namespace string        Secret namespace for the root CA for communication with relay server.
+      --skip-checks                            If true, skip the agent pre-install checks.
       --token-secret-key string                Secret data entry key for the bootstrap token. (default "token")
       --token-secret-name string               Secret name for the bootstrap token. This token will be used to bootstrap a client certificate from relay server. Not needed if you already have a client certificate.
       --token-secret-namespace string          Secret namespace for the bootstrap token.
@@ -65,6 +66,7 @@ meshctl cluster register enterprise [cluster name] [flags]
       --remote-namespace string   namespace in the target cluster where a service account enabling remote access will be created.
                                   If the namespace does not exist it will be created. (default "gloo-mesh")
   -v, --verbose                   Enable verbose logging
+      --version string            Version of Gloo Mesh agent to install. Defaults to the version of the Gloo Mesh server.
 ```
 
 ### SEE ALSO

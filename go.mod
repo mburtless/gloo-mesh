@@ -45,7 +45,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.1
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
-	github.com/go-openapi/swag v0.19.6
+	github.com/go-openapi/swag v0.19.7
 	github.com/go-test/deep v1.0.2
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/packr/v2 v2.8.1 // indirect

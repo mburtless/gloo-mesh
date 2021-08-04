@@ -28,7 +28,7 @@ const (
 	defaultTimeoutDurationStr = "10m"
 )
 
-// BuildClientConfigAndClientset creates a rest.Config and Clientset from the given kubeconfig path and Context.
+// BuildClientConfigAndClientset creates a rest.Config and AppsClientset from the given kubeconfig path and Context.
 func BuildClientConfigAndClientset(kubeconfig, kubeContext string) (clientcmd.ClientConfig, *kubernetes.Clientset, error) {
 	clientConfig := buildClientConfig(kubeconfig, kubeContext)
 	restConfig, err := clientConfig.ClientConfig()

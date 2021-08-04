@@ -12,13 +12,26 @@ import (
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/gloomesh"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm"
+	installutils "github.com/solo-io/gloo-mesh/pkg/meshctl/install/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/registration"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
+	validationconsts "github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
 	"github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1"
+	"github.com/solo-io/skv2/pkg/crdutils"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	DefaultRelayAuthority = "enterprise-networking.gloo-mesh"
+	DefaultRootCAName     = "relay-root-tls-secret"
+	DefaultClientCertName = "relay-client-tls-secret"
+	DefaultTokenName      = "relay-identity-token-secret"
+	DefaultTokenSecretKey = "token"
 )
 
 type RegistrationOptions struct {
@@ -40,21 +53,71 @@ type RegistrationOptions struct {
 	TokenSecretKey       string
 
 	ReleaseName string
+
+	SkipChecks bool
+}
+
+// construct the helm installer from the specified options
+func (o *RegistrationOptions) GetInstaller(ctx context.Context) (*helm.Installer, error) {
+	chartPath, err := o.GetChartPath(ctx, o.AgentChartPathOverride, gloomesh.EnterpriseAgentChartUriTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	releaseName := gloomesh.EnterpriseAgentReleaseName
+	if o.ReleaseName != "" {
+		releaseName = o.ReleaseName
+	}
+
+	values := map[string]string{
+		"relay.serverAddress": o.RelayServerAddress,
+		"global.insecure":     strconv.FormatBool(o.RelayServerInsecure),
+		"relay.cluster":       o.ClusterName,
+	}
+
+	if !o.RelayServerInsecure {
+		values["relay.rootTlsSecret.name"] = o.RootCASecretName
+		values["relay.rootTlsSecret.namespace"] = o.RootCASecretNamespace
+
+		// relay needs a client cert name provided, even if it doesn't exist, so it can upsert the Secret if needed
+		if o.ClientCertSecretName == "" {
+			o.ClientCertSecretName = DefaultClientCertName
+		}
+		if o.ClientCertSecretNamespace == "" {
+			o.ClientCertSecretNamespace = o.RemoteNamespace
+		}
+		values["relay.clientCertSecret.name"] = o.ClientCertSecretName
+		values["relay.clientCertSecret.namespace"] = o.ClientCertSecretNamespace
+
+		// only copy token secret if we have one
+		if o.TokenSecretName != "" {
+			values["relay.tokenSecret.name"] = o.TokenSecretName
+			values["relay.tokenSecret.namespace"] = o.TokenSecretNamespace
+			values["relay.tokenSecret.key"] = o.TokenSecretKey
+		}
+	}
+
+	return &helm.Installer{
+		KubeConfig:  o.KubeConfigPath,
+		KubeContext: o.RemoteContext,
+		ChartUri:    chartPath,
+		Namespace:   o.RemoteNamespace,
+		ReleaseName: releaseName,
+		ValuesFile:  o.AgentChartValuesPath,
+		Verbose:     o.Verbose,
+		Values:      values,
+	}, nil
 }
 
 func ensureCerts(ctx context.Context, opts *RegistrationOptions) (bool, error) {
-	// if secure, and no user data was given, attempt to deduce the required parameters.
-	const defaultRootCA = "relay-root-tls-secret"
-	const defaultToken = "relay-identity-token-secret"
-	const defaultTokenSecretKey = "token"
-
-	createdBootstrapToken := false
-
 	if opts.RootCASecretName != "" && (opts.ClientCertSecretName != "" || opts.TokenSecretName != "") {
 		// we have all the data we need: root ca and either a client cert or a token.
 		// nothing to be done here
-		return createdBootstrapToken, nil
+		return false, nil
 	}
+
+	createdBootstrapToken := false
+
 	mgmtKubeConfigPath := opts.KubeConfigPath
 	// override if provided
 	if opts.MgmtKubeConfigPath != "" {
@@ -72,12 +135,12 @@ func ensureCerts(ctx context.Context, opts *RegistrationOptions) (bool, error) {
 	remoteKubeSecretClient := v1.NewSecretClient(remoteKubeClient)
 
 	if opts.RootCASecretName == "" {
-		opts.RootCASecretName = defaultRootCA
+		opts.RootCASecretName = DefaultRootCAName
 		if opts.RootCASecretNamespace == "" {
 			opts.RootCASecretNamespace = opts.RemoteNamespace
 		}
 		mgmtRootCaNameNamespace := client.ObjectKey{
-			Name:      defaultRootCA,
+			Name:      opts.RootCASecretName,
 			Namespace: opts.MgmtNamespace,
 		}
 
@@ -115,15 +178,15 @@ func ensureCerts(ctx context.Context, opts *RegistrationOptions) (bool, error) {
 
 	if opts.TokenSecretName == "" {
 		// no token, copy it from mgmt cluster:
-		opts.TokenSecretName = defaultToken
+		opts.TokenSecretName = DefaultTokenName
 		if opts.TokenSecretNamespace == "" {
 			opts.TokenSecretNamespace = opts.RemoteNamespace
 		}
 		if opts.TokenSecretKey == "" {
-			opts.TokenSecretKey = defaultTokenSecretKey
+			opts.TokenSecretKey = DefaultTokenSecretKey
 		}
 		mgmtTokenNameNamespace := client.ObjectKey{
-			Name:      defaultToken,
+			Name:      opts.TokenSecretName,
 			Namespace: opts.MgmtNamespace,
 		}
 		if err = utils.EnsureNamespace(ctx, remoteKubeClient, opts.RemoteNamespace); err != nil {
@@ -160,64 +223,35 @@ func ensureCerts(ctx context.Context, opts *RegistrationOptions) (bool, error) {
 	return createdBootstrapToken, nil
 }
 
+// registers a new cluster with the provided automation:
+//   * creates relay certs if they don't exist
+//   * runs agent pre install checks
 func RegisterCluster(ctx context.Context, opts RegistrationOptions) error {
-	chartPath, err := opts.GetChartPath(ctx, opts.AgentChartPathOverride, gloomesh.EnterpriseAgentChartUriTemplate)
-	if err != nil {
-		return err
-	}
-
-	values := map[string]string{
-		"relay.serverAddress": opts.RelayServerAddress,
-		"relay.authority":     "enterprise-networking.gloo-mesh",
-		"global.insecure":     strconv.FormatBool(opts.RelayServerInsecure),
-		"relay.cluster":       opts.ClusterName,
-	}
 	bootstrapTokenCreated := false
 	if !opts.RelayServerInsecure {
-		// read root cert from existing cluster if not provided in command line
+		var err error
+		// ensure existence of relay certs, create if needed
 		bootstrapTokenCreated, err = ensureCerts(ctx, &opts)
 		if err != nil {
 			return err
 		}
+	}
 
-		// we should have root tls name by here
-		values["relay.rootTlsSecret.name"] = opts.RootCASecretName
-		values["relay.rootTlsSecret.namespace"] = opts.RootCASecretNamespace
-
-		// relay needs a client cert provided, even if it doesnt exist, so it can write to it.
-		if opts.ClientCertSecretName == "" {
-			opts.ClientCertSecretName = "relay-client-tls-secret"
-		}
-		if opts.ClientCertSecretNamespace == "" {
-			opts.ClientCertSecretNamespace = opts.RemoteNamespace
-		}
-		values["relay.clientCertSecret.name"] = opts.ClientCertSecretName
-		values["relay.clientCertSecret.namespace"] = opts.ClientCertSecretNamespace
-
-		// only copy token secret if we have one
-		if opts.TokenSecretName != "" {
-			values["relay.tokenSecret.name"] = opts.TokenSecretName
-			values["relay.tokenSecret.namespace"] = opts.TokenSecretNamespace
-			values["relay.tokenSecret.key"] = opts.TokenSecretKey
+	// agent pre install checks
+	if !opts.SkipChecks {
+		if err := runAgentPreinstallCheck(ctx, &opts); err != nil {
+			return err
 		}
 	}
+
 	logrus.Info("💻 Installing relay agent in the remote cluster")
 
-	releaseName := gloomesh.EnterpriseAgentReleaseName
-	if opts.ReleaseName != "" {
-		releaseName = opts.ReleaseName
+	installer, err := opts.GetInstaller(ctx)
+	if err != nil {
+		return eris.Wrap(err, "error building installer")
 	}
 
-	if err := (helm.Installer{
-		KubeConfig:  opts.KubeConfigPath,
-		KubeContext: opts.RemoteContext,
-		ChartUri:    chartPath,
-		Namespace:   opts.RemoteNamespace,
-		ReleaseName: releaseName,
-		ValuesFile:  opts.AgentChartValuesPath,
-		Verbose:     opts.Verbose,
-		Values:      values,
-	}).InstallChart(ctx); err != nil {
+	if err := installer.InstallChart(ctx); err != nil {
 		return err
 	}
 
@@ -310,24 +344,81 @@ func waitForClientCert(ctx context.Context, remoteKubeSecretClient v1.SecretClie
 }
 
 func DeregisterCluster(ctx context.Context, opts RegistrationOptions) error {
-	releaseName := gloomesh.EnterpriseAgentReleaseName
-	if opts.ReleaseName != "" {
-		releaseName = opts.ReleaseName
-	}
-	if err := (helm.Uninstaller{
-		KubeConfig:  opts.KubeConfigPath,
-		KubeContext: opts.RemoteContext,
-		Namespace:   opts.RemoteNamespace,
-		ReleaseName: releaseName,
-		Verbose:     opts.Verbose,
-	}).UninstallChart(ctx); err != nil {
-		return err
-	}
+
+	logrus.Infof("deleting KubernetesCluster CR %s.%s from management cluster...", opts.ClusterName, opts.MgmtNamespace)
 
 	kubeClient, err := utils.BuildClient(opts.KubeConfigPath, opts.MgmtContext)
 	if err != nil {
 		return err
 	}
 	clusterKey := client.ObjectKey{Name: opts.ClusterName, Namespace: opts.MgmtNamespace}
-	return v1alpha1.NewKubernetesClusterClient(kubeClient).DeleteKubernetesCluster(ctx, clusterKey)
+	if err = v1alpha1.NewKubernetesClusterClient(kubeClient).DeleteKubernetesCluster(ctx, clusterKey); err != nil && !apierrors.IsNotFound(err) {
+		return err
+	}
+
+	logrus.Info("uninstalling enterprise agent from remote cluster...")
+	releaseName := gloomesh.EnterpriseAgentReleaseName
+	if opts.ReleaseName != "" {
+		releaseName = opts.ReleaseName
+	}
+	return (helm.Uninstaller{
+		KubeConfig:  opts.KubeConfigPath,
+		KubeContext: opts.RemoteContext,
+		Namespace:   opts.RemoteNamespace,
+		ReleaseName: releaseName,
+		Verbose:     opts.Verbose,
+	}).UninstallChart(ctx)
+}
+
+func runAgentPreinstallCheck(ctx context.Context, opts *RegistrationOptions) error {
+	logrus.Info("\nRunning agent pre-install checks")
+
+	var crdMD map[string]*crdutils.CRDMetadata
+
+	installer, err := opts.GetInstaller(ctx)
+	if err != nil {
+		return eris.Wrap(err, "unable to initialize installer")
+	}
+
+	crdMDForDeploy, err := installutils.GetCrdMetadataFromInstaller(ctx, validationconsts.AgentDeployName, installer)
+	if err != nil {
+		logrus.Warnf("Unable to fetch CRD metadata from Helm chart, unable to perform CRD upgrade check: %v", err)
+		// we don't want to error if we can't get the CRD metadata, as this might be a release without one.
+		// we may want to change that in the future.
+	} else {
+		crdMD = map[string]*crdutils.CRDMetadata{
+			validationconsts.AgentDeployName: crdMDForDeploy,
+		}
+	}
+
+	checkCtx, err := validation.NewOutOfClusterCheckContext(
+		opts.Options.KubeConfigPath,
+		opts.Options.RemoteContext,
+		opts.Options.RemoteNamespace,
+		0,
+		0,
+		&checks.AgentParams{
+			RelayServerAddress: opts.RelayServerAddress,
+			RelayAuthority:     "enterprise-networking.gloo-mesh", // hardcoded for meshctl
+			RootCertSecretRef: client.ObjectKey{
+				Name:      opts.RootCASecretName,
+				Namespace: opts.RootCASecretNamespace,
+			},
+			ClientCertSecretRef: client.ObjectKey{
+				Name:      opts.ClientCertSecretName,
+				Namespace: opts.ClientCertSecretNamespace,
+			},
+		},
+		false,
+		crdMD,
+	)
+	if err != nil {
+		return err
+	}
+
+	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Agent, checks.PreInstall); foundFailure {
+		return eris.New("encountered failed pre-install checks")
+	}
+
+	return nil
 }

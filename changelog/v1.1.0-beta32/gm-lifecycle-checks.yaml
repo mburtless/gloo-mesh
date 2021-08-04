@@ -1,0 +1,4 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Add initial set of lifecycle validation checks (pre/post install, pre/post upgrade) for `enterprise-networking` and `enterprise-agent` components, integrated into both `meshctl` and Helm.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720

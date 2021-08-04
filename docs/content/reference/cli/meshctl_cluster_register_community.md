@@ -48,6 +48,7 @@ meshctl cluster register community [cluster name] [flags]
       --remote-namespace string   namespace in the target cluster where a service account enabling remote access will be created.
                                   If the namespace does not exist it will be created. (default "gloo-mesh")
   -v, --verbose                   Enable verbose logging
+      --version string            Version of Gloo Mesh agent to install. Defaults to the version of the Gloo Mesh server.
 ```
 
 ### SEE ALSO

@@ -25,52 +25,97 @@ func toKey(Component Component, Stage Stage) mapKey {
 
 // checks for all components and stages are defined here
 func allChecks() map[mapKey][]Category {
-	//  We want to run this check
-	// in [pre-install, pre-upgrade, test] stages
-	crdUpgradeCheck := Category{
-		Name: "CRD Version Checks",
-		Checks: []Check{
-			NewCrdUpgradeCheck(consts.MgmtDeployName),
-		},
-	}
+	deploymentsCheck := NewDeploymentsCheck()
+	serverCrdUpgradeCheck := NewCrdUpgradeCheck(consts.MgmtDeployName)
+	agentCrdUpgradeCheck := NewCrdUpgradeCheck(consts.AgentDeployName)
 
-	managementPlane := Category{
-		Name: "Gloo Mesh Installation",
+	// check the state of the management cluster
+	managementInstallation := Category{
+		Name: "Gloo Mesh Management Cluster Installation",
 		Checks: []Check{
-			NewDeploymentsCheck(),
+			deploymentsCheck,
 			NewEnterpriseRegistrationCheck(),
 		},
 	}
 
-	configuration := Category{
+	// check the state of the remote cluster
+	remoteInstallation := Category{
+		Name: "Gloo Mesh Registered Cluster Installation",
+		Checks: []Check{
+			deploymentsCheck,
+		},
+	}
+
+	agentCrds := Category{
+		Name: "Gloo Mesh CRDs",
+		Checks: []Check{
+			agentCrdUpgradeCheck,
+		},
+	}
+
+	serverCrds := Category{
+		Name: "Gloo Mesh CRDs",
+		Checks: []Check{
+			serverCrdUpgradeCheck,
+		},
+	}
+
+	agentConfig := Category{
+		Name: "Agent Configuration",
+		Checks: []Check{
+			agentCrdUpgradeCheck,
+		},
+	}
+
+	managementConfig := Category{
 		Name: "Management Configuration",
 		Checks: []Check{
+			serverCrdUpgradeCheck,
 			NewNetworkingCrdCheck(),
 		},
 	}
 
-	serverParams := Category{
-		Name: "Server Parameters",
+	agentParams := Category{
+		Name: "Agent Parameters",
 		Checks: []Check{
-			NewServerParametersCheck(),
+			NewAgentParametersCheck(),
+		},
+	}
+
+	agentPreInstallConnectivity := Category{
+		Name: "Relay Connectivity",
+		Checks: []Check{
+			NewRelayConnectivityCheck(true),
+		},
+	}
+
+	agentPostInstallConnectivity := Category{
+		Name: "Relay Connectivity",
+		Checks: []Check{
+			NewRelayConnectivityCheck(false),
 		},
 	}
 
 	allchecks := map[mapKey][]Category{
 		toKey(Server, PreInstall): {
-			serverParams,
-			crdUpgradeCheck,
+			serverCrds,
 		},
 		toKey(Server, PostInstall): {
-			managementPlane,
-			configuration,
+			managementInstallation,
+			managementConfig,
+		},
+		toKey(Agent, PreInstall): {
+			agentCrds,
+			agentParams,
+			agentPreInstallConnectivity,
+		},
+		toKey(Agent, PostInstall): {
+			remoteInstallation,
+			agentConfig,
+			agentPostInstallConnectivity,
 		},
 	}
 
-	// test can include all post install checks, plus some more
-	allchecks[toKey(Server, Test)] = allchecks[toKey(Server, PostInstall)]
-	// extra checks to be done on test stage:
-	allchecks[toKey(Server, Test)] = append(allchecks[toKey(Server, Test)], crdUpgradeCheck)
 	return allchecks
 }
 
@@ -105,10 +150,10 @@ func printResult(result *Result, description string) {
 
 	if result.IsSuccess() {
 		// success state
-		msg.WriteString(fmt.Sprintf("%s %s\n\n", successSymbol, description))
+		msg.WriteString(fmt.Sprintf("\n%s %s\n", successSymbol, description))
 	} else if result.IsFailure() {
 		// error state
-		msg.WriteString(fmt.Sprintf("%s %s\n", failureSymbol, description))
+		msg.WriteString(fmt.Sprintf("\n%s %s\n", failureSymbol, description))
 
 		for _, err := range result.Errors {
 			msg.WriteString(fmt.Sprintf("  * %s\n", err.Error()))
@@ -117,7 +162,7 @@ func printResult(result *Result, description string) {
 		writeHints(&msg, result.Hints)
 	} else {
 		// warning state
-		msg.WriteString(fmt.Sprintf("%s %s\n", warningSymbol, description))
+		msg.WriteString(fmt.Sprintf("\n%s %s\n", warningSymbol, description))
 		writeHints(&msg, result.Hints)
 	}
 
@@ -129,9 +174,9 @@ func writeHints(msg *strings.Builder, hints []Hint) {
 	if len(hints) > 0 {
 		msg.WriteString(fmt.Sprintf("    Hints:\n"))
 		for _, hint := range hints {
-			msg.WriteString(fmt.Sprintf("    * %s", hint.Hint))
+			msg.WriteString(fmt.Sprintf("    * %s\n", hint.Hint))
 			if hint.DocsLink != nil {
-				msg.WriteString(fmt.Sprintf(" (For more info, see: %s)\n", hint.DocsLink.String()))
+				msg.WriteString(fmt.Sprintf("      For more info, see: %s\n", hint.DocsLink.String()))
 			}
 		}
 	}

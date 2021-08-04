@@ -160,6 +160,7 @@ func Start(
 		VirtualServices:       remoteReconcileOptions,
 		AuthorizationPolicies: remoteReconcileOptions,
 		Sidecars:              remoteReconcileOptions,
+		RateLimitConfigs:      remoteReconcileOptions,
 		Predicates: []predicate.Predicate{
 			skv2predicate.SimplePredicate{
 				Filter: skv2predicate.SimpleEventFilterFunc(isIgnoredConfigMap),
@@ -263,6 +264,7 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 			VirtualServices:       resourceBuildOptions,
 			AuthorizationPolicies: resourceBuildOptions,
 			Sidecars:              resourceBuildOptions,
+			RateLimitConfigs:      resourceBuildOptions,
 		})
 		if err != nil {
 			// failed to read from cache; should never happen

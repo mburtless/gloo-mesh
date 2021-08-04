@@ -7,27 +7,23 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-type ServerParams struct {
-	RelayServerAddress string
-}
-
 type parameterCheck struct{}
 
-func NewServerParametersCheck() *parameterCheck {
+func NewAgentParametersCheck() *parameterCheck {
 	return &parameterCheck{}
 }
 
 func (p *parameterCheck) GetDescription() string {
-	return "Gloo Mesh server parameters are valid"
+	return "Gloo Mesh Agent Parameters"
 }
 
 func (p *parameterCheck) Run(_ context.Context, checkCtx CheckContext) *Result {
-	serverParams := checkCtx.Context().ServerParams
+	agentParams := checkCtx.Context().AgentParams
 
 	result := &Result{}
 
 	// update result with all server paramater checks
-	isValidRelayServerAddress(serverParams.RelayServerAddress, result)
+	isValidRelayServerAddress(agentParams.RelayServerAddress, result)
 
 	return result
 }

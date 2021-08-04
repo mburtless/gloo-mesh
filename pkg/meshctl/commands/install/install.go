@@ -87,7 +87,7 @@ func (o *Options) addToFlags(flags *pflag.FlagSet) {
 func (o *Options) getInstaller(chartUriTemplate string) helm.Installer {
 	// User-specified ChartPath takes precedence over specified Version.
 	if o.ChartPath == "" {
-		o.ChartPath = fmt.Sprintf(chartUriTemplate, o.Version)
+		o.ChartPath = fmt.Sprintf(chartUriTemplate, strings.TrimPrefix(o.Version, "v"))
 	}
 
 	logrus.Debugf("installing chart from %s", o.ChartPath)
@@ -211,39 +211,6 @@ func enterpriseCommand(ctx context.Context, installOpts *Options) *cobra.Command
   # Don't install the UI
   meshctl install enterprise --license=<my_license> --skip-ui`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-
-			var crdMD map[string]*crdutils.CRDMetadata
-			if !opts.SkipChecks {
-				crdMDForDeploy, err := installutils.GetCrdMetadataFromInstaller(ctx, validationconsts.MgmtDeployName, opts.getInstaller())
-				if err != nil {
-					// we don't want to error if we can't get the CRD metadata, as this might be a release without one.
-					// we may want to change that in the future.
-				} else {
-					crdMD = map[string]*crdutils.CRDMetadata{
-						validationconsts.MgmtDeployName: crdMDForDeploy,
-					}
-				}
-			}
-			checkCtx, err := validation.NewOutOfClusterCheckContext(
-				installOpts.KubeCfgPath,
-				installOpts.KubeContext,
-				installOpts.Namespace,
-				0, // ports not needed
-				0,
-				&checks.ServerParams{
-					RelayServerAddress: opts.RelayServerAddress,
-				},
-				opts.SkipChecks,
-				crdMD,
-			)
-			if err != nil {
-				return err
-			}
-
-			if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PreInstall); foundFailure {
-				return eris.New("encountered failed pre-install checks")
-			}
-
 			return InstallEnterprise(ctx, opts)
 		},
 	}
@@ -275,14 +242,13 @@ func (o *EnterpriseOptions) addToFlags(flags *pflag.FlagSet) {
 		"Path to a Helm values.yaml file for customizing the installation of the Enterprise Agent.\n"+
 			"If unset, this command will install the Enterprise Agent with default Helm values.",
 	)
-	flags.StringVar(&o.RelayServerAddress, "relay-server-address", "", "The address that the enterprise agent will communicate with the relay server via.")
+	flags.StringVar(&o.RelayServerAddress, "relay-server-address", "", "The address that the enterprise agent will communicate with the relay server via. Required if also registering the management cluster.")
 	flags.BoolVar(&o.SkipChecks, "skip-checks", false, "If true, skip the pre-install checks.")
 
 	cobra.MarkFlagRequired(flags, "license")
-	cobra.MarkFlagRequired(flags, "relay-server-address")
 }
 
-func (o EnterpriseOptions) getInstaller() helm.Installer {
+func (o EnterpriseOptions) getInstaller() *helm.Installer {
 	ins := o.Options.getInstaller(gloomesh.GlooMeshEnterpriseChartUriTemplate)
 	ins.ReleaseName = o.ReleaseName
 	ins.Values["licenseKey"] = o.LicenseKey
@@ -296,26 +262,34 @@ func (o EnterpriseOptions) getInstaller() helm.Installer {
 		ins.Values["rbac-webhook.enabled"] = "false"
 	}
 
-	return ins
+	return &ins
 }
 
 func (o EnterpriseOptions) getRegistrationOptions() enterprise.RegistrationOptions {
 	if o.RelayServerAddress == "" {
-		const localRelayServerAddressFormat = "enterprise-networking.%s.svc.cluster.local:9900"
-		namespacedLocalRelayServerAddress := fmt.Sprintf(localRelayServerAddressFormat, o.Namespace)
+		namespacedLocalRelayServerAddress := fmt.Sprintf("enterprise-networking.%s.svc.cluster.local:9900", o.Namespace)
 		logrus.Infof("No relay server address provided, defaulting to %s", namespacedLocalRelayServerAddress)
 		o.RelayServerAddress = namespacedLocalRelayServerAddress
 	}
 
 	registrationOptions := enterprise.RegistrationOptions{
-		Options:            o.Options.getRegistrationOptions(),
-		RelayServerAddress: o.RelayServerAddress,
+		Options:                o.Options.getRegistrationOptions(),
+		AgentChartPathOverride: o.AgentChartPath,
+		AgentChartValuesPath:   o.AgentValuesPath,
+		RelayServerAddress:     o.RelayServerAddress,
+		SkipChecks:             o.SkipChecks,
 	}
 
 	return registrationOptions
 }
 
 func InstallEnterprise(ctx context.Context, opts EnterpriseOptions) error {
+	if !opts.SkipChecks {
+		if err := runPreinstallChecks(ctx, &opts); err != nil {
+			return err
+		}
+	}
+
 	const (
 		repoURI   = "https://storage.googleapis.com/gloo-mesh-enterprise"
 		chartName = "gloo-mesh-enterprise"
@@ -343,6 +317,41 @@ func InstallEnterprise(ctx context.Context, opts EnterpriseOptions) error {
 	if opts.Register && !opts.DryRun {
 		logrus.Info("Registering cluster")
 		return enterprise.RegisterCluster(ctx, opts.getRegistrationOptions())
+	}
+
+	return nil
+}
+
+// run all server pre install checks
+func runPreinstallChecks(ctx context.Context, opts *EnterpriseOptions) error {
+	var crdMD map[string]*crdutils.CRDMetadata
+	crdMDForDeploy, err := installutils.GetCrdMetadataFromInstaller(ctx, validationconsts.MgmtDeployName, opts.getInstaller())
+	if err != nil {
+		logrus.Warnf("Unable to fetch CRD metadata from Helm chart, unable to perform CRD upgrade check: %v", err)
+		// we don't want to error if we can't get the CRD metadata, as this might be a release without one.
+		// we may want to change that in the future.
+	} else {
+		crdMD = map[string]*crdutils.CRDMetadata{
+			validationconsts.MgmtDeployName: crdMDForDeploy,
+		}
+	}
+
+	checkCtx, err := validation.NewOutOfClusterCheckContext(
+		opts.Options.KubeCfgPath,
+		opts.Options.KubeContext,
+		opts.Options.Namespace,
+		0,
+		0,
+		nil,
+		false,
+		crdMD,
+	)
+	if err != nil {
+		return err
+	}
+
+	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Server, checks.PreInstall); foundFailure {
+		return eris.New("encountered failed pre-install checks")
 	}
 
 	return nil
