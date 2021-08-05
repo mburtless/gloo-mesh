@@ -116,6 +116,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   mtlsConfig:
+    # Note: Do NOT use this autoRestartPods setting in production!!
     autoRestartPods: true
     shared:
       intermediateCertificateAuthority:
@@ -151,6 +152,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   mtlsConfig:
+    # Note: Do NOT use this autoRestartPods setting in production!!
     autoRestartPods: true
     shared:
       intermediateCertificateAuthority:

@@ -145,6 +145,7 @@ spec:
   mtlsConfig:
     # once a new intermediate CA certificate has been given to istio,
     # a restart is required of all pods in the mesh to receive new certificates.
+    # Note: Do NOT use this autoRestartPods setting in production!!
     autoRestartPods: true
     shared:
       # root ca config

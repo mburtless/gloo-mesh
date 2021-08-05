@@ -465,7 +465,9 @@ type VirtualMeshSpec_MTLSConfig struct {
 	//	*VirtualMeshSpec_MTLSConfig_Shared
 	//	*VirtualMeshSpec_MTLSConfig_Limited
 	TrustModel isVirtualMeshSpec_MTLSConfig_TrustModel `protobuf_oneof:"trust_model"`
+	// NOTE: THIS IS NOT A RECOMMENDED SETTING FOR PRODUCTION!
 	// Specify whether to allow Gloo Mesh to restart Kubernetes Pods when certificates are rotated when establishing shared trust.
+	// This will auto-restart ALL of the workloads in your mesh. It is a convenience feature while testing Gloo Mesh.
 	// If this option is not explicitly enabled,
 	// users must restart Pods manually for the new certificates to be picked up.
 	// `meshctl` provides the command `meshctl mesh restart` to simplify this process, see [here]({{< versioned_link_path fromRoot="reference/cli/meshctl_mesh_restart/" >}}) for more info.

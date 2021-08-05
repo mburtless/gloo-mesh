@@ -148,6 +148,7 @@ metadata:
   namespace: gloo-mesh
 spec:
   mtlsConfig:
+    # Note: Do NOT use this autoRestartPods setting in production!!
     autoRestartPods: true
     shared:
       rootCertificateAuthority:
@@ -173,6 +174,7 @@ We could have also configured an existing Root CA by providing an existing secre
 
 ```yaml
   mtlsConfig:
+    # Note: Do NOT use this autoRestartPods setting in production!!
     autoRestartPods: true
     shared:
       rootCertificateAuthority:
@@ -250,15 +252,11 @@ If you saved this VirtualMesh CR to a file named `demo-virtual-mesh.yaml`, you c
 kubectl --context $CONTEXT_1 apply -f demo-virtual-mesh.yaml
 ```
 
-Notice the `autoRestartPods: true` in the mtlsConfig stanza. This instructs Gloo Mesh to restart the Istio pods in the relevant clusters. 
+Notice the `autoRestartPods: true` in the mtlsConfig stanza. This instructs Gloo Mesh to restart ALL of the Istio pods in the relevant clusters. DO NOT SET THIS `true` IN PRODUCTION. 
 
-This is due to a limitation of Istio. The Istio control plane picks up the CA for Citadel and does not rotate it often enough. This is being [improved in future versions of Istio](https://github.com/istio/istio/issues/22993). 
+This is an optional convenience flag for testing in development to speed up workload certificate rotation. This is due to a limitation of Istio. The Istio control plane picks up the CA for Citadel and does not rotate it often enough. This is being [improved in future versions of Istio](https://github.com/istio/istio/issues/22993). 
 
-If you wish to perform this step manually, set `autoRestartPods: false` and run the following:
 
-```shell
-meshctl mesh restart --mesh-name istiod-istio-system-cluster-1
-```
 
 {{% notice note %}}
 Note, after you bounce the control plane, it may still take time for the workload certs to get re-issued with the new CA. You can force the workloads to re-load by bouncing them. For example, for the bookinfo sample running in the `bookinfo` namespace:
