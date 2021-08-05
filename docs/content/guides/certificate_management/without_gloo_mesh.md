@@ -7,9 +7,9 @@ weight: 20
 
 This approach describes how you will need to manage certificates if you do not with to usilize Gloo Mesh to issue certificates or manage Istio CA certificates. It is recommended that if you utilize this approach you add some sort of automation so that the certificates can be rotated easily in the future. You have a couple of options.
 
-* [Manually Provisioning Istio CA Certs](./generate_istio_ca.md)
-* [Manually Provisioning Relay Certificates](./generate_relay_certs.md)
-* [Manually Provisioning Certificates with ACM](./acm_root_ca.md)
+* [Manually Provisioning Istio CA Certs]({{% versioned_link_path fromRoot="/guides/certificate_management/generate_istio_ca" %}})
+* [Manually Provisioning Relay Certificates]({{% versioned_link_path fromRoot="/guides/certificate_management/generate_relay_certs" %}})
+* [Manually Provisioning Certificates with ACM]({{% versioned_link_path fromRoot="/guides/certificate_management/acm_root_ca" %}})
 
 ## Single Intermediate CA
 
