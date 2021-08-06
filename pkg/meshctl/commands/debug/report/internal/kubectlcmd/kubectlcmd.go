@@ -53,7 +53,7 @@ var (
 	runningTasksTicker = time.NewTicker(reportInterval)
 )
 
-func init() {
+func ReportRunningTasks() {
 	go func() {
 		time.Sleep(reportInterval)
 		for range runningTasksTicker.C {
@@ -155,11 +155,13 @@ func Exec(client kube.ExtendedClient, namespace, pod, container, cmdStr string, 
 }
 
 // RunCmd runs the given command in kubectl, adding -n namespace if namespace is not empty.
-func RunCmd(command, namespace string, dryRun bool) (string, error) {
+func RunCmd(command, namespace string, dryRun bool, kubeconfig string, context string) (string, error) {
 	return Run(strings.Split(command, " "),
 		&Options{
-			Namespace: namespace,
-			DryRun:    dryRun,
+			Namespace:  namespace,
+			DryRun:     dryRun,
+			Kubeconfig: kubeconfig,
+			Context:    context,
 		})
 }
 

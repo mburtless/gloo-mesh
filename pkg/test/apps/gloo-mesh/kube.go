@@ -91,6 +91,7 @@ func (i *glooMeshInstance) deployManagementPlane(licenseKey string) error {
 			SkipUI:             false,
 			IncludeRBAC:        false,
 			RelayServerAddress: "",
+			SkipChecks:         true,
 		}); err != nil {
 			return err
 		}
@@ -141,6 +142,7 @@ func (i *glooMeshInstance) deployControlPlane(licenseKey string) error {
 			TokenSecretNamespace:      "",
 			TokenSecretKey:            "",
 			ReleaseName:               fmt.Sprintf("%s-cp", i.instanceConfig.cluster.Name()),
+			SkipChecks:                true,
 		}); err != nil {
 			return err
 		}

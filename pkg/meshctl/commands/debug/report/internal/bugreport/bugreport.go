@@ -15,11 +15,9 @@
 package bugreport
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -44,7 +42,6 @@ import (
 	"github.com/spf13/cobra"
 	analyzer_util "istio.io/istio/galley/pkg/config/analysis/analyzers/util"
 	"istio.io/istio/operator/pkg/util"
-	"istio.io/istio/pkg/config/resource"
 	"istio.io/istio/pkg/kube"
 	"istio.io/istio/pkg/proxy"
 	"istio.io/pkg/log"
@@ -108,6 +105,7 @@ var (
 )
 
 func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
+	kubectlcmd.ReportRunningTasks()
 	if err := configLogs(logOpts); err != nil {
 		return err
 	}
@@ -126,15 +124,13 @@ func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
 	tempDir = archive.GetRootDir(tempDir)
 	tempDirPlaceholder := tempDir
 
-	currentClusterContext, err := content.GetClusterContext()
-	if err == nil {
-		common.LogAndPrintf("\nCurrent cluster context: %s\n", currentClusterContext)
-	}
 	combos := buildKubeConfigList(kubeConfigs, contexts, len(config.KubeConfigPath+config.Context) > 0)
 	for name, meshctlCluster := range combos {
 		kubeConfigPath := meshctlCluster.KubeConfig
 		kubeContext := meshctlCluster.KubeContext
-		common.LogAndPrintf("\nTarget cluster config: %s\n", kubeConfigPath)
+		if kubeConfigPath != "" {
+			common.LogAndPrintf("\nTarget cluster config: %s\n", kubeConfigPath)
+		}
 		common.LogAndPrintf("Running with the following context: \n\n%s\n\n", kubeContext)
 
 		// override tempdir per clusters
@@ -154,7 +150,6 @@ func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
 		}
 
 		dumpGlooMeshVersions(kubeConfigPath, kubeContext, config.GlooMeshNamespace)
-		dumpMeshctlCheck(kubeConfigPath, kubeContext, config.GlooMeshNamespace)
 		dumpRevisionsAndVersions(resources, kubeConfigPath, kubeContext, config.IstioNamespace)
 
 		log.Infof("Cluster resource tree:\n\n%s\n\n", resources)
@@ -165,7 +160,7 @@ func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
 
 		common.LogAndPrintf("\n\nFetching proxy logs for the following containers:\n\n%s\n", strings.Join(paths, "\n"))
 
-		gatherInfo(client, config, resources, paths)
+		gatherInfo(client, config, resources, paths, kubeConfigPath, kubeContext)
 		if len(gErrors) != 0 {
 			log.Error(gErrors.ToError())
 		}
@@ -189,7 +184,7 @@ func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
 		log.Errorf("using ./ to write archive: %s", err.Error())
 		outDir = "."
 	}
-	outPath := filepath.Join(outDir, "meshctl-bug-report.tgz")
+	outPath := filepath.Join(outDir, "bug-report.tar.gz")
 	common.LogAndPrintf("Creating an archive at %s.\n", outPath)
 
 	archiveDir := archive.DirToArchive(tempDir)
@@ -263,15 +258,6 @@ func buildKubeConfigList(kubeconfigs, kubecontexts []string, useFlags bool) map[
 		}
 	}
 	return combos
-}
-
-func dumpMeshctlCheck(kubeconfig, context, glooMeshNamespace string) {
-	var b bytes.Buffer
-	utils.RunShell(fmt.Sprintf("meshctl check --kubeconfig \"%s\" --kubecontext \"%s\" --namespace \"%s\"",
-		kubeconfig, context, glooMeshNamespace), io.Writer(&b))
-	text := b.String()
-	common.LogAndPrintf(text)
-	appendToFile(filepath.Join(archive.GlooMeshPath(tempDir), "meshctl-check"), text)
 }
 
 func dumpGlooMeshVersions(kubeconfig, context, glooMeshNamespace string) {
@@ -378,26 +364,33 @@ func getIstioVersion(kubeconfig, configContext, istioNamespace, revision string)
 // gatherInfo fetches all logs, resources, debug etc. using goroutines.
 // proxy logs and info are saved in logs/stats/importance global maps.
 // Errors are reported through gErrors.
-func gatherInfo(client kube.ExtendedClient, config *config.BugReportConfig, resources *cluster2.Resources, paths []string) {
+func gatherInfo(client kube.ExtendedClient, config *config.BugReportConfig, resources *cluster2.Resources, paths []string, kubeConfig string,
+	kubeContext string) {
 	// no timeout on mandatoryWg.
 	var mandatoryWg sync.WaitGroup
 	cmdTimer := time.NewTimer(time.Duration(config.CommandTimeout))
 
 	clusterDir := archive.ClusterInfoPath(tempDir)
+	glooMeshDir := archive.GlooMeshPath(tempDir)
 
 	params := &content.Params{
-		Client: client,
-		DryRun: config.DryRun,
+		Client:      client,
+		DryRun:      config.DryRun,
+		KubeConfig:  kubeConfig,
+		KubeContext: kubeContext,
 	}
 	common.LogAndPrintf("\nFetching Istio control plane information from cluster.\n\n")
 	getFromCluster(content.GetK8sResources, params, clusterDir, &mandatoryWg)
 	getFromCluster(content.GetCRs, params, clusterDir, &mandatoryWg)
 	getFromCluster(content.GetEvents, params, clusterDir, &mandatoryWg)
 	getFromCluster(content.GetClusterInfo, params, clusterDir, &mandatoryWg)
+	getFromCluster(content.GetNodeInfo, params, clusterDir, &mandatoryWg)
 	getFromCluster(content.GetSecrets, params.SetVerbose(config.FullSecrets), clusterDir, &mandatoryWg)
 	getFromCluster(content.GetDescribePods, params.SetIstioNamespace(config.IstioNamespace), clusterDir, &mandatoryWg)
 	// Gloo mesh describe pods
-	getFromCluster(content.GetDescribePods, params.SetIstioNamespace(config.GlooMeshNamespace), archive.GlooMeshPath(tempDir), &mandatoryWg)
+	getFromCluster(content.GetDescribePods, params.SetIstioNamespace(config.GlooMeshNamespace), glooMeshDir, &mandatoryWg)
+	// gloo mesh CRs
+	getFromCluster(content.GetGlooMeshCRs, params, glooMeshDir, &mandatoryWg)
 
 	// optionalWg is subject to timer.
 	var optionalWg sync.WaitGroup
@@ -424,8 +417,11 @@ func gatherInfo(client kube.ExtendedClient, config *config.BugReportConfig, reso
 			getGlooMeshDashboardLogs(client, config, resources, namespace, pod, &mandatoryWg)
 		case resources.IsGlooMeshAgentContainer(container):
 			getGlooMeshAgentLogs(client, config, resources, namespace, pod, &mandatoryWg)
+			getFromCluster(content.GetEnterpriseAgentMetrics, cp, glooMeshDir, &mandatoryWg)
 		case resources.IsGlooMeshEnterpriseNetworkingContainer(container):
 			getGlooMeshEnterpriseNetworkingLogs(client, config, resources, namespace, pod, &mandatoryWg)
+			getFromCluster(content.GetEnterpriseNetworkingMetrics, cp, glooMeshDir, &mandatoryWg)
+			getFromCluster(content.GetEnterpriseNetworkingSnapshot, cp, glooMeshDir, &mandatoryWg)
 		case resources.IsGlooMeshDiscoveryContainer(container):
 			getGlooMeshDiscoveryLogs(client, config, resources, namespace, pod, &mandatoryWg)
 		case resources.IsGlooMeshNetworkingContainer(container):
@@ -448,7 +444,7 @@ func gatherInfo(client kube.ExtendedClient, config *config.BugReportConfig, reso
 	<-cmdTimer.C
 
 	// Analyze runs many queries internally, so run these queries sequentially and after everything else has finished.
-	runAnalyze(config, resources, params)
+	runAnalyze(config, params)
 }
 
 // getFromCluster runs a cluster info fetching function f against the cluster and writes the results to fileName.
@@ -631,20 +627,18 @@ func getGlooLog(client kube.ExtendedClient, resources *cluster2.Resources, confi
 	return clog, nil
 }
 
-func runAnalyze(config *config.BugReportConfig, resources *cluster2.Resources, params *content.Params) {
-	for ns := range resources.Root {
-		if analyzer_util.IsSystemNamespace(resource.Namespace(ns)) {
-			continue
-		}
-		common.LogAndPrintf("Running istio analyze on namespace %s.\n", ns)
-		out, err := content.GetAnalyze(params.SetIstioNamespace(config.IstioNamespace))
-		if err != nil {
-			log.Error(err.Error())
-			continue
-		}
-		writeFiles(archive.AnalyzePath(tempDir, ns), out)
+func runAnalyze(config *config.BugReportConfig, params *content.Params) {
+	newParam := params.SetNamespace(common.NamespaceAll)
+	common.LogAndPrintf("Running istio analyze on all namespaces and report as below:")
+	out, err := content.GetAnalyze(newParam.SetIstioNamespace(config.IstioNamespace))
+	if err != nil {
+		log.Error(err.Error())
+		return
 	}
+	common.LogAndPrintf("\nAnalysis Report:\n")
+	common.LogAndPrintf(out[common.StrNamespaceAll])
 	common.LogAndPrintf("\n")
+	writeFiles(archive.AnalyzePath(tempDir, common.StrNamespaceAll), out)
 }
 
 func writeFiles(dir string, files map[string]string) {
@@ -658,7 +652,7 @@ func writeFile(path, text string) {
 		return
 	}
 	mkdirOrExit(path)
-	if err := ioutil.WriteFile(path, []byte(text), 0644); err != nil {
+	if err := ioutil.WriteFile(path, []byte(text), 0o644); err != nil {
 		log.Errorf(err.Error())
 	}
 }
@@ -669,7 +663,7 @@ func appendToFile(path, text string) {
 	}
 	mkdirOrExit(path)
 	f, err := os.OpenFile(path,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		log.Errorf(err.Error())
 	}
@@ -680,7 +674,7 @@ func appendToFile(path, text string) {
 }
 
 func mkdirOrExit(fpath string) {
-	if err := os.MkdirAll(path.Dir(fpath), 0755); err != nil {
+	if err := os.MkdirAll(path.Dir(fpath), 0o755); err != nil {
 		fmt.Printf("Could not create output directories: %s", err)
 		os.Exit(-1)
 	}

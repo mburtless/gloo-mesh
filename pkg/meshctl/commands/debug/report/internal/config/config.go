@@ -28,7 +28,7 @@ import (
 // SelectionSpec is a spec for pods that will be Include in the capture
 // archive. The format is:
 //
-//   Namespace1,Namespace2../Deployments/Pods/Label1,Label2.../Annotation1,Annotation2.../ContainerName1,ContainerName2...
+//   Namespace1,Namespace2../Services/Pods/Label1,Label2.../Annotation1,Annotation2.../ContainerName1,ContainerName2...
 //
 // Namespace, pod and container names are pattern matching while labels
 // and annotations may have pattern in the values with exact match for keys.
@@ -82,7 +82,9 @@ func (s SelectionSpecs) String() string {
 			st += fmt.Sprintf("Namespaces: %s", strings.Join(ss.Namespaces, ","))
 		}
 		if !defaultListSetting(ss.Deployments) {
-			st += fmt.Sprintf("/Deployments: %s", strings.Join(ss.Deployments, ","))
+			// https://github.com/istio/istio/commit/f3d9edb59a6a8c520ae9fdd768b16b8d9ccf13a8#diff
+			// -023001deb0655a1070d832c04a7b7c59e8763cb02ed6a7412c6b6548dbe688cf
+			st += fmt.Sprintf("/Services: %s", strings.Join(ss.Deployments, ","))
 		}
 		if !defaultListSetting(ss.Pods) {
 			st += fmt.Sprintf("/Pods:%s", strings.Join(ss.Pods, ","))
@@ -117,7 +119,7 @@ type BugReportConfig struct {
 	// ConfigFilePath is the path to the meshctl config file
 	ConfigFilePath string `json:"meshctlConfigPath,omitempty"`
 
-	// KubeConfigPath is the path to kube config file
+	// KubeConfigPath is the path to kube config file.
 	KubeConfigPath string `json:"kubeConfigPath,omitempty"`
 
 	// Context is the cluster Context in the kube config
@@ -173,7 +175,6 @@ func (b *BugReportConfig) String() string {
 	if b.Context != "" {
 		out += fmt.Sprintf("context: %s\n", b.Context)
 	}
-
 	out += fmt.Sprintf("istio-namespace: %s\n", b.IstioNamespace)
 	out += fmt.Sprintf("full-secrets: %v\n", b.FullSecrets)
 	out += fmt.Sprintf("timeout (mins): %v\n", math.Round(float64(int(b.CommandTimeout))/float64(time.Minute)))
@@ -225,19 +226,10 @@ func (s *SelectionSpec) UnmarshalJSON(b []byte) error {
 		switch ft[i] {
 		case cluster2.Namespace:
 			s.Namespaces = parseToIncludeTypeSlice(f)
-			if err != nil {
-				return err
-			}
 		case cluster2.Deployment:
 			s.Deployments = parseToIncludeTypeSlice(f)
-			if err != nil {
-				return err
-			}
 		case cluster2.Pod:
 			s.Pods = parseToIncludeTypeSlice(f)
-			if err != nil {
-				return err
-			}
 		case cluster2.Label:
 			s.Labels, err = parseToIncludeTypeMap(f)
 			if err != nil {
@@ -250,10 +242,6 @@ func (s *SelectionSpec) UnmarshalJSON(b []byte) error {
 			}
 		case cluster2.Container:
 			s.Containers = parseToIncludeTypeSlice(f)
-			if err != nil {
-				return err
-			}
-
 		}
 	}
 

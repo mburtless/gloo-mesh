@@ -1,0 +1,4 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Added metrics, snapshots and crs to gloo mesh output. Fixed issue with contexts
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/975

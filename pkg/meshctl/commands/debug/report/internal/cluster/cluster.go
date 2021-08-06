@@ -49,9 +49,7 @@ const (
 	GlooMeshNetworkingContainerName           = "networking"
 )
 
-var (
-	versionRegex = regexp.MustCompile(`.*(\d\.\d\.\d).*`)
-)
+var versionRegex = regexp.MustCompile(`.*(\d\.\d\.\d).*`)
 
 // ParsePath parses path into its components. Input must have the form namespace/deployment/pod/container.
 func ParsePath(path string) (namespace string, deployment, pod string, container string, err error) {
@@ -62,7 +60,7 @@ func ParsePath(path string) (namespace string, deployment, pod string, container
 	return pv[0], pv[1], pv[2], pv[3], nil
 }
 
-// GetClusterResources returns cluster resources for the given REST config and k8s AppsClientset.
+// GetClusterResources returns cluster resources for the given REST config and k8s Clientset.
 func GetClusterResources(ctx context.Context, clientset *kubernetes.Clientset) (*Resources, error) {
 	var errs []string
 	out := &Resources{
@@ -87,14 +85,14 @@ func GetClusterResources(ctx context.Context, clientset *kubernetes.Clientset) (
 		if err != nil {
 			return nil, err
 		}
-		for _, p := range pods.Items {
+		for i, p := range pods.Items {
 			deployment := getOwnerDeployment(&p, replicasets.Items)
 			for _, c := range p.Spec.Containers {
 				out.insertContainer(ns.Name, deployment, p.Name, c.Name)
 			}
 			out.Labels[PodKey(p.Namespace, p.Name)] = p.Labels
 			out.Annotations[PodKey(p.Namespace, p.Name)] = p.Annotations
-			out.Pod[PodKey(p.Namespace, p.Name)] = &p
+			out.Pod[PodKey(p.Namespace, p.Name)] = &pods.Items[i]
 		}
 	}
 	if len(errs) != 0 {
@@ -226,7 +224,6 @@ func getOwnerDeployment(pod *corev1.Pod, replicasets []v1.ReplicaSet) string {
 							return oo.Name
 						}
 					}
-
 				}
 			}
 		}

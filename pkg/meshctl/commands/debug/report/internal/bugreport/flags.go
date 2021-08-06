@@ -17,7 +17,7 @@ package bugreport
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"time"
 
 	jsonpatch "github.com/evanphx/json-patch"
@@ -38,15 +38,20 @@ var (
 func addFlags(cmd *cobra.Command, args *config2.BugReportConfig) {
 	cmd.PersistentFlags().StringVar(&args.ConfigFilePath, "config", utils.DefaultConfigPath, "set the path to the meshctl config file")
 
-	// k8s client context
+	// k8s client config
 	cmd.PersistentFlags().StringVarP(&args.KubeConfigPath, "kubeconfig", "c", "",
 		"Path to kube context. For multiple files use a comma (Ex. ~/.kube/cluster1,~/.kube/cluster2)")
 	cmd.PersistentFlags().StringVar(&args.Context, "context", "",
 		"Name of the kubeconfig Context. For multiple contexts use a comma (Ex. cluster1,cluster2)")
-	// input context
+
+	// input config
 	cmd.PersistentFlags().StringVarP(&configFile, "filename", "f", "",
 		"Path to a file containing configuration in YAML format. The file contents are applied over the default "+
 			"values and flag settings, with lists being replaced per JSON merge semantics.")
+
+	// dry run
+	cmd.PersistentFlags().BoolVarP(&args.DryRun, "dry-run", "", false,
+		"Only log commands that would be run, don't fetch or write.")
 
 	// full secrets
 	cmd.PersistentFlags().BoolVarP(&args.FullSecrets, "full-secrets", "", false,
@@ -66,9 +71,9 @@ func addFlags(cmd *cobra.Command, args *config2.BugReportConfig) {
 			"only the logs captured so far are saved to the archive.")
 	// include / exclude specs
 	cmd.PersistentFlags().StringSliceVar(&included, "include", bugReportDefaultInclude,
-		"Spec for which pods' proxy logs to include in the archive. See above for format and examples.")
+		"Spec for which pod's proxy logs to include in the archive. See above for format and examples.")
 	cmd.PersistentFlags().StringSliceVar(&excluded, "exclude", bugReportDefaultExclude,
-		"Spec for which pods' proxy logs to exclude from the archive, after the include spec "+
+		"Spec for which pod's proxy logs to exclude from the archive, after the include spec "+
 			"is processed. See above for format and examples.")
 
 	// log time ranges
@@ -83,11 +88,11 @@ func addFlags(cmd *cobra.Command, args *config2.BugReportConfig) {
 
 	// log error control
 	cmd.PersistentFlags().StringSliceVar(&args.CriticalErrors, "critical-errs", nil,
-		"List of comma separated glob patters to match against log error strings. "+
+		"List of comma separated glob patterns to match against log error strings. "+
 			"If any pattern matches an error in the log, the logs is given the highest priority for archive inclusion.")
 	cmd.PersistentFlags().StringSliceVar(&args.IgnoredErrors, "ignore-errs", nil,
-		"List of comma separated glob patters to match against log error strings. "+
-			"Any error matching these patters is ignored when calculating the log importance heuristic.")
+		"List of comma separated glob patterns to match against log error strings. "+
+			"Any error matching these patterns is ignored when calculating the log importance heuristic.")
 
 	// output/working dir
 	cmd.PersistentFlags().StringVar(&tempDir, "dir", "",
@@ -97,7 +102,7 @@ func addFlags(cmd *cobra.Command, args *config2.BugReportConfig) {
 func parseConfig() (*config2.BugReportConfig, error) {
 	fileConfig := &config2.BugReportConfig{}
 	if configFile != "" {
-		b, err := ioutil.ReadFile(configFile)
+		b, err := os.ReadFile(configFile)
 		if err != nil {
 			return nil, err
 		}

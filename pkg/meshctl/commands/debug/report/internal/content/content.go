@@ -36,6 +36,35 @@ const (
 	coredumpDir = "/var/lib/istio"
 )
 
+var glooMeshCR = []string{
+	"issuedcertificates.certificates.mesh.gloo.solo.io",
+	"certificaterequests.certificates.mesh.gloo.solo.io",
+	"podbouncedirectives.certificates.mesh.gloo.solo.io",
+	"xdsconfigs.xds.agent.enterprise.mesh.gloo.solo.io",
+	"authconfigs.enterprise.gloo.solo.io",
+	"istioinstallations.admin.enterprise.mesh.gloo.solo.io",
+	"destinations.discovery.mesh.gloo.solo.io",
+	"workloads.discovery.mesh.gloo.solo.io",
+	"meshes.discovery.mesh.gloo.solo.io",
+	"kubernetesclusters.multicluster.solo.io",
+	"wasmdeployments.networking.enterprise.mesh.gloo.solo.io",
+	"ratelimiterserverconfigs.networking.enterprise.mesh.gloo.solo.io",
+	"virtualdestinations.networking.enterprise.mesh.gloo.solo.io",
+	"virtualgateways.networking.enterprise.mesh.gloo.solo.io",
+	"virtualhosts.networking.enterprise.mesh.gloo.solo.io",
+	"routetables.networking.enterprise.mesh.gloo.solo.io",
+	"servicedependencies.networking.enterprise.mesh.gloo.solo.io",
+	"certificateverifications.networking.enterprise.mesh.gloo.solo.io",
+	"trafficpolicies.networking.mesh.gloo.solo.io",
+	"accesspolicies.networking.mesh.gloo.solo.io",
+	"virtualmeshes.networking.mesh.gloo.solo.io",
+	"accesslogrecords.observability.enterprise.mesh.gloo.solo.io",
+	"roles.rbac.enterprise.mesh.gloo.solo.io",
+	"rolebindings.rbac.enterprise.mesh.gloo.solo.io",
+	"settings.settings.mesh.gloo.solo.io",
+	"dashboards.settings.mesh.gloo.solo.io",
+}
+
 // Params contains parameters for running a kubectl fetch command.
 type Params struct {
 	Client         kube.ExtendedClient
@@ -46,6 +75,8 @@ type Params struct {
 	IstioNamespace string
 	Pod            string
 	Container      string
+	KubeConfig     string
+	KubeContext    string
 }
 
 func (p *Params) SetClient(client kube.ExtendedClient) *Params {
@@ -97,14 +128,13 @@ func retMap(filename, text string, err error) (map[string]string, error) {
 	return map[string]string{
 		filename: text,
 	}, nil
-
 }
 
 // GetK8sResources returns all k8s cluster resources.
 func GetK8sResources(p *Params) (map[string]string, error) {
 	out, err := kubectlcmd.RunCmd("get --all-namespaces "+
 		"all,jobs,ingresses,endpoints,customresourcedefinitions,configmaps,events "+
-		"-o yaml", "", p.DryRun)
+		"-o yaml", "", p.DryRun, p.KubeConfig, p.KubeContext)
 	return retMap("k8s-resources", out, err)
 }
 
@@ -114,7 +144,7 @@ func GetSecrets(p *Params) (map[string]string, error) {
 	if p.Verbose {
 		cmdStr += " -o yaml"
 	}
-	out, err := kubectlcmd.RunCmd(cmdStr, "", p.DryRun)
+	out, err := kubectlcmd.RunCmd(cmdStr, "", p.DryRun, p.KubeConfig, p.KubeContext)
 	return retMap("secrets", out, err)
 }
 
@@ -124,19 +154,20 @@ func GetCRs(p *Params) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err := kubectlcmd.RunCmd("get --all-namespaces "+strings.Join(crds, ",")+" -o yaml", "", p.DryRun)
+	out, err := kubectlcmd.RunCmd("get --all-namespaces "+strings.Join(crds, ",")+" -o yaml", "", p.DryRun, p.KubeConfig, p.KubeContext)
 	return retMap("crs", out, err)
+}
+
+// GetGlooMeshCRs returns CR contents for all GlooMesh CRDs in the cluster.
+func GetGlooMeshCRs(p *Params) (map[string]string, error) {
+	out, err := kubectlcmd.RunCmd("get --all-namespaces "+strings.Join(glooMeshCR, ",")+" -o yaml", "", p.DryRun, p.KubeConfig, p.KubeContext)
+	return retMap("gloo-mesh-crs", out, err)
 }
 
 // GetClusterInfo returns the cluster info.
 func GetClusterInfo(p *Params) (map[string]string, error) {
-	out, err := kubectlcmd.RunCmd("config current-context", "", p.DryRun)
-	if err != nil {
-		return nil, err
-	}
 	ret := make(map[string]string)
-	ret["cluster-context"] = out
-	out, err = kubectlcmd.RunCmd("version", "", p.DryRun)
+	out, err := kubectlcmd.RunCmd("version", "", p.DryRun, p.KubeConfig, p.KubeContext)
 	if err != nil {
 		return nil, err
 	}
@@ -144,9 +175,10 @@ func GetClusterInfo(p *Params) (map[string]string, error) {
 	return ret, nil
 }
 
-// GetClusterContext returns the cluster context.
-func GetClusterContext() (string, error) {
-	return kubectlcmd.RunCmd("config current-context", "", false)
+// GetNodeInfo returns node information.
+func GetNodeInfo(p *Params) (map[string]string, error) {
+	out, err := kubectlcmd.RunCmd("describe nodes", "", p.DryRun, p.KubeConfig, p.KubeContext)
+	return retMap("nodes", out, err)
 }
 
 // GetDescribePods returns describe pods for istioNamespace.
@@ -154,13 +186,13 @@ func GetDescribePods(p *Params) (map[string]string, error) {
 	if p.IstioNamespace == "" {
 		return nil, fmt.Errorf("getDescribePods requires the Istio namespace")
 	}
-	out, err := kubectlcmd.RunCmd("describe pods", p.IstioNamespace, p.DryRun)
-	return retMap("describe-pods-"+p.IstioNamespace, out, err)
+	out, err := kubectlcmd.RunCmd("describe pods", p.IstioNamespace, p.DryRun, p.KubeConfig, p.KubeContext)
+	return retMap("describe-pods", out, err)
 }
 
 // GetEvents returns events for all namespaces.
-func GetEvents(params *Params) (map[string]string, error) {
-	out, err := kubectlcmd.RunCmd("get events --all-namespaces -o wide", "", params.DryRun)
+func GetEvents(p *Params) (map[string]string, error) {
+	out, err := kubectlcmd.RunCmd("get events --all-namespaces -o wide", "", p.DryRun, p.KubeConfig, p.KubeContext)
 	return retMap("events", out, err)
 }
 
@@ -209,6 +241,52 @@ func GetNetstat(p *Params) (map[string]string, error) {
 	return retMap("netstat", out, err)
 }
 
+// GetEnterpriseAgentMetrics returns metrics for the given container.
+func GetEnterpriseAgentMetrics(p *Params) (map[string]string, error) {
+	if p.Namespace == "" || p.Pod == "" {
+		return nil, fmt.Errorf("getMetrics requires namespace and pod")
+	}
+
+	out, err := kubectlcmd.Exec(p.Client, p.Namespace, p.Pod, "enterprise-agent", "wget -O - localhost:9091/metrics", p.DryRun)
+	if err != nil {
+		return nil, err
+	}
+	return retMap(fmt.Sprintf("metrics-%s", p.Pod), out, err)
+}
+
+// GetEnterpriseNetworkingMetrics returns metrics for the given container.
+func GetEnterpriseNetworkingMetrics(p *Params) (map[string]string, error) {
+	if p.Namespace == "" || p.Pod == "" {
+		return nil, fmt.Errorf("getMetrics requires namespace and pod")
+	}
+
+	out, err := kubectlcmd.Exec(p.Client, p.Namespace, p.Pod, "enterprise-networking", "wget -O - localhost:9091/metrics", p.DryRun)
+	if err != nil {
+		return nil, err
+	}
+	return retMap(fmt.Sprintf("metrics-%s", p.Pod), out, err)
+}
+
+// GetEnterpriseNetworkingSnapshot returns gloo mesh snapshot for the given container.
+func GetEnterpriseNetworkingSnapshot(p *Params) (map[string]string, error) {
+	if p.Namespace == "" || p.Pod == "" {
+		return nil, fmt.Errorf("getMetrics requires namespace and pod")
+	}
+
+	out, err := kubectlcmd.Exec(p.Client, p.Namespace, p.Pod, "enterprise-networking", "wget -O - localhost:9091/snapshots/input", p.DryRun)
+	if err != nil {
+		return nil, err
+	}
+	m, _ := retMap("enterprise-networking-snapshot-input.json", out, nil)
+
+	out, err = kubectlcmd.Exec(p.Client, p.Namespace, p.Pod, "enterprise-networking", "wget -O - localhost:9091/snapshots/output", p.DryRun)
+	if err != nil {
+		return nil, err
+	}
+	m["enterprise-networking-snapshot-output.json"] = out
+	return m, nil
+}
+
 // GetAnalyze returns the output of istioctl analyze.
 func GetAnalyze(p *Params) (map[string]string, error) {
 	out := make(map[string]string)
@@ -245,7 +323,11 @@ func GetAnalyze(p *Params) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	out[p.Namespace] = output
+	if p.Namespace == common.NamespaceAll {
+		out[common.StrNamespaceAll] = output
+	} else {
+		out[p.Namespace] = output
+	}
 	return out, nil
 }
 
@@ -286,8 +368,8 @@ func getCoredumpList(p *Params) ([]string, error) {
 	return cds, nil
 }
 
-func getCRDList(params *Params) ([]string, error) {
-	crdStr, err := kubectlcmd.RunCmd("get customresourcedefinitions --no-headers", "", params.DryRun)
+func getCRDList(p *Params) ([]string, error) {
+	crdStr, err := kubectlcmd.RunCmd("get customresourcedefinitions --no-headers", "", p.DryRun, p.KubeConfig, p.KubeContext)
 	if err != nil {
 		return nil, err
 	}

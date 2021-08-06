@@ -37,17 +37,18 @@ meshctl debug report [flags]
 ```
       --config string                set the path to the meshctl config file (default "<home_directory>/.gloo-mesh/meshctl-config.yaml")
       --context string               Name of the kubeconfig Context. For multiple contexts use a comma (Ex. cluster1,cluster2)
-      --critical-errs strings        List of comma separated glob patters to match against log error strings. If any pattern matches an error in the log, the logs is given the highest priority for archive inclusion.
+      --critical-errs strings        List of comma separated glob patterns to match against log error strings. If any pattern matches an error in the log, the logs is given the highest priority for archive inclusion.
       --dir string                   Set a specific directory for temporary artifact storage.
+      --dry-run                      Only log commands that would be run, don't fetch or write.
       --duration duration            How far to go back in time from end-time for log entries to include in the archive. Default is infinity. If set, start-time must be unset.
       --end-time string              End time for the range of log entries to include in the archive. Default is now.
-      --exclude strings              Spec for which pods' proxy logs to exclude from the archive, after the include spec is processed. See above for format and examples. (default ["kube-system, kube-public, kube-node-lease, local-path-storage"])
+      --exclude strings              Spec for which pod's proxy logs to exclude from the archive, after the include spec is processed. See above for format and examples. (default ["kube-system, kube-public, kube-node-lease, local-path-storage"])
   -f, --filename string              Path to a file containing configuration in YAML format. The file contents are applied over the default values and flag settings, with lists being replaced per JSON merge semantics.
       --full-secrets                 If set, secret contents are included in output.
       --gloo-mesh-namespace string   Namespace where Gloo Mesh is installed. (default "gloo-mesh")
   -h, --help                         help for report
-      --ignore-errs strings          List of comma separated glob patters to match against log error strings. Any error matching these patters is ignored when calculating the log importance heuristic.
-      --include strings              Spec for which pods' proxy logs to include in the archive. See above for format and examples.
+      --ignore-errs strings          List of comma separated glob patterns to match against log error strings. Any error matching these patterns is ignored when calculating the log importance heuristic.
+      --include strings              Spec for which pod's proxy logs to include in the archive. See above for format and examples.
       --istio-namespace string       Namespace where Istio control plane is installed. (default "istio-system")
   -c, --kubeconfig string            Path to kube context. For multiple files use a comma (Ex. ~/.kube/cluster1,~/.kube/cluster2)
       --start-time string            Start time for the range of log entries to include in the archive. Default is the infinite past. If set, Since must be unset.
