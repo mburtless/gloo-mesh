@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    description: Fix yaml used in meshctl demo installation to ensure that the Prometheus collects metrics
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/923

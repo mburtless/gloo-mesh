@@ -47,6 +47,11 @@ spec:
               nodePort: ${port}
   meshConfig:
     enableAutoMtls: true
+    defaultConfig:
+      envoyMetricsService:
+        address: enterprise-agent.gloo-mesh:9977
+      proxyMetadata:
+        GLOO_MESH_CLUSTER_NAME: ${cluster}
   values:
     prometheus:
       enabled: false
@@ -63,6 +68,8 @@ spec:
       controlPlaneSecurityEnabled: true
       podDNSSearchNamespaces:
       - global
+      multiCluster:
+        clusterName: ${cluster}
 EOF
 }
 
@@ -89,6 +96,9 @@ spec:
         # Enable Istio agent to handle DNS requests for known hosts
         # Unknown hosts will automatically be resolved using upstream dns servers in resolv.conf
         ISTIO_META_DNS_CAPTURE: "true"
+        GLOO_MESH_CLUSTER_NAME: ${cluster}
+      envoyMetricsService:
+        address: enterprise-agent.gloo-mesh:9977
   components:
     # Istio Gateway feature
     ingressGateways:
@@ -114,6 +124,8 @@ spec:
   values:
     global:
       pilotCertProvider: istiod
+      multiCluster:
+        clusterName: ${cluster}
 EOF
 }
 
@@ -136,10 +148,13 @@ spec:
   meshConfig:
     enableAutoMtls: true
     defaultConfig:
+      envoyMetricsService:
+        address: enterprise-agent.gloo-mesh:9977
       proxyMetadata:
         # Enable Istio agent to handle DNS requests for known hosts
         # Unknown hosts will automatically be resolved using upstream dns servers in resolv.conf
         ISTIO_META_DNS_CAPTURE: "true"
+        GLOO_MESH_CLUSTER_NAME: ${cluster}
   components:
     # Istio Gateway feature
     ingressGateways:
@@ -165,6 +180,8 @@ spec:
   values:
     global:
       pilotCertProvider: istiod
+      multiCluster:
+        clusterName: ${cluster}
 EOF
 }
 
