@@ -1,11 +1,23 @@
 ---
-title: Access Logging
-menuTitle: Access Logging
-description: Guide on Gloo Mesh's logging features.
+title: Trace Access Logging
+menuTitle: Trace Access Logging
+description: Guide on Gloo Mesh's trace logging features.
 weight: 30
 ---
 
 {{% notice note %}} Gloo Mesh Enterprise is required for this feature. {{% /notice %}}
+
+## Background
+
+Distributed microservices can be difficult to debug because there are many hops in a potential graph of calls. A service mesh can be used to help observe overall health of a system and can indicate when things are degraded or unhealthy. Things like metric collection, tracing, and alerting can be used to identify problem areas. Unfortunately there are times when an SRE or developer must dig into the details of a service graph to understand more deeploy where things are going wrong.
+
+With Gloo Mesh, we can use trace logging to see all of the access logging through a particular call graph to further pinpoint problem areas. With trace logging, we can enable detailed access logging for specific workloads and specify pattern matching to collect access logs generated from specific requests and centralize them for further evaluation. 
+
+## How does this relate to platform logging?
+
+Gloo Mesh trace logging is not a replacement for proper platform logging with something like Fluentd/Elastic or Splunk. You should continue to use those tools for general platform logging. 
+
+Access logging in the mesh is typically not enabled for all workloads. Generally it's enabled for edge gateways or on-demand for services in a graph. Gloo Mesh trace logging can be enabled on demand for certain workloads, used to debug an issue, and then turned off. It's intended to be a convenience feature and NOT to replace platform logging. 
 
 ## Before you begin
 
