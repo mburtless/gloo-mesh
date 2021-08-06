@@ -30,7 +30,6 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-timeout.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
-							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/687",
 						},
 						{
 							Name:        "request-timeout-multi-cluster",
@@ -39,7 +38,6 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-timeout-multi-cluster.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
-							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/688",
 						},
 						{
 							Name:        "add-request-header",
@@ -48,7 +46,6 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "add-request-header.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
-							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/688",
 						},
 						{
 							Name:        "request-path-matcher",
@@ -57,6 +54,7 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-prefix-matcher.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
+							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/967",
 						},
 						{
 							Name:        "request-header-matcher",
@@ -65,6 +63,7 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-header-matcher.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
+							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/967",
 						},
 						{
 							Name:        "request-prefix-header-matcher-and",
@@ -73,6 +72,7 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-prefix-header-matcher-and.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
+							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/967",
 						},
 						{
 							Name:        "request-prefix-header-matcher-or",
@@ -81,6 +81,7 @@ func TestTrafficPolicies(t *testing.T) {
 							Namespace:   deploymentCtx.EchoContext.AppNamespace.Name(),
 							FileName:    "request-prefix-header-matcher-or.yaml",
 							Folder:      "gloo-mesh/traffic-policy",
+							Skip:        "https://github.com/solo-io/gloo-mesh-enterprise/issues/967",
 						},
 					},
 				},
@@ -97,7 +98,7 @@ func testRequestTimeout(ctx resource.Context, t *testing.T, deploymentCtx *conte
 	src := deploymentCtx.EchoContext.Deployments.GetOrFail(t, echo.Service("frontend").And(echo.InCluster(cluster)))
 	backendHost := fmt.Sprintf("backend.%s.svc.cluster.local", deploymentCtx.EchoContext.AppNamespace.Name())
 
-	// happy requests
+	// happy requests from cluster-0
 	src.CallOrFail(t, echo.CallOptions{
 		Port: &echo.Port{
 			Protocol:    "http",
@@ -111,24 +112,7 @@ func testRequestTimeout(ctx resource.Context, t *testing.T, deploymentCtx *conte
 		Validator: echo.ExpectOK(),
 	})
 
-	// fail due to request timeout
-	src.CallOrFail(t, echo.CallOptions{
-		Port: &echo.Port{
-			Protocol:    "http",
-			ServicePort: 8090,
-		},
-		Scheme:    scheme.HTTP,
-		Address:   backendHost,
-		Method:    http.MethodGet,
-		Path:      "/info?delay=3s",
-		Count:     5,
-		Validator: echo.ExpectError(),
-	})
-
-	// cluster 2 test
-	cluster = ctx.Clusters()[1]
-	// frontend calling backend in cluster 2 with no request timeout
-	src = deploymentCtx.EchoContext.Deployments.GetOrFail(t, echo.Service("frontend").And(echo.InCluster(cluster)))
+	// should not fail because policy only applies to cluster-1
 	src.CallOrFail(t, echo.CallOptions{
 		Port: &echo.Port{
 			Protocol:    "http",
@@ -141,6 +125,38 @@ func testRequestTimeout(ctx resource.Context, t *testing.T, deploymentCtx *conte
 		Count:     5,
 		Validator: echo.ExpectOK(),
 	})
+
+	// cluster 2 test
+	cluster = ctx.Clusters()[1]
+	// frontend calling backend in cluster 2 with request timeout
+	src = deploymentCtx.EchoContext.Deployments.GetOrFail(t, echo.Service("frontend").And(echo.InCluster(cluster)))
+	// happy case
+	src.CallOrFail(t, echo.CallOptions{
+		Port: &echo.Port{
+			Protocol:    "http",
+			ServicePort: 8090,
+		},
+		Scheme:    scheme.HTTP,
+		Address:   backendHost,
+		Method:    http.MethodGet,
+		Path:      "/info",
+		Count:     5,
+		Validator: echo.ExpectOK(),
+	})
+	// error case
+	src.CallOrFail(t, echo.CallOptions{
+		Port: &echo.Port{
+			Protocol:    "http",
+			ServicePort: 8090,
+		},
+		Scheme:    scheme.HTTP,
+		Address:   backendHost,
+		Method:    http.MethodGet,
+		Path:      "/info?delay=3s",
+		Count:     5,
+		Validator: echo.ExpectCode("504"),
+	})
+
 }
 
 func testRequestTimeoutMultiCluster(ctx resource.Context, t *testing.T, deploymentCtx *context.DeploymentContext) {
@@ -174,13 +190,27 @@ func testRequestTimeoutMultiCluster(ctx resource.Context, t *testing.T, deployme
 		Method:    http.MethodGet,
 		Path:      "/info?delay=3s",
 		Count:     5,
-		Validator: echo.ExpectError(),
+		Validator: echo.ExpectCode("504"),
 	})
 
 	// cluster 2 test
 	cluster = ctx.Clusters()[1]
 	// frontend calling backend in cluster 2 with no request timeout
 	src = deploymentCtx.EchoContext.Deployments.GetOrFail(t, echo.Service("frontend").And(echo.InCluster(cluster)))
+	// happy case
+	src.CallOrFail(t, echo.CallOptions{
+		Port: &echo.Port{
+			Protocol:    "http",
+			ServicePort: 8090,
+		},
+		Scheme:    scheme.HTTP,
+		Address:   backendHost,
+		Method:    http.MethodGet,
+		Path:      "/info",
+		Count:     5,
+		Validator: echo.ExpectOK(),
+	})
+	// error case
 	src.CallOrFail(t, echo.CallOptions{
 		Port: &echo.Port{
 			Protocol:    "http",
@@ -191,7 +221,7 @@ func testRequestTimeoutMultiCluster(ctx resource.Context, t *testing.T, deployme
 		Method:    http.MethodGet,
 		Path:      "/info?delay=3s",
 		Count:     5,
-		Validator: echo.ExpectError(),
+		Validator: echo.ExpectCode("504"),
 	})
 }
 func testAddRequestHeader(ctx resource.Context, t *testing.T, deploymentCtx *context.DeploymentContext) {
@@ -211,7 +241,7 @@ func testAddRequestHeader(ctx resource.Context, t *testing.T, deploymentCtx *con
 		Method:    http.MethodGet,
 		Path:      "/info",
 		Count:     1,
-		Validator: echo.ExpectKey("who", "hoo"),
+		Validator: echo.ExpectKey("Who", "hoo"),
 	})
 
 }

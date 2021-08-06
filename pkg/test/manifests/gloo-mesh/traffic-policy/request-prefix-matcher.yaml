@@ -19,10 +19,6 @@ metadata:
   namespace: gloo-mesh
   name: request-prefix-match
 spec:
-  sourceSelector:
-    - kubeWorkloadMatcher:
-        namespaces:
-          - {{.EchoContext.AppNamespace.Name}}
   destinationSelector:
     - kubeServiceRefs:
         services:
