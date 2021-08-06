@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Add Gloo Mesh Gateway docs
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/593

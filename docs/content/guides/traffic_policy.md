@@ -22,7 +22,7 @@ In this guide we will examine how Gloo Mesh can configure Istio to apply retry a
 ## Before you begin
 To illustrate these concepts, we will assume that:
 
-* Gloo Mesh is [installed and running on `cluster-1`]({{% versioned_link_path fromRoot="/setup/#install-gloo-mesh" %}})
+* Gloo Mesh is [installed and running on `cluster-1`]({{% versioned_link_path fromRoot="/setup/installation/" %}})
 * Istio is [installed on the `cluster-1`]({{% versioned_link_path fromRoot="/guides/installing_istio" %}})
 * `cluster-1` is also [registered with Gloo Mesh]({{% versioned_link_path fromRoot="/guides/#two-registered-clusters" %}}), making it both the management cluster and a managed cluster.
 

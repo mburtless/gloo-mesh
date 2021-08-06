@@ -17,7 +17,7 @@ In addition to using Vault for the intermediate CA, this guide will also explore
 
 This guide assumes the following:
 
-* Gloo Mesh Enterprise is [installed in relay mode and running on the `cluster-1`]({{% versioned_link_path fromRoot="/setup/install-gloo-mesh" %}})
+* Gloo Mesh Enterprise is [installed in relay mode and running on the `cluster-1`]({{% versioned_link_path fromRoot="/setup/installation/enterprise_installation/" %}})
 * `gloo-mesh` is the installation namespace for Gloo Mesh
 * `enterprise-networking` is deployed on `cluster-1` in the `gloo-mesh` namespace and exposes its gRPC server on port 9900
 * `enterprise-agent` is deployed on both clusters and exposes its gRPC server on port 9977

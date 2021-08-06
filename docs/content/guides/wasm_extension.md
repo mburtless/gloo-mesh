@@ -23,7 +23,7 @@ In this guide we will enable a Wasm filter for use by an Envoy proxy. The filter
 To illustrate these concepts, we will assume that:
 
 * There are two clusters managed by Gloo Mesh Enterprise named `cluster-1` and `cluster-2`. 
-* Gloo Mesh Enterprise is [installed and running on `cluster-1`]({{% versioned_link_path fromRoot="/setup/#install-gloo-mesh" %}})
+* Gloo Mesh Enterprise is [installed and running on `cluster-1`]({{% versioned_link_path fromRoot="/setup/installation/enterprise_installation/" %}})
 * Istio **1.8** is [installed on both managed clusters]({{% versioned_link_path fromRoot="/guides/installing_istio" %}})
 * The `bookinfo` app is [installed across the two clusters]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployed-on-two-clusters" %}})
 
