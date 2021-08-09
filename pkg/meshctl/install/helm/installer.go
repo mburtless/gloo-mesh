@@ -10,8 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm/internal"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
@@ -45,6 +47,58 @@ type Installer struct {
 	Verbose     bool
 	DryRun      bool
 	Output      io.Writer
+}
+
+func (i Installer) ExecuteHelmTest(ctx context.Context, timeout time.Duration) error {
+	actionConfig, settings, err := newActionConfig(i.KubeConfig, i.KubeContext, i.Namespace)
+	if err != nil {
+		return eris.Wrapf(err, "creating helm config")
+	}
+	settings.Debug = i.Verbose
+	settings.KubeConfig = i.KubeConfig
+	settings.KubeContext = i.KubeContext
+	chartObj, err := downloadChart(i.ChartUri)
+	if err != nil {
+		return eris.Wrapf(err, "loading chart file")
+	}
+
+	client := action.NewInstall(actionConfig)
+	client.ReleaseName = i.ReleaseName
+	client.Namespace = i.Namespace
+	// set dry run to prevent installing, instead we just want the rendered Release
+	client.DryRun = true
+	client.ClientOnly = true
+
+	// Merge values provided via the '--values' flag
+	valueOpts := &values.Options{}
+	if i.ValuesFile != "" {
+		valueOpts.ValueFiles = []string{i.ValuesFile}
+	}
+	for key, value := range i.Values {
+		valueOpts.Values = append(valueOpts.Values, key+"="+value)
+	}
+	parsedValues, err := valueOpts.MergeValues(getter.All(settings))
+	if err != nil {
+		return eris.Wrapf(err, "parsing values")
+	}
+
+	helmRelease, err := client.Run(chartObj, parsedValues)
+	if err != nil {
+		return eris.Wrapf(err, "dry run of Helm install")
+	}
+
+	if err = internal.ExecHook(
+		helmRelease,
+		release.HookTest,
+		timeout,
+		i.Namespace,
+		i.Output,
+		newCLISettings(i.KubeConfig, i.KubeContext, i.Namespace).RESTClientGetter(),
+	); err != nil {
+		return eris.Wrapf(err, "executing Helm test for chart %s", i.ChartUri)
+	}
+
+	return nil
 }
 
 func (i Installer) InstallChart(ctx context.Context) error {
@@ -113,7 +167,6 @@ func (i Installer) InstallChart(ctx context.Context) error {
 		client.Namespace = namespace
 		client.DryRun = dryRun
 		isUpgrade = true
-
 		release, err = client.Run(releaseName, chartObj, parsedValues)
 		if err != nil {
 			return eris.Wrapf(err, "upgrading helm chart")

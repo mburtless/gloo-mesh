@@ -106,6 +106,7 @@ require (
 	k8s.io/api v0.21.0
 	k8s.io/apiextensions-apiserver v0.21.0
 	k8s.io/apimachinery v0.21.0
+	k8s.io/cli-runtime v0.20.4
 	k8s.io/client-go v8.0.0+incompatible
 	k8s.io/kubernetes v1.13.0
 	k8s.io/utils v0.0.0-20210305010621-2afb4311ab10

@@ -1,0 +1,4 @@
+changelog:
+  - type: NEW_FEATURE
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720
+    description: Have `meshctl check agent` execute in cluster by initiating a Helm test.
