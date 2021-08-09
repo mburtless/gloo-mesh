@@ -5,37 +5,39 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"strings"
 
-	"github.com/hashicorp/go-version"
+	"github.com/Masterminds/semver"
 	"github.com/rotisserie/eris"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
 func GetLatestChartVersion(repoURI, chartName string, stable bool) (string, error) {
-	return getLatestChartVersion(repoURI, chartName, func(version version.Version) bool {
+	return getLatestChartVersion(repoURI, chartName, func(version semver.Version) bool {
 		// Do not allow prereleaes if stable is true.
 		return !stable || version.Prerelease() == ""
 	})
 }
 
-func GetLatestChartMinorVersion(repoURI, chartName string, stable bool, major, minor int) (string, error) {
-	return getLatestChartVersion(repoURI, chartName, func(version version.Version) bool {
+func GetLatestChartMinorVersion(repoURI, chartName string, stable bool, major, minor int64) (string, error) {
+	return getLatestChartVersion(repoURI, chartName, func(version semver.Version) bool {
 		// Compatible versions will have the given major and minor version.
 		// Do not allow prereleaes if stable is true.
-		return version.Segments()[0] == major && version.Segments()[1] == minor &&
+		return version.Major() == major && version.Minor() == minor &&
 			(!stable || version.Prerelease() == "")
 	})
 }
 
 func getLatestChartVersion(
 	repoURI, chartName string,
-	isVersionCompatible func(version version.Version) bool,
+	isVersionCompatible func(version semver.Version) bool,
 ) (string, error) {
 	versions, err := getChartVersions(repoURI, chartName)
 	if err != nil {
 		return "", nil
 	}
+	versions = sortPrereleaseVersions(versions) // Sort from newest to oldest
 	logrus.Debugf("available versions: %v", versions)
 
 	for _, version := range versions {
@@ -48,7 +50,7 @@ func getLatestChartVersion(
 	return "", eris.New("compatible chart version not found")
 }
 
-func getChartVersions(repoURI, chartName string) (version.Collection, error) {
+func getChartVersions(repoURI, chartName string) (semver.Collection, error) {
 	res, err := http.Get(fmt.Sprintf("%s/%s/index.yaml", repoURI, chartName))
 	if err != nil {
 		return nil, err
@@ -75,9 +77,9 @@ func getChartVersions(repoURI, chartName string) (version.Collection, error) {
 		logrus.Debug(string(b))
 		return nil, eris.Errorf("chart not found in index: %s", chartName)
 	}
-	versions := make(version.Collection, 0, len(chartReleases))
+	versions := make(semver.Collection, 0, len(chartReleases))
 	for _, release := range chartReleases {
-		version, err := version.NewVersion(release.Version)
+		version, err := semver.NewVersion(release.Version)
 		if err != nil {
 			logrus.Warnf("invalid release version: %s", release.Version)
 			continue
@@ -85,7 +87,33 @@ func getChartVersions(repoURI, chartName string) (version.Collection, error) {
 		versions = append(versions, version)
 	}
 
-	sort.Sort(sort.Reverse(versions)) // Sort from newest to oldest
-
 	return versions, nil
+}
+
+// semver's comparison function will not put 'beta9' ahead of 'beta10', so we modify the
+// prerelease text to the semver-accepted pattern with a '.' in front of the number.
+func sortPrereleaseVersions(versions semver.Collection) semver.Collection {
+	var modifiedVersions semver.Collection
+	var sortedVersions semver.Collection
+
+	for _, v := range versions {
+		modifiedV, err := v.SetPrerelease(strings.ReplaceAll(v.Prerelease(), "beta", "beta."))
+		if err != nil {
+			logrus.Warnf("invalid release version: %s", v)
+			continue
+		}
+		modifiedVersions = append(modifiedVersions, &modifiedV)
+	}
+
+	sort.Sort(sort.Reverse(modifiedVersions)) // Sort from newest to oldest
+
+	for _, v := range modifiedVersions {
+		originalV, err := v.SetPrerelease(strings.ReplaceAll(v.Prerelease(), "beta.", "beta"))
+		if err != nil {
+			logrus.Warnf("invalid release version: %s", v)
+			continue
+		}
+		sortedVersions = append(sortedVersions, &originalV)
+	}
+	return sortedVersions
 }

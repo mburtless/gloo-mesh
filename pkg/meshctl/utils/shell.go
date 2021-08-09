@@ -14,7 +14,7 @@ func RunShell(c string, writer io.Writer) {
 	cmd.Stderr = buf
 	err := cmd.Run()
 	if err != nil {
-		fmt.Fprintf(writer, "[%v] command FAILED: %v", c, err)
+		fmt.Fprintf(writer, "[%v] command FAILED: %v\n%v", c, err, buf.String())
 		return
 	}
 	fmt.Fprintf(writer, "[%v] command result: \n%v", c, buf.String())

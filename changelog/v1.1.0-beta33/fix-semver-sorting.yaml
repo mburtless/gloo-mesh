@@ -1,0 +1,7 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Use Masterminds/semver consistently instead of hashicorp/go-version.
+  - type: NON_USER_FACING
+    description: Sort helm versions correctly in the `meshctl demo` and `meshctl install` enterprise commands.
+  - type: NON_USER_FACING
+    description: Update the `meshctl debug report` command to use the correct commands for `meshctl check`.

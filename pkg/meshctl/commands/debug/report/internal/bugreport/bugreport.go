@@ -15,9 +15,11 @@
 package bugreport
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -150,6 +152,8 @@ func runBugReportCommand(_ *cobra.Command, logOpts *log.Options) error {
 		}
 
 		dumpGlooMeshVersions(kubeConfigPath, kubeContext, config.GlooMeshNamespace)
+		dumpMeshctlCheck("agent", kubeConfigPath, kubeContext, config.GlooMeshNamespace)
+		dumpMeshctlCheck("server", kubeConfigPath, kubeContext, config.GlooMeshNamespace)
 		dumpRevisionsAndVersions(resources, kubeConfigPath, kubeContext, config.IstioNamespace)
 
 		log.Infof("Cluster resource tree:\n\n%s\n\n", resources)
@@ -258,6 +262,16 @@ func buildKubeConfigList(kubeconfigs, kubecontexts []string, useFlags bool) map[
 		}
 	}
 	return combos
+}
+
+// check should be either 'server' or 'agent'
+func dumpMeshctlCheck(check, kubeconfig, context, glooMeshNamespace string) {
+	var b bytes.Buffer
+	utils.RunShell(fmt.Sprintf("meshctl check %s --kubeconfig \"%s\" --kubecontext \"%s\" --namespace \"%s\"",
+		check, kubeconfig, context, glooMeshNamespace), io.Writer(&b))
+	serverCheckText := b.String()
+	common.LogAndPrintf(serverCheckText + "\n")
+	appendToFile(filepath.Join(archive.GlooMeshPath(tempDir), fmt.Sprintf("meshctl-check-%s", check)), serverCheckText)
 }
 
 func dumpGlooMeshVersions(kubeconfig, context, glooMeshNamespace string) {

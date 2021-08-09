@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/hashicorp/go-version"
+	"github.com/Masterminds/semver"
 	"github.com/rotisserie/eris"
 	"github.com/sirupsen/logrus"
 	pkgversion "github.com/solo-io/gloo-mesh/pkg/common/version"
@@ -202,18 +202,18 @@ func getBinaryURL(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	v, err := version.NewVersion(pkgversion.Version)
+	v, err := semver.NewVersion(pkgversion.Version)
 	if err != nil {
 		return "", err
 	}
-	major, minor := v.Segments()[0], v.Segments()[1]
+	major, minor := v.Major(), v.Minor()
 	for _, release := range mfst.Versions {
-		v, err := version.NewVersion(release.Tag)
+		v, err := semver.NewVersion(release.Tag)
 		if err != nil {
 			logrus.Debugf("invalid semver: %s", release.Tag)
 			continue
 		}
-		if major == v.Segments()[0] && minor == v.Segments()[1] {
+		if major == v.Major() && minor == v.Minor() {
 			for _, platform := range release.Platforms {
 				if platform.OS == runtime.GOOS && platform.Arch == runtime.GOARCH {
 					return platform.URI, nil

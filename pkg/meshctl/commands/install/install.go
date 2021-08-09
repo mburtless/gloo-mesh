@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/go-version"
+	"github.com/Masterminds/semver"
 	"github.com/rotisserie/eris"
 	"github.com/sirupsen/logrus"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
@@ -295,14 +295,14 @@ func InstallEnterprise(ctx context.Context, opts EnterpriseOptions) error {
 		chartName = "gloo-mesh-enterprise"
 	)
 	if opts.Version == "" {
-		cliVersion, err := version.NewVersion(cliversion.Version)
+		cliVersion, err := semver.NewVersion(cliversion.Version)
 		if err != nil {
 			return eris.Wrapf(err, "invalid CLI version: %s", cliversion.Version)
 		}
 		stable := cliVersion.Prerelease() == "" // Get latest stable if not using a pre-release CLI
 		version, err := helm.GetLatestChartMinorVersion(
 			repoURI, chartName, stable,
-			cliVersion.Segments()[0], cliVersion.Segments()[1],
+			cliVersion.Major(), cliVersion.Minor(),
 		)
 		if err != nil {
 			return err

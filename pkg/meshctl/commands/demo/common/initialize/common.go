@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/Masterminds/semver"
 	"github.com/gobuffalo/packr"
-	"github.com/hashicorp/go-version"
 	"github.com/rotisserie/eris"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	cliversion "github.com/solo-io/gloo-mesh/pkg/common/version"
@@ -57,7 +57,7 @@ func getGlooMeshVersion(opts flags.Options) (string, error) {
 		return cliversion.Version, nil
 	}
 
-	cliVersion, err := version.NewVersion(cliversion.Version)
+	cliVersion, err := semver.NewVersion(cliversion.Version)
 	if err != nil {
 		return "", eris.Wrapf(err, "invalid CLI version: %s", cliversion.Version)
 	}
@@ -66,7 +66,7 @@ func getGlooMeshVersion(opts flags.Options) (string, error) {
 	// Lastly find the latest compatible version of the enterprise chart
 	return helm.GetLatestChartMinorVersion(
 		gloomesh.GlooMeshEnterpriseRepoURI, "gloo-mesh-enterprise", stable,
-		cliVersion.Segments()[0], cliVersion.Segments()[1],
+		cliVersion.Major(), cliVersion.Minor(),
 	)
 }
 
