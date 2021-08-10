@@ -12,6 +12,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/v32/github"
 	"github.com/rotisserie/eris"
+	"github.com/sirupsen/logrus"
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/stoewer/go-strcase"
 )
@@ -28,6 +29,8 @@ var (
 		"enterprise-networking/codegen/helm/enterprise_networking_helm_values_reference.md": "%s/%s/enterprise_networking.md",
 		"enterprise-networking/codegen/helm/enterprise_agent_helm_values_reference.md":      "%s/%s/enterprise_agent.md",
 		"rbac-webhook/codegen/chart/rbac_webhook_helm_values_reference.md":                  "%s/%s/rbac_webhook.md",
+		"gloo-mesh-ui/codegen/helm/dashboard_helm_values_reference.md":                      "%s/%s/dashboard_helm_values_reference.md",
+		"gloo-mesh-ui/codegen/helm/redis_helm_values_reference.md":                          "%s/%s/redis_helm_values_reference.md",
 	}
 
 	helmValuesIndex = `
@@ -221,24 +224,15 @@ func getLatestPerMinorVersion(sortedVersions []*semver.Version) []*semver.Versio
 }
 
 func copyHelmValuesDocs(client *github.Client, org, repo, tag, path, destinationFile string) error {
-	baseVersion, _ := semver.NewVersion("1.0.0")
-	tagVersion, err := semver.NewVersion(tag)
-	if err != nil {
-		return err
-	}
-
 	contents, _, resp, err := client.Repositories.GetContents(context.Background(), org, repo, path, &github.RepositoryContentGetOptions{
 		Ref: tag,
 	})
 
 	// return error if expected doc files aren't found
 	if err != nil && resp != nil && resp.StatusCode == 404 {
-		// special case v1.0.0, for which the docs don't exist
-		if tagVersion.GreaterThan(baseVersion) {
-			return eris.Errorf("error fetching Helm values doc: %v", err)
-		} else {
-			return nil
-		}
+		// 404 is expected for Helm values docs introduced in later versions of Gloo Mesh
+		logrus.Warnf("missing Helm values file \"%s\" for version \"%s\"", path, tag)
+		return nil
 	} else if err != nil {
 		return eris.Errorf("error fetching Helm values doc: %v", err)
 	}
