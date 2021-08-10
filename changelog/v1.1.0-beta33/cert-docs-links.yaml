@@ -1,4 +1,4 @@
 changelog:
-  - type: NEW_FEATURE
+  - type: NON_USER_FACING
     description: Fixed cert docs links.
     issueLink: https://github.com/solo-io/gloo-mesh/issues/1746

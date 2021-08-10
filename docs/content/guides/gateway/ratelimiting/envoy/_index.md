@@ -29,7 +29,7 @@ weight: 10
 In this document, we show how to use Gloo Mesh with
 [Envoy's rate-limit API](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ratelimit/v3/rate_limit.proto).
 
-This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section](#bookinfo-deployment).
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
 
 {{% notice note %}}
 Gloo Mesh Gateway Enterprise includes a rate limit server based on the implementation [here](https://github.com/envoyproxy/ratelimit).

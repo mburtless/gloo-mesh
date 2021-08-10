@@ -1,0 +1,7 @@
+changelog:
+  - type: NON_USER_FACING
+    description: >-
+      First pass at extauth docs. Tested and implemented flows for ldap, apikey, basic auth, opa.
+      Still need to test and write for oauth, oauth + opa, and custom auth.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/527
+    resolvesIssue: false

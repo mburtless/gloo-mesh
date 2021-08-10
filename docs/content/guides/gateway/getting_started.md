@@ -19,7 +19,7 @@ This guide assumes the following:
   * Istio is [installed on both clusters]({{% versioned_link_path fromRoot="/guides/installing_istio" %}}) clusters
   * `istio-system` is the root namespace for both Istio deployments
   * `istio-ingressgateway` is deployed on `cluster-1` (this is the default with an istio install)
-  * The `bookinfo` app is [installed into the two clusters]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployed-on-two-clusters" %}}) under the `bookinfo` namespace
+  * The `bookinfo` app is [installed into the two clusters]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}) under the `bookinfo` namespace
   * the following environment variables are set:
     ```shell
     CONTEXT_1=cluster_1_context

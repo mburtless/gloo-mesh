@@ -9,7 +9,7 @@ Rate limit configuration via `RateLimitServerConfig` and `RateLimitClientConfig`
 If you are using an earlier version, this feature will not be available.
 {{% /notice %}}
 
-This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section](#bookinfo-deployment).
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
 
 Gloo Mesh Gateway Enterprise exposes a fine-grained API that allows you to configure a vast number of rate limiting use cases.
 The two main objects that make up the API are:

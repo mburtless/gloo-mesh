@@ -43,7 +43,7 @@ Let's run through a simple example that uses set-style rate limiting.
 First, we need to install Gloo Mesh Enterprise (minimum version `1.1`). Please refer to the corresponding
 [installation guide]({{< versioned_link_path fromRoot="/installation/enterprise" >}}) for details.
 
-This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section](#bookinfo-deployment).
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
 
 Now let's create a simple VirtualGateway routing to this application. (It may take a few seconds to be Accepted.)
 
