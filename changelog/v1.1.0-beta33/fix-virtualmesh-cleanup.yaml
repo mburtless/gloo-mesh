@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    description: Fix issue where invalid VirtualMesh state causes mesh outputs (gateways, issued certificates, secrets) to be garbage collected
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/1009

@@ -4,6 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh"
+
+	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
+	"github.com/solo-io/skv2/contrib/pkg/sets"
+	"github.com/solo-io/skv2/pkg/ezkube"
+
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/extensions"
 
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
@@ -36,13 +42,34 @@ type istioTranslator struct {
 	// note: these interfaces are set directly in unit tests, but not exposed in the Translator's constructor
 	dependencies internal.DependencyFactory
 	extender     istioextensions.IstioExtender
+
+	// we preserve outputs from each translation in order to preserve
+	// last known good config when errors occur
+	translationOutputsCache *preservedTranslationOutputs
 }
 
 func NewIstioTranslator(extensionClients extensions.Clientset) Translator {
 	return &istioTranslator{
-		dependencies: internal.NewDependencyFactory(),
-		extender:     istioextensions.NewIstioExtender(extensionClients),
+		dependencies:            internal.NewDependencyFactory(),
+		extender:                istioextensions.NewIstioExtender(extensionClients),
+		translationOutputsCache: newPreservedTranslationOutputs(),
 	}
+}
+
+type preservedTranslationOutputs struct {
+	// map of mesh id to the outputs for that mesh
+	meshOutputs map[string]meshOutputs
+}
+
+func newPreservedTranslationOutputs() *preservedTranslationOutputs {
+	return &preservedTranslationOutputs{
+		meshOutputs: map[string]meshOutputs{},
+	}
+}
+
+type meshOutputs struct {
+	remote istio.Builder
+	local  local.Builder
 }
 
 func (t *istioTranslator) Translate(
@@ -73,7 +100,16 @@ func (t *istioTranslator) Translate(
 	)
 
 	for _, mesh := range in.Meshes().List() {
-		meshTranslator.Translate(in, mesh, istioOutputs, localOutputs, reporter)
+		perMeshOutputs, perMeshLocalOutputs := t.translateMesh(
+			ctx,
+			in,
+			mesh,
+			meshTranslator,
+			reporter,
+		)
+		// merge per-mesh outputs to translator's whole outputs
+		istioOutputs.Merge(perMeshOutputs)
+		localOutputs.Merge(perMeshLocalOutputs)
 	}
 
 	if err := t.extender.PatchOutputs(ctx, in, istioOutputs); err != nil {
@@ -83,4 +119,51 @@ func (t *istioTranslator) Translate(
 	}
 
 	t.totalTranslates++
+}
+
+func (t *istioTranslator) translateMesh(
+	ctx context.Context,
+	in input.LocalSnapshot,
+	mesh *discoveryv1.Mesh,
+	meshTranslator mesh.Translator,
+	reporter reporting.Reporter,
+) (istio.Builder, local.Builder) {
+	// create a set of per-mesh outputs
+	perMeshOutputs := istio.Builder(istio.NewBuilder(ctx, "mesh-outputs"))
+	perMeshLocalOutputs := local.Builder(local.NewBuilder(ctx, "mesh-local-outputs"))
+
+	// intercept reports that the vmesh is invalid
+	interceptingReporter := &reportInterceptor{Reporter: reporter}
+
+	// perform translation
+	meshTranslator.Translate(in, mesh, perMeshOutputs, perMeshLocalOutputs, interceptingReporter)
+
+	if interceptingReporter.meshInvalid {
+		previousOutputs, ok := t.translationOutputsCache.meshOutputs[sets.Key(mesh)]
+		if ok {
+			// restore last known config if mesh is invalid
+			perMeshOutputs = previousOutputs.remote
+			perMeshLocalOutputs = previousOutputs.local
+		}
+	} else {
+		// record new config as valid
+		t.translationOutputsCache.meshOutputs[sets.Key(mesh)] = meshOutputs{
+			remote: perMeshOutputs,
+			local:  perMeshLocalOutputs,
+		}
+	}
+
+	return perMeshOutputs, perMeshLocalOutputs
+}
+
+// use this intercepting reporter to catch when a mesh is invalid
+type reportInterceptor struct {
+	reporting.Reporter
+	meshInvalid bool
+}
+
+// intercept and record reports to a mesh
+func (r *reportInterceptor) ReportVirtualMeshToMesh(mesh *discoveryv1.Mesh, virtualMesh ezkube.ResourceId, err error) {
+	r.meshInvalid = true
+	r.Reporter.ReportVirtualMeshToMesh(mesh, virtualMesh, err)
 }

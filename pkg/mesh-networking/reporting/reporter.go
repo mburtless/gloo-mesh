@@ -55,8 +55,9 @@ func (p *panickingReporter) ReportAccessPolicyToDestination(destination *discove
 }
 
 func (p *panickingReporter) ReportVirtualMeshToMesh(mesh *discoveryv1.Mesh, virtualMesh ezkube.ResourceId, err error) {
+	// errors are now permitted on virtual meshes as we always preserve last known good config
 	contextutils.LoggerFrom(p.ctx).
-		DPanicw("internal error: error reported on VirtualMesh which should have been caught by validation!",
+		Debugw("validation error reported applying VirtualMesh to mesh",
 			"mesh", sets.Key(mesh),
 			"virtual-mesh", sets.Key(virtualMesh),
 			"error", err)

@@ -67,7 +67,7 @@ func (v *applier) Apply(
 
 	validateConfigTargetReferences(input)
 
-	applyPoliciesToConfigTargets(ctx, input)
+	previousAppliedVirtualMeshes := applyPoliciesToConfigTargets(ctx, input)
 
 	// suppress logs from the applier's wrapped translation
 	silentContext := contextutils.WithExistingLogger(ctx, zap.NewNop().Sugar())
@@ -79,7 +79,7 @@ func (v *applier) Apply(
 		contextutils.LoggerFrom(ctx).DPanicf("internal error: failed to run translator: %v", err)
 	}
 
-	reportTranslationErrors(ctx, reporter, input)
+	reportTranslationErrors(ctx, reporter, input, previousAppliedVirtualMeshes)
 }
 
 // Optimistically initialize policy statuses to accepted, which may be set to invalid or failed pending subsequent validation.
@@ -142,7 +142,8 @@ func validateConfigTargetReferences(input input.LocalSnapshot) {
 }
 
 // Apply networking configuration policies to relevant discovery entities.
-func applyPoliciesToConfigTargets(ctx context.Context, input input.LocalSnapshot) {
+// Returns the last set of applied virtual meshes from the previous translation.
+func applyPoliciesToConfigTargets(ctx context.Context, input input.LocalSnapshot) map[*discoveryv1.Mesh]*discoveryv1.MeshStatus_AppliedVirtualMesh {
 	for _, destination := range input.Destinations().List() {
 		destination.Status.AppliedTrafficPolicies = getAppliedTrafficPolicies(input.TrafficPolicies().List(), destination)
 		destination.Status.AppliedAccessPolicies = getAppliedAccessPolicies(input.AccessPolicies().List(), destination)
@@ -150,16 +151,22 @@ func applyPoliciesToConfigTargets(ctx context.Context, input input.LocalSnapshot
 		destination.Status.RequiredSubsets = getRequiredSubsets(input.TrafficPolicies().List(), destination)
 	}
 
+	// preserve the previously applied virtual meshes. we will report these to the status of the mesh if the new translation is invalid
+	previousAppliedVirtualMeshes := make(map[*discoveryv1.Mesh]*discoveryv1.MeshStatus_AppliedVirtualMesh)
+
 	for _, mesh := range input.Meshes().List() {
+		previousAppliedVirtualMeshes[mesh] = mesh.Status.AppliedVirtualMesh
 		mesh.Status.AppliedVirtualMesh = getAppliedVirtualMesh(input.VirtualMeshes().List(), mesh)
 		// getAppliedEastWestIngressGateways must be invoked after getAppliedVirtualMesh
 		mesh.Status.AppliedEastWestIngressGateways = getAppliedEastWestIngressGateways(ctx, input.VirtualMeshes(), mesh, input.Destinations())
 	}
+
+	return previousAppliedVirtualMeshes
 }
 
 // For all discovery entities, update status with any translation errors.
 // Also update observed generation to indicate that it's been processed.
-func reportTranslationErrors(ctx context.Context, reporter *applyReporter, input input.LocalSnapshot) {
+func reportTranslationErrors(ctx context.Context, reporter *applyReporter, input input.LocalSnapshot, previousAppliedVirtualMeshes map[*discoveryv1.Mesh]*discoveryv1.MeshStatus_AppliedVirtualMesh) {
 	for _, workload := range input.Workloads().List() {
 		// TODO: validate config applied to workloads when introduced
 		workload.Status.ObservedGeneration = workload.Generation
@@ -175,7 +182,7 @@ func reportTranslationErrors(ctx context.Context, reporter *applyReporter, input
 
 	for _, mesh := range input.Meshes().List() {
 		mesh.Status.ObservedGeneration = mesh.Generation
-		mesh.Status.AppliedVirtualMesh = validateAndReturnVirtualMesh(ctx, input, reporter, mesh)
+		mesh.Status.AppliedVirtualMesh = validateAndReturnVirtualMesh(ctx, input, reporter, mesh, previousAppliedVirtualMeshes[mesh])
 	}
 
 	setWorkloadsForTrafficPolicies(ctx, input.TrafficPolicies().List(), input.Workloads().List(), input.Destinations(), input.Meshes())
@@ -412,6 +419,7 @@ func validateAndReturnVirtualMesh(
 	input input.LocalSnapshot,
 	reporter *applyReporter,
 	mesh *discoveryv1.Mesh,
+	previouslyAppliedVirtualMesh *discoveryv1.MeshStatus_AppliedVirtualMesh,
 ) *discoveryv1.MeshStatus_AppliedVirtualMesh {
 	appliedVirtualMesh := mesh.Status.AppliedVirtualMesh
 	if appliedVirtualMesh == nil {
@@ -441,7 +449,8 @@ func validateAndReturnVirtualMesh(
 			Errors: errMsgs,
 		}
 		virtualMesh.Status.State = commonv1.ApprovalState_INVALID
-		return nil
+		// preserve previously applied virtual mesh in case current is invalid
+		return previouslyAppliedVirtualMesh
 	}
 }
 
@@ -570,9 +579,6 @@ func getAppliedTrafficPolicies(
 ) []*networkingv1.AppliedTrafficPolicy {
 	var matchingTrafficPolicies networkingv1.TrafficPolicySlice
 	for _, policy := range trafficPolicies {
-		if policy.Status.State != commonv1.ApprovalState_ACCEPTED {
-			continue
-		}
 		if selectorutils.SelectorMatchesDestination(policy.Spec.DestinationSelector, destination) {
 			matchingTrafficPolicies = append(matchingTrafficPolicies, policy)
 		}
@@ -650,9 +656,6 @@ func getAppliedAccessPolicies(
 	var appliedPolicies []*discoveryv1.DestinationStatus_AppliedAccessPolicy
 	for _, policy := range accessPolicies {
 		policy := policy // pike
-		if policy.Status.State != commonv1.ApprovalState_ACCEPTED {
-			continue
-		}
 		if !selectorutils.SelectorMatchesDestination(policy.Spec.DestinationSelector, destination) {
 			continue
 		}
@@ -764,9 +767,6 @@ func getAppliedVirtualMesh(
 ) *discoveryv1.MeshStatus_AppliedVirtualMesh {
 	for _, vMesh := range virtualMeshes {
 		vMesh := vMesh // pike
-		if vMesh.Status.State != commonv1.ApprovalState_ACCEPTED {
-			continue
-		}
 		for _, meshRef := range vMesh.Spec.Meshes {
 			if ezkube.RefsMatch(mesh, meshRef) {
 				return &discoveryv1.MeshStatus_AppliedVirtualMesh{
