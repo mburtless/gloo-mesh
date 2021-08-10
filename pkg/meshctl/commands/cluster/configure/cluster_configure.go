@@ -9,6 +9,7 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/manifoldco/promptui"
 	"github.com/rotisserie/eris"
+	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -199,7 +200,17 @@ func configureCluster() (utils.MeshctlCluster, error) {
 	if len(clusters) == 0 {
 		return meshctlCluster, eris.Errorf("no clusters found in kubernetes config file %s", kubeConfigFile)
 	}
+
 	kubeContext, err := selectValueInteractive("What is the name of your kube context?", clusters)
+	if err != nil {
+		return meshctlCluster, err
+	}
+
+	namespacePrompt := promptui.Prompt{
+		Label:   "What is the namespace that Gloo Mesh is installed in?",
+		Default: defaults.DefaultPodNamespace,
+	}
+	namespace, err := namespacePrompt.Run()
 	if err != nil {
 		return meshctlCluster, err
 	}
@@ -207,6 +218,7 @@ func configureCluster() (utils.MeshctlCluster, error) {
 	return utils.MeshctlCluster{
 		KubeConfig:  kubeConfigFile,
 		KubeContext: kubeContext,
+		Namespace:   namespace,
 	}, nil
 }
 

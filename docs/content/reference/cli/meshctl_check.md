@@ -6,10 +6,17 @@ weight: 5
 
 Perform health checks on the Gloo Mesh system
 
+```
+meshctl check [flags]
+```
+
 ### Options
 
 ```
-  -h, --help   help for check
+      --config string        set the path to the meshctl config file (default "<home_directory>/.gloo-mesh/meshctl-config.yaml")
+  -h, --help                 help for check
+      --local-port uint32    local port used to open port-forward to enterprise-networking pod (default 9091)
+      --remote-port uint32   remote port used to open port-forward to enterprise-networking pod (default 9091)
 ```
 
 ### Options inherited from parent commands

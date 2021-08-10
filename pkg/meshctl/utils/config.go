@@ -1,10 +1,9 @@
 package utils
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
-
-	"io/ioutil"
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
@@ -38,6 +37,7 @@ type MeshctlConfig struct {
 type MeshctlCluster struct {
 	KubeConfig  string `json:"kubeConfig"`
 	KubeContext string `json:"kubeContext"`
+	Namespace   string `json:"namespace"`
 }
 
 type KubeConfig struct {
@@ -60,6 +60,20 @@ func (c MeshctlConfig) MgmtCluster() MeshctlCluster {
 		return mgmtCluster
 	}
 	return MeshctlCluster{}
+}
+
+// return cluster names and configs for all remote clusters
+func (c MeshctlConfig) RemoteClusters() map[string]MeshctlCluster {
+	remoteClusters := map[string]MeshctlCluster{}
+	for clusterName, cluster := range c.Clusters {
+		if clusterName == managementPlane {
+			continue
+		}
+
+		remoteClusters[clusterName] = cluster
+	}
+
+	return remoteClusters
 }
 
 // returns the mgmt meshctl cluster name

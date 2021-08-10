@@ -162,7 +162,7 @@ func ConflictDetectionTest() {
 					remoteUserVirtualService.Spec,
 					userVirtualService.Spec)
 				return nil
-			}, "10s", "1s").ShouldNot(HaveOccurred())
+			}, "60s", "1s").ShouldNot(HaveOccurred())
 
 			// output VS should not exist on remote cluster
 			Eventually(func() bool {
@@ -194,7 +194,7 @@ func ConflictDetectionTest() {
 					"Expected mgmt output vs spec %v to equal %v",
 					mgmtOutputVirtualService.Spec, expectedOutputVirtualService.Spec)
 				return nil
-			}, "10s", "1s").ShouldNot(HaveOccurred())
+			}, "60s", "1s").ShouldNot(HaveOccurred())
 		})
 
 		By("cleaning up the user VirtualService", func() {
@@ -234,7 +234,7 @@ func ConflictDetectionTest() {
 					Namespace: BookinfoNamespace,
 				})
 				return errors.IsNotFound(err)
-			}, "10s", "1s").Should(BeTrue(), "expected err %v to be IsNotFound", err)
+			}, "60s", "1s").Should(BeTrue(), "expected err %v to be IsNotFound", err)
 		})
 
 		By("cleaning up the user DestinationRule", func() {

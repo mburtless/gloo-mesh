@@ -1,0 +1,4 @@
+changelog:
+  - type: NEW_FEATURE
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720
+    description: Update `meshctl check` to run post install checks for management cluster and all remote clusters, using the meshctl config file as the source of truth for all Gloo Mesh clusters.
