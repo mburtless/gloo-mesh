@@ -125,22 +125,7 @@ hey -z 1h -c 1 -q 1 http://localhost:9080/productpage\?u\=normal
 ```
 
 Note that you may need to wait a few minutes before the metrics are returned from the Gloo Mesh API discussed below.
-The metrics need time to propagate from the Enovy proxies to the Gloo Mesh server, and for the Prometheus server to scrape the data from Gloo Mesh.
-
-### Enterprise Networking Metrics Scrape Endpoint
-
-The Enterprise Networking deployment exposes its aggregated metrics through an HTTP endpoint at `/metrics`, formatted as Prometheus metrics.
-You can view them with the following commands:
-
-```shell
-# port-forward enterprise networking
-kubectl -n gloo-mesh port-forward deploy/enterprise-networking 8080
-
-# request metrics
-curl localhost:8080/metrics
-```
-
-These metrics can be consumed by any custom Prometheus server.
+The metrics need time to propagate from the Envoy proxies to the Gloo Mesh server, and for the Prometheus server to scrape the data from Gloo Mesh.
 
 ### Prometheus UI
 
@@ -169,63 +154,3 @@ sum(
   response_code,
 )
 ```
-
-### Enterprise Networking Metrics Retrieval Endpoint
-
-Enterprise Networking also exposes endpoints for retrieving metrics through an API
-that models the service graph as a set of nodes and edges. A node is a workload in the network
-that is capable of sending traffic, receiving traffic, or both. An edge consists of a source and target node,
-representing metrics for requests originating at the source node and targeting the target node.
-
-The `/v0/observability/metrics/node` endpoint returns metrics by node, and the `/v0/observability/metrics/edge` returns metrics by edge.
-
-Here are some example queries, assuming that Enterprise Networking is port forwarded to 8080:
-
-This request returns all incoming and outgoing requests for the productpage-v1 deployment, collecting metrics
-samples spanning the last 5 minutes with a sample for each minute.
-
-```shell
-curl -XPOST --data '{
-  "nodeSelectors": [
-    {
-
-        "workloadRef": {
-          "name": "productpage-v1",
-          "namespace": "bookinfo",
-          "clusterName": "cluster-1"
-
-      }
-    }
-  ],
-  "window": "300s", "step": "60s"
-}' "localhost:8080/v0/observability/metrics/node?pretty"
-```
-
-This request returns all requests originating from productpage-v1 and targeting details-v1:
-
-```shell
-curl -XPOST --data '{
-   "edgeSelectors":[
-      {
-         "source": {
-           "workloadRef":{
-              "name":"productpage-v1",
-              "namespace":"bookinfo",
-              "clusterName":"cluster-1"
-           }
-         },
-         "target": {
-           "workloadRef":{
-             "name":"details-v1",
-             "namespace":"bookinfo",
-             "clusterName":"cluster-1"
-           }
-         }
-      }
-   ],
-   "window":"300s"
-}' "localhost:8080/v0/observability/metrics/edge?pretty"
-```
-
-For full documentation on the access log retrieval endpoint, see the
-[Swagger specification]({{% versioned_link_path fromRoot="/reference/swagger/metrics.swagger.json" %}}).

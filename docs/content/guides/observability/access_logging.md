@@ -117,176 +117,14 @@ kubectl --context $CONTEXT_1 -n bookinfo exec -it deploy/ratings-v1 -c ratings -
 kubectl --context $CONTEXT_2 -n bookinfo exec -it deploy/ratings-v1 -c ratings --  curl -H "foo: bar" -v reviews:9080/reviews/1
 ```
 
-Assuming the access logs were collected successfully, we can now retrieve them, either
-through `meshctl` or, since enterprise-networking exposes a REST API, using `curl`.
+Assuming the access logs were collected successfully, we can now view them via the Gloo Mesh UI.
 
-### curl
+### Gloo Mesh UI
 
-Before proceeding, open a port forward from `enterprise-networking`'s HTTP
-port to your local machine by running the following:
+{{% notice note %}} Gloo Mesh Enterprise is required for this feature. {{% /notice %}}
 
-```shell
-# forward port 8080 from enterprise-networking to localhost:8080
-kubectl --context $CONTEXT_1 -n gloo-mesh port-forward deploy/enterprise-networking 8080
-```
-
-The following command will fetch up to 10 of the latest access logs.
-
-```shell
-curl -XPOST 'localhost:8080/v0/observability/logs?pretty'
-```
-
-The response will look similar to:
-
-```json
-{
-  "result": {
-    "workloadRef": {
-      "name": "ratings-v1",
-      "namespace": "bookinfo",
-      "clusterName": "cluster-1"
-    },
-    "httpAccessLog": {
-      "commonProperties": {
-        "downstreamRemoteAddress": {
-          "socketAddress": {
-            "address": "192.168.2.19",
-            "portValue": 58196
-          }
-        },
-        "downstreamLocalAddress": {
-          "socketAddress": {
-            "address": "10.96.2.228",
-            "portValue": 9080
-          }
-        },
-        "startTime": "2021-02-02T17:47:30.301634Z",
-        "timeToLastRxByte": "0.000032300s",
-        "timeToFirstUpstreamTxByte": "0.004618400s",
-        "timeToLastUpstreamTxByte": "0.004637800s",
-        "timeToFirstUpstreamRxByte": "0.028778300s",
-        "timeToLastUpstreamRxByte": "0.029594900s",
-        "timeToFirstDownstreamTxByte": "0.029173900s",
-        "timeToLastDownstreamTxByte": "0.029632700s",
-        "upstreamRemoteAddress": {
-          "socketAddress": {
-            "address": "192.168.2.18",
-            "portValue": 9080
-          }
-        },
-        "upstreamLocalAddress": {
-          "socketAddress": {
-            "address": "192.168.2.19",
-            "portValue": 52538
-          }
-        },
-        "upstreamCluster": "outbound|9080||reviews.bookinfo.svc.cluster.local",
-        "routeName": "default",
-        "downstreamDirectRemoteAddress": {
-          "socketAddress": {
-            "address": "192.168.2.19",
-            "portValue": 58196
-          }
-        }
-      },
-      "protocolVersion": "HTTP11",
-      "request": {
-        "requestMethod": "GET",
-        "scheme": "https",
-        "authority": "reviews:9080",
-        "path": "/reviews/1",
-        "userAgent": "curl/7.52.1",
-        "requestId": "676b631f-b6dd-4a57-b99b-de66b03c2813",
-        "requestHeadersBytes": "1207"
-      },
-      "response": {
-        "responseCode": 200,
-        "responseHeadersBytes": "174",
-        "responseBodyBytes": "295",
-        "responseCodeDetails": "via_upstream"
-      }
-    }
-  }
-}
-{
-  "result": {
-    "workloadRef": {
-      "name": "reviews-v1",
-      "namespace": "bookinfo",
-      "clusterName": "cluster-1"
-    },
-    ...
-    }
-  }
-}
-{
-  "result": {
-    "workloadRef": {
-      "name": "ratings-v1",
-      "namespace": "bookinfo",
-      "clusterName": "cluster-2"
-    },
-    ...
-  }
-}
-{
-  "result": {
-    "workloadRef": {
-      "name": "reviews-v3",
-      "namespace": "bookinfo",
-      "clusterName": "cluster-2"
-    },
-    ...
-  }
-}
-```
-
-You can also filter the retrieved access logs by workload. The following
-request retrieves access logs for any Kubernetes workload with label `app: reviews` *and* in `cluster-1`, or
-`app: productpage` from any cluster.
-
-```shell
-curl -XPOST --data '{
-   "workloadSelectors":[
-      {
-         "kubeWorkloadMatcher":{
-            "labels":{
-               "app":"reviews"
-            },
-            "clusters": ["cluster-1"]
-         }
-      },
-      {
-         "kubeWorkloadMatcher":{
-            "labels":{
-               "app":"productpage"
-            }
-         }
-      }
-   ]
-}' "localhost:8080/v0/observability/logs?&pretty"
-```
-
-For full documentation on the access log retrieval endpoint, see the 
-[Swagger specification]({{% versioned_link_path fromRoot="/reference/swagger/access_logging.swagger.json" %}}).
-
-**Streaming Retrieval**
-
-While debugging, it can be helpful to observe the access logs in real time as you manually
-make requests. This can be achieved using the same REST endpoint and setting the
-query parameter `?watch=1`, which will initiate a streaming connection.
-
-```shell
-curl -XPOST 'localhost:8080/v0/observability/logs?watch=1&pretty'
-```
-
-In a separate terminal context, perform curl requests and you will see access logs
-being streamed back as they are received and processed by Gloo Mesh.
-
-### meshctl accesslogs plugin
-
-The `meshctl accesslogs` plugin can also be used to facilitate access log retrieval. 
-Install the plugin and read its usage documentation for more details.
+In the Gloo Mesh UI, the access logs will be displayed when clicking into
+a workload and clicking its Access Logs tab.
 
 ## Debugging
 
@@ -354,15 +192,8 @@ EOF
 Sending a request from the `productpage` pod to the ratings Destination should yield 
 the following access log:
 
-{{< highlight json "hl_lines=10" >}}
+{{< highlight json "hl_lines=2" >}}
 {
-  "result": {
-    "workloadRef": {
-      "name": "productpage-v1",
-      "namespace": "bookinfo",
-      "clusterName": "cluster-1"
-    },
-    "httpAccessLog": {
       ...
         "upstreamTransportFailureReason": "TLS error: Secret is not supplied by SDS",
         "routeName": "default",
@@ -372,7 +203,6 @@ the following access log:
             "portValue": 52836
           }
         }
-      },
       ...
     }
   }
