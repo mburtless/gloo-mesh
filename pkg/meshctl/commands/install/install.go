@@ -284,12 +284,6 @@ func (o EnterpriseOptions) getRegistrationOptions() enterprise.RegistrationOptio
 }
 
 func InstallEnterprise(ctx context.Context, opts EnterpriseOptions) error {
-	if !opts.SkipChecks {
-		if err := runPreinstallChecks(ctx, &opts); err != nil {
-			return err
-		}
-	}
-
 	const (
 		repoURI   = "https://storage.googleapis.com/gloo-mesh-enterprise"
 		chartName = "gloo-mesh-enterprise"
@@ -310,10 +304,21 @@ func InstallEnterprise(ctx context.Context, opts EnterpriseOptions) error {
 		opts.Version = version
 	}
 
-	logrus.Info("Installing Helm chart")
+	if !opts.SkipChecks {
+		logrus.Info("🔎 Performing server pre-install checks...")
+		if err := runPreinstallChecks(ctx, &opts); err != nil {
+			return eris.Wrap(err, "agent pre-install check failed")
+		}
+		logrus.Info("✅  server pre-install checks succeeded!")
+	}
+
+	// install relay server
+	logrus.Info("💻 Installing relay server in the management cluster")
 	if err := opts.getInstaller().InstallChart(ctx); err != nil {
 		return eris.Wrap(err, "installing gloo-mesh-enterprise")
 	}
+
+	// install relay agent
 	if opts.Register && !opts.DryRun {
 		logrus.Info("Registering cluster")
 		return enterprise.RegisterCluster(ctx, opts.getRegistrationOptions())

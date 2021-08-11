@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/rotisserie/eris"
-	"github.com/sirupsen/logrus"
 	appsv1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/certificates/common/secrets"
@@ -43,14 +42,6 @@ func (r *relayConnectivityCheck) GetDescription() string {
 
 func (r *relayConnectivityCheck) Run(ctx context.Context, checkCtx CheckContext) *Result {
 	result := &Result{}
-
-	// the connectivity check must run in an in-cluster context to accurately verify the connectivity conditions for the relay agent
-	// if not executing in-cluster, spawn a k8s Job and run check in cluster
-	if !checkCtx.Environment().InCluster {
-		// TODO 1. Spawn a k8s job in the GM install namespace, emit warning if it doesn't exist
-		logrus.Warn("in cluster meshctl relay connectivity check not implemented")
-		//return nil
-	}
 
 	secretClient := checkCtx.Context().CoreClientset.Secrets()
 	deploymentClient := checkCtx.Context().AppsClientset.Deployments()

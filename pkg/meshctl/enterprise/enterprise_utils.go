@@ -3,6 +3,8 @@ package enterprise
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 	"time"
 
@@ -12,14 +14,9 @@ import (
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/core/v1"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/gloomesh"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm"
-	installutils "github.com/solo-io/gloo-mesh/pkg/meshctl/install/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/registration"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
-	validationconsts "github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
 	"github.com/solo-io/skv2/pkg/api/multicluster.solo.io/v1alpha1"
-	"github.com/solo-io/skv2/pkg/crdutils"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,7 +55,7 @@ type RegistrationOptions struct {
 }
 
 // construct the helm installer from the specified options
-func (o *RegistrationOptions) GetInstaller(ctx context.Context) (*helm.Installer, error) {
+func (o *RegistrationOptions) GetInstaller(ctx context.Context, out io.Writer) (*helm.Installer, error) {
 	chartPath, err := o.GetChartPath(ctx, o.AgentChartPathOverride, gloomesh.EnterpriseAgentChartUriTemplate)
 	if err != nil {
 		return nil, err
@@ -106,6 +103,7 @@ func (o *RegistrationOptions) GetInstaller(ctx context.Context) (*helm.Installer
 		ValuesFile:  o.AgentChartValuesPath,
 		Verbose:     o.Verbose,
 		Values:      values,
+		Output:      out,
 	}, nil
 }
 
@@ -237,19 +235,16 @@ func RegisterCluster(ctx context.Context, opts RegistrationOptions) error {
 		}
 	}
 
-	// agent pre install checks
-	if !opts.SkipChecks {
-		if err := runAgentPreinstallCheck(ctx, &opts); err != nil {
-			return err
-		}
-	}
+	installer, err := opts.GetInstaller(ctx, os.Stdout)
 
-	logrus.Info("💻 Installing relay agent in the remote cluster")
+	// wait for all enterprise-agent resources to be ready
+	installer.Wait = true
 
-	installer, err := opts.GetInstaller(ctx)
 	if err != nil {
 		return eris.Wrap(err, "error building installer")
 	}
+
+	logrus.Info("💻 Installing relay agent in the remote cluster")
 
 	if err := installer.InstallChart(ctx); err != nil {
 		return err
@@ -309,7 +304,17 @@ func RegisterCluster(ctx context.Context, opts RegistrationOptions) error {
 		}
 	}
 
-	logrus.Info("✅ Done registering cluster!")
+	logrus.Info("✅  Done registering cluster!")
+
+	// agent post install checks
+	if !opts.SkipChecks {
+		logrus.Info("🔎 Performing agent post-install checks...")
+		if err := installer.ExecuteHelmTest(); err != nil {
+			return eris.Wrap(err, "agent post-install check failed")
+		}
+		logrus.Info("✅  Agent post-install checks succeeded!")
+	}
+
 	return nil
 }
 
@@ -368,57 +373,4 @@ func DeregisterCluster(ctx context.Context, opts RegistrationOptions) error {
 		ReleaseName: releaseName,
 		Verbose:     opts.Verbose,
 	}).UninstallChart(ctx)
-}
-
-func runAgentPreinstallCheck(ctx context.Context, opts *RegistrationOptions) error {
-	logrus.Info("\nRunning agent pre-install checks")
-
-	var crdMD map[string]*crdutils.CRDMetadata
-
-	installer, err := opts.GetInstaller(ctx)
-	if err != nil {
-		return eris.Wrap(err, "unable to initialize installer")
-	}
-
-	crdMDForDeploy, err := installutils.GetCrdMetadataFromInstaller(ctx, validationconsts.AgentDeployName, installer)
-	if err != nil {
-		logrus.Warnf("Unable to fetch CRD metadata from Helm chart, unable to perform CRD upgrade check: %v", err)
-		// we don't want to error if we can't get the CRD metadata, as this might be a release without one.
-		// we may want to change that in the future.
-	} else {
-		crdMD = map[string]*crdutils.CRDMetadata{
-			validationconsts.AgentDeployName: crdMDForDeploy,
-		}
-	}
-
-	checkCtx, err := validation.NewOutOfClusterCheckContext(
-		opts.Options.KubeConfigPath,
-		opts.Options.RemoteContext,
-		opts.Options.RemoteNamespace,
-		0,
-		0,
-		&checks.AgentParams{
-			RelayServerAddress: opts.RelayServerAddress,
-			RelayAuthority:     "enterprise-networking.gloo-mesh", // hardcoded for meshctl
-			RootCertSecretRef: client.ObjectKey{
-				Name:      opts.RootCASecretName,
-				Namespace: opts.RootCASecretNamespace,
-			},
-			ClientCertSecretRef: client.ObjectKey{
-				Name:      opts.ClientCertSecretName,
-				Namespace: opts.ClientCertSecretNamespace,
-			},
-		},
-		false,
-		crdMD,
-	)
-	if err != nil {
-		return err
-	}
-
-	if foundFailure := checks.RunChecks(ctx, checkCtx, checks.Agent, checks.PreInstall); foundFailure {
-		return eris.New("encountered failed pre-install checks")
-	}
-
-	return nil
 }

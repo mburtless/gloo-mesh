@@ -34,7 +34,6 @@ func (c *crdUpgradeCheck) Run(ctx context.Context, checkCtx CheckContext) *Resul
 	errMap := crdutils.DoCrdsNeedUpgrade(*deploymentCrdMetadata, clusterCrds.Items)
 	// go over all the errors and see if we have anything interesting:
 	var upgradeHintAdded bool
-	var notFoundHintAdded bool
 	for name, err := range errMap {
 		switch err.(type) {
 		case *crdutils.CrdNeedsUpgrade:
@@ -43,13 +42,9 @@ func (c *crdUpgradeCheck) Run(ctx context.Context, checkCtx CheckContext) *Resul
 				upgradeHintAdded = true
 				result.AddHint("One or more CRD spec has changed. Upgrading your Gloo-Mesh CRDs may be required before continuing.", "")
 			}
-
 		case *crdutils.CrdNotFound:
-			result.AddError(err)
-			if !notFoundHintAdded {
-				notFoundHintAdded = true
-				result.AddHint("One or more required CRD were not found on the cluster. Please verify Gloo-Mesh CRDs are installed.", "")
-			}
+			// CRD not found is benign
+			result.AddHint(fmt.Sprintf("CRD %s not present on the cluster, ignore this warning if performing a first time install.", name), "")
 		default:
 			fmt.Printf("Unknown error validating CRD %s: %s\n", name, err.Error())
 		}

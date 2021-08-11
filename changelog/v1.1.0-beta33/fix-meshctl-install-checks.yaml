@@ -1,0 +1,5 @@
+changelog:
+  - type: FIX
+    description: Fix `meshctl install enterprise` checks so missing CRDs emit warning instead of error (expected upon fresh install), and run agent checks _post install_ instead of pre install.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720
+    resolvesIssue: false

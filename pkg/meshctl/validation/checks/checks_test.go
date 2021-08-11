@@ -160,7 +160,7 @@ var _ = Describe("Checks", func() {
 			Expect(result.IsSuccess()).To(BeTrue())
 		})
 
-		It("Error if CRD is missing", func() {
+		It("Warning if CRD is missing", func() {
 			mockCrdClient.EXPECT().
 				ListCustomResourceDefinition(ctx).
 				Return(&apiextensions_k8s_io_v1beta1.CustomResourceDefinitionList{
@@ -198,11 +198,9 @@ var _ = Describe("Checks", func() {
 
 			crdCheck := checks.NewCrdUpgradeCheck("enterprise-networking")
 			result := crdCheck.Run(ctx, checkCtx)
-			Expect(result.IsFailure()).To(BeTrue())
-			Expect(result.Errors).To(HaveLen(1))
-			Expect(result.Errors[0].Error()).To(ContainSubstring("CRD othercrd not found"))
+			Expect(result.IsWarning()).To(BeTrue())
 			Expect(result.Hints).To(HaveLen(1))
-			Expect(result.Hints[0].Hint).To(ContainSubstring("One or more required CRD were not found on the cluster. Please verify Gloo-Mesh CRDs are installed"))
+			Expect(result.Hints[0].Hint).To(ContainSubstring("CRD othercrd not present on the cluster, ignore this warning if performing a first time install."))
 
 		})
 		It("Error if CRD needs upgrade", func() {

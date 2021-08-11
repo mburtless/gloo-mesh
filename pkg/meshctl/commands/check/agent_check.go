@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/rotisserie/eris"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
@@ -88,7 +87,7 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 			Output:      os.Stdout,
 		}
 
-		if err := installer.ExecuteHelmTest(ctx, 60*time.Second); err != nil {
+		if err := installer.ExecuteHelmTest(); err != nil {
 			return err
 		}
 	}
