@@ -1,0 +1,5 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Deprecate usages of `Mesh.Spec.IngressGateways` and replace with `Mesh.Status.AppliedEastWestIngressGateways`.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1611
+    resolvesIssue: false

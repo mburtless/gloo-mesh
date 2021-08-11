@@ -3,11 +3,15 @@ package access
 import (
 	"context"
 
+	"github.com/rotisserie/eris"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
+	v1sets "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1/sets"
+	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
 	v1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/reporting"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/metautils"
-	"github.com/solo-io/k8s-utils/kubeutils"
+	"github.com/solo-io/skv2/contrib/pkg/sets"
 	securityv1beta1spec "istio.io/api/security/v1beta1"
 	"istio.io/api/type/v1beta1"
 	securityv1beta1 "istio.io/client-go/pkg/apis/security/v1beta1"
@@ -22,9 +26,11 @@ type Translator interface {
 	// Output resources will be added to the istio.Builder
 	// Errors caused by invalid user config will be reported using the Reporter.
 	Translate(
+		in input.LocalSnapshot,
 		mesh *discoveryv1.Mesh,
 		virtualMesh *discoveryv1.MeshStatus_AppliedVirtualMesh,
 		outputs istio.Builder,
+		reporter reporting.Reporter,
 	)
 }
 
@@ -42,9 +48,11 @@ func NewTranslator(ctx context.Context) Translator {
 }
 
 func (t *translator) Translate(
+	in input.LocalSnapshot,
 	mesh *discoveryv1.Mesh,
 	virtualMesh *discoveryv1.MeshStatus_AppliedVirtualMesh,
 	outputs istio.Builder,
+	reporter reporting.Reporter,
 ) {
 	istioMesh := mesh.Spec.GetIstio()
 	if istioMesh == nil {
@@ -59,11 +67,15 @@ func (t *translator) Translate(
 	clusterName := istioMesh.Installation.Cluster
 	installationNamespace := istioMesh.Installation.Namespace
 	globalAuthPolicy := buildGlobalAuthPolicy(installationNamespace, clusterName)
-	ingressGatewayAuthPolicies := buildAuthPoliciesForIngressGateways(
+	ingressGatewayAuthPolicies, err := buildAuthPoliciesForIngressGateways(
+		in.Destinations(),
 		installationNamespace,
 		clusterName,
-		istioMesh.IngressGateways,
+		mesh.Status.GetAppliedEastWestIngressGateways(),
 	)
+	if err != nil {
+		reporter.ReportVirtualMeshToMesh(mesh, virtualMesh.GetRef(), eris.Wrap(err, "creating AuthorizationPolicy for east west ingress gateways"))
+	}
 
 	// Append the VirtualMesh as a parent to each output resource
 	metautils.AppendParent(t.ctx, globalAuthPolicy, virtualMesh.GetRef(), v1.VirtualMesh{}.GVK())
@@ -78,12 +90,18 @@ func (t *translator) Translate(
 // Creates an AuthorizationPolicy that allows all traffic into the service
 // which backs the Gateway used for multi cluster traffic.
 func buildAuthPoliciesForIngressGateways(
+	destinations v1sets.DestinationSet,
 	installationNamespace string,
 	clusterName string,
-	ingressGateways []*discoveryv1.MeshSpec_Istio_IngressGatewayInfo,
-) []*securityv1beta1.AuthorizationPolicy {
+	ingressGateways []*discoveryv1.MeshStatus_AppliedIngressGateway,
+) ([]*securityv1beta1.AuthorizationPolicy, error) {
 	var authPolicies []*securityv1beta1.AuthorizationPolicy
 	for _, ingressGateway := range ingressGateways {
+		destination, err := destinations.Find(ingressGateway.GetDestinationRef())
+		if err != nil {
+			return nil, err
+		}
+
 		ap := &securityv1beta1.AuthorizationPolicy{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:        ingressGatewayAuthPolicyName(ingressGateway),
@@ -97,14 +115,14 @@ func buildAuthPoliciesForIngressGateways(
 				// Reference: https://istio.io/docs/reference/config/security/authorization-policy/#AuthorizationPolicy
 				Rules: []*securityv1beta1spec.Rule{{}},
 				Selector: &v1beta1.WorkloadSelector{
-					MatchLabels: ingressGateway.WorkloadLabels,
+					MatchLabels: destination.Spec.GetKubeService().GetWorkloadSelectorLabels(),
 				},
 			},
 		}
 
 		authPolicies = append(authPolicies, ap)
 	}
-	return authPolicies
+	return authPolicies, nil
 }
 
 // Creates a global AuthorizationPolicy that denies all traffic within the Mesh unless explicitly allowed by GlooMesh AccessControl resources.
@@ -127,10 +145,6 @@ func buildGlobalAuthPolicy(
 	}
 }
 
-func ingressGatewayAuthPolicyName(ingressGateway *discoveryv1.MeshSpec_Istio_IngressGatewayInfo) string {
-	address := ingressGateway.GetDnsName()
-	if address == "" {
-		address = ingressGateway.GetIp()
-	}
-	return IngressGatewayAuthPolicyName + "-" + kubeutils.SanitizeNameV2(address)
+func ingressGatewayAuthPolicyName(ingressGateway *discoveryv1.MeshStatus_AppliedIngressGateway) string {
+	return IngressGatewayAuthPolicyName + "-" + sets.Key(ingressGateway.GetDestinationRef())
 }

@@ -37,7 +37,6 @@ var _ = Describe("IstioMeshTranslator", func() {
 		mockFederationTranslator = mock_federation.NewMockTranslator(ctrl)
 		mockAccessTranslator = mock_access.NewMockTranslator(ctrl)
 		mockReporter = mock_reporting.NewMockReporter(ctrl)
-		in = input.NewInputLocalSnapshotManualBuilder("").Build()
 		istioMeshTranslator = mesh.NewTranslator(ctx, mockMtlsTranslator, mockFederationTranslator, mockAccessTranslator)
 	})
 
@@ -79,7 +78,7 @@ var _ = Describe("IstioMeshTranslator", func() {
 
 		mockAccessTranslator.
 			EXPECT().
-			Translate(istioMesh, istioMesh.Status.AppliedVirtualMesh, outputs)
+			Translate(in, istioMesh, istioMesh.Status.AppliedVirtualMesh, outputs, mockReporter)
 
 		istioMeshTranslator.Translate(in, istioMesh, outputs, localOutputs, mockReporter)
 	})
