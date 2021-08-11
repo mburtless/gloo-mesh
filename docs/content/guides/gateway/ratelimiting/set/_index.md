@@ -75,10 +75,20 @@ spec:
                   clusterName: mgmt-cluster
                   name: ratings
                   namespace: bookinfo
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        clusters:
+        - mgmt-cluster
+        labels:
+          istio: ingressgateway-ns
+        namespaces:
+        - istio-system
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -178,16 +188,16 @@ spec:
         routeOptions:
           rateLimit:
             denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-      - kubeWorkloadMatcher:
-          clusters:
-            - mgmt-cluster
-          labels:
-            istio: ingressgateway-ns
-          namespaces:
-            - istio-system
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
+        clusters:
+        - mgmt-cluster
+        labels:
+          istio: ingressgateway-ns
+        namespaces:
+        - istio-system
 {{< /highlight >}}
 
 Note that the descriptor order doesn't match, but this is irrelevant for set-style rate limiting.

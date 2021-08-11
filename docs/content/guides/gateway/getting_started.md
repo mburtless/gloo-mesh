@@ -40,7 +40,7 @@ We have most of the `bookinfo` app installed on `cluster1`, with the exception o
 
 To start, we are going to set up a route to call the `ratings` service from `bookinfo` on `cluster-1`. In order to do this, we will need to create a VirtualGateway resource. At a minimum, we'll need to specify which gateway workload that this configuration will be used by, which port the listener will run on, and what kind of listener we want (eg HTTP).
 
-In our case, we are selecting a single gateway - the `istio-ingressgateway` in `cluster-1`. Later we will see that this configuration can also be deployed to multiple gateways at once. Note we're also specifing port `8081` for our `HTTP` listener.
+In our case, we are selecting a single gateway - the `istio-ingressgateway` in `cluster-1`. Later we will see that this configuration can also be deployed to multiple gateways at once. Note we're selecting the port named http2, which in our case corresponds to the port 8080 on our `istio-ingressgateway` service.
 
 Finally, note that we've in-lined our virtualHost, and added a route to `/ratings` for host `www.example.com` which routes traffic to our `ratings` service.
 
@@ -54,16 +54,16 @@ metadata:
   name: demo-gateway
   namespace: gloo-mesh
 spec:
-  deployToIngressGateways:
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+  - portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - cluster-1
         labels:
           istio: ingressgateway
         namespaces:
         - istio-system
-    bindPort: 8081
   connectionHandlers:
   - http:
       routeConfig:
@@ -132,17 +132,16 @@ spec:
       - virtualHostSelector:
           namespaces:
           - "gloo-mesh"
-  deployToIngressGateways:
-    bindPort: 8081
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+  - portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - cluster-1
         labels:
           istio: ingressgateway
         namespaces:
         - istio-system
-
 ---
 apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
 kind: VirtualHost
@@ -243,11 +242,11 @@ spec:
       routeConfig:
       - virtualHostSelector:
           namespaces:
-          - "gloo-mesh"
-  deployToIngressGateways:
-    bindPort: 8081
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+          - gloo-mesh
+  ingressGatewaySelectors:
+  - portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - cluster-1
         labels:
@@ -271,7 +270,7 @@ spec:
     delegateAction:
       selector:
         namespaces:
-        - "gloo-mesh"
+        - gloo-mesh
 
 
 ---
@@ -398,7 +397,7 @@ spec:
 
 ## Multiple Ingress Gateways
 
-If we look at our `VirtualGateway`, under `deployToIngressGateways.gatewayWorkloads.kubeWorkloadMatcher.clusters` , we see that we're matching the istio ingress-gateway on `cluster-1`. Notice however that this selector is an array. If we add the istio ingressgateway from `cluster-2`, these gateway settings will also apply there. If you send requests to this second gateway, you should still be able to hit all of the routes, regardless of what cluster the service is ultimately served from.
+If we look at our `VirtualGateway`, under `ingressGatewaySelectors[0].destinationSelectors.kubeServiceMatcherw.clusters` , we see that we're matching the istio ingress-gateway on `cluster-1`. Notice however that this selector is an array. If we add the istio ingressgateway from `cluster-2`, these gateway settings will also apply there. If you send requests to this second gateway, you should still be able to hit all of the routes, regardless of what cluster the service is ultimately served from.
 
 Here's our updated VirtualGateway which now configures the ingress gateways on both `cluster-1` and `cluster-2`:
 
@@ -415,10 +414,10 @@ spec:
       - virtualHostSelector:
           namespaces:
           - "gloo-mesh"
-  deployToIngressGateways:
-    bindPort: 8081
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+  - portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - cluster-1
         - cluster-2

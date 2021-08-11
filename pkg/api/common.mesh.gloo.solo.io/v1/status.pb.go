@@ -28,24 +28,87 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// Describes a [TrafficPolicy]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.traffic_policy" >}}) that applies to the Destination.
-// If an existing TrafficPolicy becomes invalid, the last valid applied TrafficPolicy will be used.
-type AppliedTrafficPolicy struct {
+// State of a Policy resource reflected in the status by Gloo Mesh while processing a resource.
+type ApprovalState int32
+
+const (
+	// Resources are in a Pending state before they have been processed by Gloo Mesh.
+	ApprovalState_PENDING ApprovalState = 0
+	// Resources are in a Accepted state when they are valid and have been applied successfully to
+	// the Gloo Mesh configuration.
+	ApprovalState_ACCEPTED ApprovalState = 1
+	// Resources are in an Invalid state when they contain incorrect configuration parameters,
+	// such as missing required values or invalid resource references.
+	// An invalid state can also result when a resource's configuration is valid
+	// but conflicts with another resource which was accepted in an earlier point in time.
+	ApprovalState_INVALID ApprovalState = 2
+	// Resources are in a Failed state when they contain correct configuration parameters,
+	// but the server encountered an error trying to synchronize the system to
+	// the desired state.
+	ApprovalState_FAILED ApprovalState = 3
+)
+
+// Enum value maps for ApprovalState.
+var (
+	ApprovalState_name = map[int32]string{
+		0: "PENDING",
+		1: "ACCEPTED",
+		2: "INVALID",
+		3: "FAILED",
+	}
+	ApprovalState_value = map[string]int32{
+		"PENDING":  0,
+		"ACCEPTED": 1,
+		"INVALID":  2,
+		"FAILED":   3,
+	}
+)
+
+func (x ApprovalState) Enum() *ApprovalState {
+	p := new(ApprovalState)
+	*p = x
+	return p
+}
+
+func (x ApprovalState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ApprovalState) Descriptor() protoreflect.EnumDescriptor {
+	return file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_enumTypes[0].Descriptor()
+}
+
+func (ApprovalState) Type() protoreflect.EnumType {
+	return &file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_enumTypes[0]
+}
+
+func (x ApprovalState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ApprovalState.Descriptor instead.
+func (ApprovalState) EnumDescriptor() ([]byte, []int) {
+	return file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDescGZIP(), []int{0}
+}
+
+type AppliedIngressGateway struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Reference to the TrafficPolicy object.
-	Ref *v1.ObjectRef `protobuf:"bytes,1,opt,name=ref,proto3" json:"ref,omitempty"`
-	// The observed generation of the accepted TrafficPolicy.
-	ObservedGeneration int64 `protobuf:"varint,2,opt,name=observedGeneration,proto3" json:"observedGeneration,omitempty"`
-	// The list of routes to which the TrafficPolicy applies, as selected by their labels.
-	// Value is "*" if the TrafficPolicy applies to all routes.
-	Routes []string `protobuf:"bytes,4,rep,name=routes,proto3" json:"routes,omitempty"`
+	// The Destination on the mesh that acts as an ingress gateway for the mesh.
+	DestinationRef *v1.ObjectRef `protobuf:"bytes,1,opt,name=destination_ref,json=destinationRef,proto3" json:"destination_ref,omitempty"`
+	// The externally accessible address(es) for this ingress gateway Destination.
+	ExternalAddresses []string `protobuf:"bytes,2,rep,name=external_addresses,json=externalAddresses,proto3" json:"external_addresses,omitempty"`
+	// The port on the ingress gateway Destination designated for receiving cross cluster traffic.
+	Port uint32 `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	// The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic.
+	// May differ from the destination_port if the Kubernetes Service is of type NodePort.
+	ExternalPort uint32 `protobuf:"varint,4,opt,name=external_port,json=externalPort,proto3" json:"external_port,omitempty"`
 }
 
-func (x *AppliedTrafficPolicy) Reset() {
-	*x = AppliedTrafficPolicy{}
+func (x *AppliedIngressGateway) Reset() {
+	*x = AppliedIngressGateway{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,13 +116,13 @@ func (x *AppliedTrafficPolicy) Reset() {
 	}
 }
 
-func (x *AppliedTrafficPolicy) String() string {
+func (x *AppliedIngressGateway) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AppliedTrafficPolicy) ProtoMessage() {}
+func (*AppliedIngressGateway) ProtoMessage() {}
 
-func (x *AppliedTrafficPolicy) ProtoReflect() protoreflect.Message {
+func (x *AppliedIngressGateway) ProtoReflect() protoreflect.Message {
 	mi := &file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -71,30 +134,37 @@ func (x *AppliedTrafficPolicy) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AppliedTrafficPolicy.ProtoReflect.Descriptor instead.
-func (*AppliedTrafficPolicy) Descriptor() ([]byte, []int) {
+// Deprecated: Use AppliedIngressGateway.ProtoReflect.Descriptor instead.
+func (*AppliedIngressGateway) Descriptor() ([]byte, []int) {
 	return file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AppliedTrafficPolicy) GetRef() *v1.ObjectRef {
+func (x *AppliedIngressGateway) GetDestinationRef() *v1.ObjectRef {
 	if x != nil {
-		return x.Ref
+		return x.DestinationRef
 	}
 	return nil
 }
 
-func (x *AppliedTrafficPolicy) GetObservedGeneration() int64 {
+func (x *AppliedIngressGateway) GetExternalAddresses() []string {
 	if x != nil {
-		return x.ObservedGeneration
+		return x.ExternalAddresses
+	}
+	return nil
+}
+
+func (x *AppliedIngressGateway) GetPort() uint32 {
+	if x != nil {
+		return x.Port
 	}
 	return 0
 }
 
-func (x *AppliedTrafficPolicy) GetRoutes() []string {
+func (x *AppliedIngressGateway) GetExternalPort() uint32 {
 	if x != nil {
-		return x.Routes
+		return x.ExternalPort
 	}
-	return nil
+	return 0
 }
 
 var File_github_com_solo_io_gloo_mesh_api_common_v1_status_proto protoreflect.FileDescriptor
@@ -109,21 +179,29 @@ var file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDesc = []byt
 	0x73, 0x6f, 0x6c, 0x6f, 0x2d, 0x69, 0x6f, 0x2f, 0x73, 0x6b, 0x76, 0x32, 0x2f, 0x61, 0x70, 0x69,
 	0x2f, 0x63, 0x6f, 0x72, 0x65, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6f, 0x72, 0x65, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x1a, 0x12, 0x65, 0x78, 0x74, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x65, 0x78,
-	0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x8e, 0x01, 0x0a, 0x14, 0x41, 0x70, 0x70, 0x6c,
-	0x69, 0x65, 0x64, 0x54, 0x72, 0x61, 0x66, 0x66, 0x69, 0x63, 0x50, 0x6f, 0x6c, 0x69, 0x63, 0x79,
-	0x12, 0x2e, 0x0a, 0x03, 0x72, 0x65, 0x66, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e,
-	0x63, 0x6f, 0x72, 0x65, 0x2e, 0x73, 0x6b, 0x76, 0x32, 0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69,
-	0x6f, 0x2e, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x52, 0x65, 0x66, 0x52, 0x03, 0x72, 0x65, 0x66,
-	0x12, 0x2e, 0x0a, 0x12, 0x6f, 0x62, 0x73, 0x65, 0x72, 0x76, 0x65, 0x64, 0x47, 0x65, 0x6e, 0x65,
-	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x12, 0x6f, 0x62,
-	0x73, 0x65, 0x72, 0x76, 0x65, 0x64, 0x47, 0x65, 0x6e, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x12, 0x16, 0x0a, 0x06, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09,
-	0x52, 0x06, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x42, 0x46, 0x5a, 0x40, 0x67, 0x69, 0x74, 0x68,
-	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x6f, 0x6c, 0x6f, 0x2d, 0x69, 0x6f, 0x2f, 0x67,
-	0x6c, 0x6f, 0x6f, 0x2d, 0x6d, 0x65, 0x73, 0x68, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69,
-	0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e, 0x67, 0x6c, 0x6f,
-	0x6f, 0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2f, 0x76, 0x31, 0xc0, 0xf5, 0x04, 0x01,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc6, 0x01, 0x0a, 0x15, 0x41, 0x70, 0x70, 0x6c,
+	0x69, 0x65, 0x64, 0x49, 0x6e, 0x67, 0x72, 0x65, 0x73, 0x73, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61,
+	0x79, 0x12, 0x45, 0x0a, 0x0f, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x5f, 0x72, 0x65, 0x66, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x6f, 0x72,
+	0x65, 0x2e, 0x73, 0x6b, 0x76, 0x32, 0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2e, 0x4f,
+	0x62, 0x6a, 0x65, 0x63, 0x74, 0x52, 0x65, 0x66, 0x52, 0x0e, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x66, 0x12, 0x2d, 0x0a, 0x12, 0x65, 0x78, 0x74, 0x65,
+	0x72, 0x6e, 0x61, 0x6c, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x18, 0x02,
+	0x20, 0x03, 0x28, 0x09, 0x52, 0x11, 0x65, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x41, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x65, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x65,
+	0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x5f, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x0c, 0x65, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x50, 0x6f, 0x72, 0x74,
+	0x2a, 0x43, 0x0a, 0x0d, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x61, 0x6c, 0x53, 0x74, 0x61, 0x74,
+	0x65, 0x12, 0x0b, 0x0a, 0x07, 0x50, 0x45, 0x4e, 0x44, 0x49, 0x4e, 0x47, 0x10, 0x00, 0x12, 0x0c,
+	0x0a, 0x08, 0x41, 0x43, 0x43, 0x45, 0x50, 0x54, 0x45, 0x44, 0x10, 0x01, 0x12, 0x0b, 0x0a, 0x07,
+	0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49, 0x44, 0x10, 0x02, 0x12, 0x0a, 0x0a, 0x06, 0x46, 0x41, 0x49,
+	0x4c, 0x45, 0x44, 0x10, 0x03, 0x42, 0x46, 0x5a, 0x40, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
+	0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x6f, 0x6c, 0x6f, 0x2d, 0x69, 0x6f, 0x2f, 0x67, 0x6c, 0x6f, 0x6f,
+	0x2d, 0x6d, 0x65, 0x73, 0x68, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x63, 0x6f,
+	0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e, 0x67, 0x6c, 0x6f, 0x6f, 0x2e, 0x73,
+	0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2f, 0x76, 0x31, 0xc0, 0xf5, 0x04, 0x01, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -138,13 +216,15 @@ func file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDescGZIP() 
 	return file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDescData
 }
 
+var file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_goTypes = []interface{}{
-	(*AppliedTrafficPolicy)(nil), // 0: common.mesh.gloo.solo.io.AppliedTrafficPolicy
-	(*v1.ObjectRef)(nil),         // 1: core.skv2.solo.io.ObjectRef
+	(ApprovalState)(0),            // 0: common.mesh.gloo.solo.io.ApprovalState
+	(*AppliedIngressGateway)(nil), // 1: common.mesh.gloo.solo.io.AppliedIngressGateway
+	(*v1.ObjectRef)(nil),          // 2: core.skv2.solo.io.ObjectRef
 }
 var file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_depIdxs = []int32{
-	1, // 0: common.mesh.gloo.solo.io.AppliedTrafficPolicy.ref:type_name -> core.skv2.solo.io.ObjectRef
+	2, // 0: common.mesh.gloo.solo.io.AppliedIngressGateway.destination_ref:type_name -> core.skv2.solo.io.ObjectRef
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -159,7 +239,7 @@ func file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AppliedTrafficPolicy); i {
+			switch v := v.(*AppliedIngressGateway); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -176,13 +256,14 @@ func file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_rawDesc,
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_goTypes,
 		DependencyIndexes: file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_depIdxs,
+		EnumInfos:         file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_enumTypes,
 		MessageInfos:      file_github_com_solo_io_gloo_mesh_api_common_v1_status_proto_msgTypes,
 	}.Build()
 	File_github_com_solo_io_gloo_mesh_api_common_v1_status_proto = out.File

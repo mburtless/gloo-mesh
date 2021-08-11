@@ -4,7 +4,7 @@ package networking.enterprise.mesh.gloo.solo.io;
 option go_package = "github.com/solo-io/gloo-mesh/pkg/api/networking.enterprise.mesh.gloo.solo.io/v1beta1";
 
 import "github.com/solo-io/gloo-mesh/api/common/v1/selectors.proto";
-import "github.com/solo-io/gloo-mesh/api/common/v1/validation_state.proto";
+import "github.com/solo-io/gloo-mesh/api/common/v1/status.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/status.proto";
 
 import "extproto/ext.proto";

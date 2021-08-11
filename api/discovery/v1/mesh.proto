@@ -3,6 +3,7 @@ package discovery.mesh.gloo.solo.io;
 option go_package = "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1";
 
 import "github.com/solo-io/skv2/api/core/v1/core.proto";
+import "github.com/solo-io/gloo-mesh/api/common/v1/status.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/virtual_mesh.proto";
 import "github.com/solo-io/gloo-mesh/api/discovery/v1/destination.proto";
 import "github.com/solo-io/gloo-mesh/api/certificates/v1/ca_options.proto";
@@ -191,22 +192,7 @@ message MeshStatus {
     repeated AppliedVirtualDestination applied_virtual_destinations = 3;
 
     // The Destination(s) acting as ingress gateways for east west traffic.
-    repeated AppliedIngressGateway applied_east_west_ingress_gateways = 4;
-
-    message AppliedIngressGateway {
-        // The Destination on the mesh that acts as an ingress gateway for the mesh.
-        .core.skv2.solo.io.ObjectRef destination_ref = 1;
-
-        // The externally accessible address(es) for this ingress gateway Destination.
-        repeated string external_addresses = 2;
-
-        // The port on the ingress gateway Destination designated for receiving cross cluster traffic.
-        uint32 port = 3;
-
-        // The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic.
-        // May differ from the destination_port if the Kubernetes Service is of type NodePort.
-        uint32 external_port = 4;
-    }
+    repeated .common.mesh.gloo.solo.io.AppliedIngressGateway applied_east_west_ingress_gateways = 4;
 
     // Describes a [VirtualMesh]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.virtual_mesh" >}}) that applies to this Mesh.
     // If an existing applied VirtualMesh becomes invalid, the last applied VirtualMesh will be used.

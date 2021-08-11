@@ -350,6 +350,7 @@ func FederationTest() {
 			defaultFederatedIngressGatewayVm := VirtualMesh.DeepCopy()
 			defaultFederatedIngressGatewayVm.Spec.Federation.IngressGatewaySelectors = []*commonv1.IngressGatewaySelector{
 				{
+					PortName: "tls",
 					DestinationSelectors: []*commonv1.DestinationSelector{
 						{
 							KubeServiceMatcher: &commonv1.DestinationSelector_KubeServiceMatcher{
@@ -359,7 +360,6 @@ func FederationTest() {
 							},
 						},
 					},
-					PortName: "tls",
 				},
 			}
 

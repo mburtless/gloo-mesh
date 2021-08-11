@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1beta1sets "github.com/solo-io/external-apis/pkg/api/istio/security.istio.io/v1beta1/sets"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
@@ -81,7 +82,7 @@ var _ = Describe("AccessPolicyTranslator", func() {
 						GlobalAccessPolicy: networkingv1.VirtualMeshSpec_ENABLED,
 					},
 				},
-				AppliedEastWestIngressGateways: []*discoveryv1.MeshStatus_AppliedIngressGateway{
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
 					{
 						DestinationRef: ezkube.MakeObjectRef(ingressDestination),
 					},
@@ -174,7 +175,7 @@ var _ = Describe("AccessPolicyTranslator", func() {
 						GlobalAccessPolicy: networkingv1.VirtualMeshSpec_DISABLED,
 					},
 				},
-				AppliedEastWestIngressGateways: []*discoveryv1.MeshStatus_AppliedIngressGateway{
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
 					{
 						DestinationRef: &v1.ObjectRef{
 							Name:      "ingress-dest",

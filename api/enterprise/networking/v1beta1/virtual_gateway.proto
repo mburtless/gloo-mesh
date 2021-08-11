@@ -5,7 +5,7 @@ option go_package = "github.com/solo-io/gloo-mesh/pkg/api/networking.enterprise.
 
 import "github.com/solo-io/skv2/api/core/v1/core.proto";
 import "github.com/solo-io/gloo-mesh/api/common/v1/selectors.proto";
-import "github.com/solo-io/gloo-mesh/api/common/v1/validation_state.proto";
+import "github.com/solo-io/gloo-mesh/api/common/v1/status.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/csrf/csrf.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/ratelimit/rate_limit.proto";
 import "github.com/solo-io/gloo-mesh/api/networking/v1/extauth/extauth.proto";
@@ -29,9 +29,8 @@ option (extproto.equal_all) = true;
 */
 message VirtualGatewaySpec {
 
-    // deploy this VirtualGateway to one or more Ingress Gateway workloads
-    // {{/* TODO: evaluate supporting multiple ingress gateway deployments per VG */}}
-    DeployToIngressGateway deploy_to_ingress_gateways = 1;
+    // Select the destinations to deploy the gateway to.
+    repeated .common.mesh.gloo.solo.io.IngressGatewaySelector ingress_gateway_selectors = 1;
 
     // deploy this VirtualGateway to one or more workload sidecars
     // {{/* NOTE: unimplemented */}}
@@ -50,25 +49,6 @@ message VirtualGatewaySpec {
 
     // Options applied to all clients who connect to this gateway
     GatewayOptions options = 4;
-
-    // Options for deploying the VirtualGateway to an Istio Ingress Gateway
-    message DeployToIngressGateway {
-
-        // The bind address the gateway should serve traffic on
-        // This maps to the Envoy Listener address.
-        // Defaults to "::" or "0.0.0.0".
-        string bind_address = 1;
-
-        // The bind port where the gateway workload will listen for connections.
-        // This maps to the Envoy Listener port.
-        uint32 bind_port = 2;
-
-        // Select which gateway workloads (Envoy pods / Istio ingress-gateways) this config applies to.
-        // Ingress pods selected must be in the same Mesh (or Federated VirtualMesh) as the Destination services
-        // being routed to.
-        repeated .common.mesh.gloo.solo.io.WorkloadSelector gateway_workloads = 3;
-
-    }
 
     // Each ConnnectionHandler specifies a `connectionMatch` (required if using multiple ConnectionHandlers) and
     // a set of (HTTP or TCP) routes to serve matched connections.
@@ -325,6 +305,11 @@ message VirtualGatewaySpec {
         // For more info, check out the [Envoy docs](https://www.envoyproxy.io/docs/envoy/v1.17.1/api-v3/config/listener/v3/listener.proto)
         google.protobuf.UInt32Value per_connection_buffer_limit_bytes = 1;
 
+        // The bind address the gateway should serve traffic on
+        // This maps to the Envoy Listener address.
+        // Defaults to "::" or "0.0.0.0".
+        string bind_address = 2;
+
     }
 
 }
@@ -344,7 +329,7 @@ message VirtualGatewayStatus{
     // Any warnings found while processing this generation of the resource.
     repeated string warnings = 3;
 
-    repeated SelectedGatewayWorkload selected_gateways = 4;
+    repeated .common.mesh.gloo.solo.io.AppliedIngressGateway applied_ingress_gateways = 4;
 
     repeated .core.skv2.solo.io.ObjectRef selected_virtual_hosts = 5;
 
@@ -354,21 +339,6 @@ message VirtualGatewayStatus{
     // List of Istio Gateway CRs created by this VirtualGateway in each cluster
     map<string, .core.skv2.solo.io.ObjectRefList> created_istio_gateways = 7;
 
-    
-}
-
-// a gateway workload (e.g. Deployment) where a virtual gateway will be served
-message SelectedGatewayWorkload {
-    // the name of the gateway workload
-    string name = 1;
-    // the namespace where the gateway workload is running
-    string namespace = 2;
-    // the cluster where the gateway workload is running
-    string cluster_name = 3;
-    // the labels used to identify the gateway workload
-    map<string, string> labels = 4;
-    // the external URL by which the gateway can be accessed on the given workload, if it exists
-    string external_url = 5;
 }
 
 // Note: This message needs to be at this level (rather than nested) due to cue restrictions.

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rotisserie/eris"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
@@ -146,7 +147,7 @@ func (t *translator) buildGateway(
 	return gw
 }
 
-func BuildGatewayName(appliedIngressGateway *discoveryv1.MeshStatus_AppliedIngressGateway) string {
+func BuildGatewayName(appliedIngressGateway *commonv1.AppliedIngressGateway) string {
 	ingressDestinationRef := appliedIngressGateway.GetDestinationRef()
 	return kubeutils.SanitizeNameV2(
 		fmt.Sprintf("%s-%s", ingressDestinationRef.GetName(), ingressDestinationRef.GetNamespace()),

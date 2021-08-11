@@ -1975,8 +1975,8 @@ spec:
                           type: object
                         type: array
                       portName:
-                        description: Specify by name the TLS port on the ingress gateway
-                          destination. If not specified, will default to "tls".
+                        description: Specify the name of the port on the ingress gateway
+                          service. If not specified, will default to "tls".
                         type: string
                     type: object
                   type: array

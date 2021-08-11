@@ -2,6 +2,8 @@ syntax = "proto3";
 package common.mesh.gloo.solo.io;
 option go_package = "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1";
 
+import "github.com/solo-io/skv2/api/core/v1/core.proto";
+
 import "extproto/ext.proto";
 option (extproto.equal_all) = true;
 
@@ -25,4 +27,20 @@ enum ApprovalState {
     // but the server encountered an error trying to synchronize the system to
     // the desired state.
     FAILED = 3;
+}
+
+message AppliedIngressGateway {
+
+    // The Destination on the mesh that acts as an ingress gateway for the mesh.
+    .core.skv2.solo.io.ObjectRef destination_ref = 1;
+
+    // The externally accessible address(es) for this ingress gateway Destination.
+    repeated string external_addresses = 2;
+
+    // The port on the ingress gateway Destination designated for receiving cross cluster traffic.
+    uint32 port = 3;
+
+    // The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic.
+    // May differ from the destination_port if the Kubernetes Service is of type NodePort.
+    uint32 external_port = 4;
 }

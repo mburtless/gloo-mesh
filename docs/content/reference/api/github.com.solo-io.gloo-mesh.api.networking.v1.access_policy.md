@@ -56,7 +56,7 @@ Grants communication permission between selected identities (i.e. traffic source
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | observedGeneration | int64 |  | The most recent generation observed in the the AccessPolicy metadata. If the `observedGeneration` does not match `metadata.generation`, Gloo Mesh has not processed the most recent version of this resource. |
-  | state | [common.mesh.gloo.solo.io.ApprovalState]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.validation_state#common.mesh.gloo.solo.io.ApprovalState" >}}) |  | The state of the overall resource. It will only show accepted if it has been successfully applied to selected Destinations. |
+  | state | [common.mesh.gloo.solo.io.ApprovalState]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.status#common.mesh.gloo.solo.io.ApprovalState" >}}) |  | The state of the overall resource. It will only show accepted if it has been successfully applied to selected Destinations. |
   | destinations | [][networking.mesh.gloo.solo.io.AccessPolicyStatus.DestinationsEntry]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.access_policy#networking.mesh.gloo.solo.io.AccessPolicyStatus.DestinationsEntry" >}}) | repeated | The status of the AccessPolicy for each Destination to which it has been applied. An AccessPolicy may be accepted for some Destinations and rejected for others. |
   | workloads | []string | repeated | The list of Workloads to which this policy has been applied. |
   | errors | []string | repeated | Any errors found while processing this generation of the resource. |

@@ -893,7 +893,7 @@ var _ = Describe("Applier", func() {
 
 			Expect(len(mesh.Status.AppliedEastWestIngressGateways)).To(Equal(1))
 
-			Expect(mesh.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              5678,
@@ -937,25 +937,25 @@ var _ = Describe("Applier", func() {
 			Expect(len(mesh3.Status.AppliedEastWestIngressGateways)).To(Equal(1))
 			Expect(len(mesh4.Status.AppliedEastWestIngressGateways)).To(Equal(1))
 
-			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              1234,
 				ExternalPort:      11234,
 			}))
-			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination2),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              1234,
 				ExternalPort:      11234,
 			}))
-			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination3),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              1234,
 				ExternalPort:      1234,
 			}))
-			Expect(mesh4.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh4.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination4),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              1234,
@@ -1099,25 +1099,25 @@ var _ = Describe("Applier", func() {
 			Expect(len(mesh3.Status.AppliedEastWestIngressGateways)).To(Equal(1))
 			Expect(len(mesh4.Status.AppliedEastWestIngressGateways)).To(Equal(2))
 
-			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh1.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination1),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              1234,
 				ExternalPort:      11234,
 			}))
-			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh2.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination2),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              5678,
 				ExternalPort:      15678,
 			}))
-			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh3.Status.AppliedEastWestIngressGateways[0]).To(Equal(&commonv1.AppliedIngressGateway{
 				DestinationRef:    ezkube.MakeObjectRef(destination3),
 				ExternalAddresses: []string{"external-dns-name", "external-ip"},
 				Port:              5678,
 				ExternalPort:      5678,
 			}))
-			Expect(mesh4.Status.AppliedEastWestIngressGateways).To(ConsistOf([]*discoveryv1.MeshStatus_AppliedIngressGateway{
+			Expect(mesh4.Status.AppliedEastWestIngressGateways).To(ConsistOf([]*commonv1.AppliedIngressGateway{
 				{
 					DestinationRef:    ezkube.MakeObjectRef(destination4),
 					ExternalAddresses: []string{"external-dns-name", "external-ip"},

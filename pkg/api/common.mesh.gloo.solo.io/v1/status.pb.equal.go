@@ -26,14 +26,14 @@ var (
 )
 
 // Equal function
-func (m *AppliedTrafficPolicy) Equal(that interface{}) bool {
+func (m *AppliedIngressGateway) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*AppliedTrafficPolicy)
+	target, ok := that.(*AppliedIngressGateway)
 	if !ok {
-		that2, ok := that.(AppliedTrafficPolicy)
+		that2, ok := that.(AppliedIngressGateway)
 		if ok {
 			target = &that2
 		} else {
@@ -46,29 +46,33 @@ func (m *AppliedTrafficPolicy) Equal(that interface{}) bool {
 		return false
 	}
 
-	if h, ok := interface{}(m.GetRef()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetRef()) {
+	if h, ok := interface{}(m.GetDestinationRef()).(equality.Equalizer); ok {
+		if !h.Equal(target.GetDestinationRef()) {
 			return false
 		}
 	} else {
-		if !proto.Equal(m.GetRef(), target.GetRef()) {
+		if !proto.Equal(m.GetDestinationRef(), target.GetDestinationRef()) {
 			return false
 		}
 	}
 
-	if m.GetObservedGeneration() != target.GetObservedGeneration() {
+	if len(m.GetExternalAddresses()) != len(target.GetExternalAddresses()) {
 		return false
 	}
+	for idx, v := range m.GetExternalAddresses() {
 
-	if len(m.GetRoutes()) != len(target.GetRoutes()) {
-		return false
-	}
-	for idx, v := range m.GetRoutes() {
-
-		if strings.Compare(v, target.GetRoutes()[idx]) != 0 {
+		if strings.Compare(v, target.GetExternalAddresses()[idx]) != 0 {
 			return false
 		}
 
+	}
+
+	if m.GetPort() != target.GetPort() {
+		return false
+	}
+
+	if m.GetExternalPort() != target.GetExternalPort() {
+		return false
 	}
 
 	return true

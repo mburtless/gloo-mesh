@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	"istio.io/istio/security/pkg/pki/util"
 
 	"github.com/golang/mock/gomock"
@@ -85,7 +86,7 @@ var _ = Describe("MtlsTranslator", func() {
 				},
 			},
 			Status: discoveryv1.MeshStatus{
-				AppliedEastWestIngressGateways: []*discoveryv1.MeshStatus_AppliedIngressGateway{
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
 					{
 						DestinationRef: ezkube.MakeObjectRef(ingressDestination),
 					},

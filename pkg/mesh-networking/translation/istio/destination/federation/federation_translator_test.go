@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	networkingv1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
@@ -66,7 +67,7 @@ var _ = Describe("FederationTranslator", func() {
 				}},
 			},
 			Status: discoveryv1.MeshStatus{
-				AppliedEastWestIngressGateways: []*discoveryv1.MeshStatus_AppliedIngressGateway{
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
 					{
 						DestinationRef:    nil, // not used at this stage in translation
 						ExternalAddresses: []string{"mesh-gateway.dns.name"},

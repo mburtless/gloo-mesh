@@ -343,7 +343,7 @@ Specify selected gateway traffic by specifying which gateway resources (virtualH
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | observedGeneration | int64 |  | The most recent generation observed in the the TrafficPolicy metadata. If the `observedGeneration` does not match `metadata.generation`, Gloo Mesh has not processed the most recent version of this resource. |
-  | state | [common.mesh.gloo.solo.io.ApprovalState]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.validation_state#common.mesh.gloo.solo.io.ApprovalState" >}}) |  | The state of the overall resource. It will only show accepted if it has been successfully applied to all selected Destinations. |
+  | state | [common.mesh.gloo.solo.io.ApprovalState]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.status#common.mesh.gloo.solo.io.ApprovalState" >}}) |  | The state of the overall resource. It will only show accepted if it has been successfully applied to all selected Destinations. |
   | destinations | [][networking.mesh.gloo.solo.io.TrafficPolicyStatus.DestinationsEntry]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.traffic_policy#networking.mesh.gloo.solo.io.TrafficPolicyStatus.DestinationsEntry" >}}) | repeated | The status of the TrafficPolicy for each selected Destination. A TrafficPolicy may be Accepted for some Destinations and rejected for others. |
   | workloads | []string | repeated | The list of selected Workloads for which this policy has been applied. |
   | errors | []string | repeated | Any errors found while processing this generation of the resource. |

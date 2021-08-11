@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/output/istio"
@@ -44,7 +45,7 @@ var _ = Describe("FederationTranslator", func() {
 				}},
 			},
 			Status: discoveryv1.MeshStatus{
-				AppliedEastWestIngressGateways: []*discoveryv1.MeshStatus_AppliedIngressGateway{
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
 					{
 						DestinationRef: &skv2corev1.ObjectRef{
 							Name:      "istio-ingressgateway",

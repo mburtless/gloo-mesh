@@ -50,14 +50,21 @@ func (m *VirtualGatewaySpec) Equal(that interface{}) bool {
 		return false
 	}
 
-	if h, ok := interface{}(m.GetDeployToIngressGateways()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetDeployToIngressGateways()) {
-			return false
+	if len(m.GetIngressGatewaySelectors()) != len(target.GetIngressGatewaySelectors()) {
+		return false
+	}
+	for idx, v := range m.GetIngressGatewaySelectors() {
+
+		if h, ok := interface{}(v).(equality.Equalizer); ok {
+			if !h.Equal(target.GetIngressGatewaySelectors()[idx]) {
+				return false
+			}
+		} else {
+			if !proto.Equal(v, target.GetIngressGatewaySelectors()[idx]) {
+				return false
+			}
 		}
-	} else {
-		if !proto.Equal(m.GetDeployToIngressGateways(), target.GetDeployToIngressGateways()) {
-			return false
-		}
+
 	}
 
 	if len(m.GetDeployToSidecars()) != len(target.GetDeployToSidecars()) {
@@ -158,17 +165,17 @@ func (m *VirtualGatewayStatus) Equal(that interface{}) bool {
 
 	}
 
-	if len(m.GetSelectedGateways()) != len(target.GetSelectedGateways()) {
+	if len(m.GetAppliedIngressGateways()) != len(target.GetAppliedIngressGateways()) {
 		return false
 	}
-	for idx, v := range m.GetSelectedGateways() {
+	for idx, v := range m.GetAppliedIngressGateways() {
 
 		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetSelectedGateways()[idx]) {
+			if !h.Equal(target.GetAppliedIngressGateways()[idx]) {
 				return false
 			}
 		} else {
-			if !proto.Equal(v, target.GetSelectedGateways()[idx]) {
+			if !proto.Equal(v, target.GetAppliedIngressGateways()[idx]) {
 				return false
 			}
 		}
@@ -224,57 +231,6 @@ func (m *VirtualGatewayStatus) Equal(that interface{}) bool {
 			}
 		}
 
-	}
-
-	return true
-}
-
-// Equal function
-func (m *SelectedGatewayWorkload) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*SelectedGatewayWorkload)
-	if !ok {
-		that2, ok := that.(SelectedGatewayWorkload)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if strings.Compare(m.GetName(), target.GetName()) != 0 {
-		return false
-	}
-
-	if strings.Compare(m.GetNamespace(), target.GetNamespace()) != 0 {
-		return false
-	}
-
-	if strings.Compare(m.GetClusterName(), target.GetClusterName()) != 0 {
-		return false
-	}
-
-	if len(m.GetLabels()) != len(target.GetLabels()) {
-		return false
-	}
-	for k, v := range m.GetLabels() {
-
-		if strings.Compare(v, target.GetLabels()[k]) != 0 {
-			return false
-		}
-
-	}
-
-	if strings.Compare(m.GetExternalUrl(), target.GetExternalUrl()) != 0 {
-		return false
 	}
 
 	return true
@@ -344,55 +300,6 @@ func (m *SDSConfig) Equal(that interface{}) bool {
 		if m.SdsBuilder != target.SdsBuilder {
 			return false
 		}
-	}
-
-	return true
-}
-
-// Equal function
-func (m *VirtualGatewaySpec_DeployToIngressGateway) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*VirtualGatewaySpec_DeployToIngressGateway)
-	if !ok {
-		that2, ok := that.(VirtualGatewaySpec_DeployToIngressGateway)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if strings.Compare(m.GetBindAddress(), target.GetBindAddress()) != 0 {
-		return false
-	}
-
-	if m.GetBindPort() != target.GetBindPort() {
-		return false
-	}
-
-	if len(m.GetGatewayWorkloads()) != len(target.GetGatewayWorkloads()) {
-		return false
-	}
-	for idx, v := range m.GetGatewayWorkloads() {
-
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetGatewayWorkloads()[idx]) {
-				return false
-			}
-		} else {
-			if !proto.Equal(v, target.GetGatewayWorkloads()[idx]) {
-				return false
-			}
-		}
-
 	}
 
 	return true
@@ -510,6 +417,10 @@ func (m *VirtualGatewaySpec_GatewayOptions) Equal(that interface{}) bool {
 		if !proto.Equal(m.GetPerConnectionBufferLimitBytes(), target.GetPerConnectionBufferLimitBytes()) {
 			return false
 		}
+	}
+
+	if strings.Compare(m.GetBindAddress(), target.GetBindAddress()) != 0 {
+		return false
 	}
 
 	return true

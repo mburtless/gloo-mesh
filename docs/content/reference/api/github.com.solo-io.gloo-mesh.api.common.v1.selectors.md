@@ -174,7 +174,7 @@ Select a set of Destinations with tls ports to use as ingress gateway services f
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | destinationSelectors | [][common.mesh.gloo.solo.io.DestinationSelector]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.DestinationSelector" >}}) | repeated | The set of Destinations that will be used as ingress gateways for external traffic entering the Mesh. If omitted, a mesh-specific default ingress gateway destination will be used. For Istio, any Kubernetes Service(s) with the label pair `{"istio": "ingressgateway"}` will be selected. |
-  | portName | string |  | Specify by name the TLS port on the ingress gateway destination. If not specified, will default to "tls". |
+  | portName | string |  | Specify the name of the port on the ingress gateway service. If not specified, will default to "tls". |
   
 
 

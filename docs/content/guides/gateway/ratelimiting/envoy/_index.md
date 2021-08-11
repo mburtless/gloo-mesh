@@ -137,10 +137,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -222,10 +222,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -324,10 +324,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -421,10 +421,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -522,10 +522,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -684,10 +684,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -784,10 +784,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:
@@ -881,10 +881,10 @@ spec:
       routeOptions:
         rateLimit:
           denyOnFail: true
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-    - kubeWorkloadMatcher:
+  ingressGatewaySelectors:
+    portName: http2
+    destinationSelectors:
+    - kubeServiceMatcher:
         clusters:
         - mgmt-cluster
         labels:

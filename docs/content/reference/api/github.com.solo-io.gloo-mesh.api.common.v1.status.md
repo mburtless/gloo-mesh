@@ -1,7 +1,7 @@
 
 ---
 
-title: "validation_state.proto"
+title: "status.proto"
 
 ---
 
@@ -11,16 +11,35 @@ title: "validation_state.proto"
 
 <a name="top"></a>
 
-<a name="API Reference for validation_state.proto"></a>
+<a name="API Reference for status.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## validation_state.proto
+## status.proto
 
 
 ## Table of Contents
+  - [AppliedIngressGateway](#common.mesh.gloo.solo.io.AppliedIngressGateway)
 
   - [ApprovalState](#common.mesh.gloo.solo.io.ApprovalState)
 
+
+
+
+
+
+<a name="common.mesh.gloo.solo.io.AppliedIngressGateway"></a>
+
+### AppliedIngressGateway
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| destinationRef | [core.skv2.solo.io.ObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectRef" >}}) |  | The Destination on the mesh that acts as an ingress gateway for the mesh. |
+  | externalAddresses | []string | repeated | The externally accessible address(es) for this ingress gateway Destination. |
+  | port | uint32 |  | The port on the ingress gateway Destination designated for receiving cross cluster traffic. |
+  | externalPort | uint32 |  | The external facing port on the ingress gateway Destination designated for receiving cross cluster traffic. May differ from the destination_port if the Kubernetes Service is of type NodePort. |
+  
 
 
 

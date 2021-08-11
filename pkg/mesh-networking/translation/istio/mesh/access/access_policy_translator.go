@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/rotisserie/eris"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	v1sets "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1/sets"
 	"github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/input"
@@ -93,7 +94,7 @@ func buildAuthPoliciesForIngressGateways(
 	destinations v1sets.DestinationSet,
 	installationNamespace string,
 	clusterName string,
-	ingressGateways []*discoveryv1.MeshStatus_AppliedIngressGateway,
+	ingressGateways []*commonv1.AppliedIngressGateway,
 ) ([]*securityv1beta1.AuthorizationPolicy, error) {
 	var authPolicies []*securityv1beta1.AuthorizationPolicy
 	for _, ingressGateway := range ingressGateways {
@@ -145,6 +146,6 @@ func buildGlobalAuthPolicy(
 	}
 }
 
-func ingressGatewayAuthPolicyName(ingressGateway *discoveryv1.MeshStatus_AppliedIngressGateway) string {
+func ingressGatewayAuthPolicyName(ingressGateway *commonv1.AppliedIngressGateway) string {
 	return IngressGatewayAuthPolicyName + "-" + sets.Key(ingressGateway.GetDestinationRef())
 }

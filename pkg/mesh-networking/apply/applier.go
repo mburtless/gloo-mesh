@@ -785,7 +785,7 @@ func getAppliedEastWestIngressGateways(
 	virtualMeshes networkingv1sets.VirtualMeshSet,
 	mesh *discoveryv1.Mesh,
 	destinations discoveryv1sets.DestinationSet,
-) []*discoveryv1.MeshStatus_AppliedIngressGateway {
+) []*commonv1.AppliedIngressGateway {
 	// Check that this mesh belongs to a virtual mesh
 	if mesh.Status.GetAppliedVirtualMesh() == nil {
 		return nil
@@ -802,7 +802,7 @@ func getAppliedEastWestIngressGateways(
 	}
 
 	// look up selected ingress gateways
-	var selectedIngressGatewayList []*discoveryv1.MeshStatus_AppliedIngressGateway
+	var selectedIngressGatewayList []*commonv1.AppliedIngressGateway
 	// Resolve all of the VirtualMesh’s ingress gateway selectors to a list of (Destination, tls port) tuples that belong to the mesh
 	// note: if multiple ingress selectors select the same Destination with different tls port names, we will only consider the port number selected by the first encountered selector
 	for _, destination := range destinations.List() {
@@ -851,10 +851,10 @@ func getDefaultEastWestIngressGateways(
 	mesh *discoveryv1.Mesh,
 	destinations discoveryv1sets.DestinationSet,
 	virtualMesh *networkingv1.VirtualMesh,
-) []*discoveryv1.MeshStatus_AppliedIngressGateway {
+) []*commonv1.AppliedIngressGateway {
 	destinationsSlice := destinations.List()
 
-	var defaultIngressGatewayList []*discoveryv1.MeshStatus_AppliedIngressGateway
+	var defaultIngressGatewayList []*commonv1.AppliedIngressGateway
 
 	// TODO: remove once deprecated Mesh.spec.IngressGateways is removed
 	// first respect deprecated Mesh.spec.IngressGateways field
@@ -879,7 +879,7 @@ func getDefaultEastWestIngressGateways(
 			}
 		}
 
-		defaultIngressGatewayList = append(defaultIngressGatewayList, &discoveryv1.MeshStatus_AppliedIngressGateway{
+		defaultIngressGatewayList = append(defaultIngressGatewayList, &commonv1.AppliedIngressGateway{
 			DestinationRef:    ezkube.MakeObjectRef(destination),
 			ExternalAddresses: getDestinationExternalAddresses(destination),
 			Port:              destinationPort,
@@ -935,17 +935,14 @@ func getDestinationExternalAddresses(destination *discoveryv1.Destination) []str
 func buildAppliedIngressGateway(
 	destination *discoveryv1.Destination,
 	gatewayTlsPortName string,
-) (*discoveryv1.MeshStatus_AppliedIngressGateway, error) {
+) (*commonv1.AppliedIngressGateway, error) {
 	kubeService := destination.Spec.GetKubeService()
 
 	if externalDestinationPort, destinationPort, err := getIngressPortsByName(kubeService, gatewayTlsPortName); err != nil {
 		return nil, eris.Errorf("ingress gateway destination ports info could not be determined for tls port name: %s", gatewayTlsPortName)
 	} else {
-		return &discoveryv1.MeshStatus_AppliedIngressGateway{
-			DestinationRef: &v1.ObjectRef{
-				Name:      destination.GetName(),
-				Namespace: destination.GetNamespace(),
-			},
+		return &commonv1.AppliedIngressGateway{
+			DestinationRef:    ezkube.MakeObjectRef(destination),
 			ExternalAddresses: getDestinationExternalAddresses(destination),
 			Port:              destinationPort,
 			ExternalPort:      externalDestinationPort,
