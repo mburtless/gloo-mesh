@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"istio.io/istio/pkg/kube/inject"
+
 	v1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	v1sets "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1/sets"
 	"github.com/solo-io/go-utils/contextutils"
@@ -49,7 +51,7 @@ func (d sidecarDetector) DetectMeshSidecar(pod *corev1.Pod, meshes v1sets.MeshSe
 
 func containsSidecarContainer(containers []corev1.Container) bool {
 	for _, container := range containers {
-		if isSidecarImage(container.Image) {
+		if container.Name == inject.ProxyContainerName {
 			return true
 		}
 	}

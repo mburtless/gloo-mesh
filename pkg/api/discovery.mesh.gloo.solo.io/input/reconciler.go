@@ -33,6 +33,7 @@ import (
 // * Services
 // * Pods
 // * Endpoints
+// * Namespaces
 // * Nodes
 // * Deployments
 // * ReplicaSets
@@ -87,6 +88,8 @@ func RegisterInputReconciler(
 	v1_controllers.NewMulticlusterPodReconcileLoop("Pod", clusters, options.Remote.Pods).AddMulticlusterPodReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
 	// initialize Endpoints reconcile loop for remote clusters
 	v1_controllers.NewMulticlusterEndpointsReconcileLoop("Endpoints", clusters, options.Remote.Endpoints).AddMulticlusterEndpointsReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
+	// initialize Namespaces reconcile loop for remote clusters
+	v1_controllers.NewMulticlusterNamespaceReconcileLoop("Namespace", clusters, options.Remote.Namespaces).AddMulticlusterNamespaceReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
 	// initialize Nodes reconcile loop for remote clusters
 	v1_controllers.NewMulticlusterNodeReconcileLoop("Node", clusters, options.Remote.Nodes).AddMulticlusterNodeReconciler(ctx, &remoteInputReconciler{base: base}, options.Remote.Predicates...)
 
@@ -124,6 +127,8 @@ type RemoteReconcileOptions struct {
 	Pods reconcile.Options
 	// Options for reconciling Endpoints
 	Endpoints reconcile.Options
+	// Options for reconciling Namespaces
+	Namespaces reconcile.Options
 	// Options for reconciling Nodes
 	Nodes reconcile.Options
 
@@ -225,6 +230,21 @@ func (r *remoteInputReconciler) ReconcileEndpoints(clusterName string, obj *v1.E
 }
 
 func (r *remoteInputReconciler) ReconcileEndpointsDeletion(clusterName string, obj reconcile.Request) error {
+	ref := &sk_core_v1.ClusterObjectRef{
+		Name:        obj.Name,
+		Namespace:   obj.Namespace,
+		ClusterName: clusterName,
+	}
+	_, err := r.base.ReconcileRemoteGeneric(ref)
+	return err
+}
+
+func (r *remoteInputReconciler) ReconcileNamespace(clusterName string, obj *v1.Namespace) (reconcile.Result, error) {
+	obj.ClusterName = clusterName
+	return r.base.ReconcileRemoteGeneric(obj)
+}
+
+func (r *remoteInputReconciler) ReconcileNamespaceDeletion(clusterName string, obj reconcile.Request) error {
 	ref := &sk_core_v1.ClusterObjectRef{
 		Name:        obj.Name,
 		Namespace:   obj.Namespace,

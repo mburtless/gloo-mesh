@@ -125,6 +125,7 @@ func Start(
 ) error {
 
 	ctx = contextutils.WithLogger(ctx, "networking-reconciler")
+	ctx = reconciliation.ContextWithRecorder(ctx, recorder)
 
 	remoteResourceVerifier := buildRemoteResourceVerifier(ctx)
 

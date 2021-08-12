@@ -97,6 +97,7 @@ func Start(
 ) error {
 
 	ctx = contextutils.WithLogger(ctx, "mesh-discovery")
+	ctx = reconciliation.ContextWithRecorder(ctx, recorder)
 
 	settingsBuilder := input.NewSingleClusterSettingsBuilder(localMgr)
 

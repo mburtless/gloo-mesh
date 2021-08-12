@@ -61,6 +61,7 @@ var _ = Describe("Translator", func() {
 		services := corev1sets.NewServiceSet(&corev1.Service{})
 		pods := corev1sets.NewPodSet(&corev1.Pod{})
 		nodes := corev1sets.NewNodeSet(&corev1.Node{})
+		namespaces := corev1sets.NewNamespaceSet(&corev1.Namespace{})
 		endpoints := corev1sets.NewEndpointsSet(&corev1.Endpoints{})
 		deployments := appsv1sets.NewDeploymentSet(&appsv1.Deployment{})
 		replicaSets := appsv1sets.NewReplicaSetSet(&appsv1.ReplicaSet{})
@@ -75,6 +76,7 @@ var _ = Describe("Translator", func() {
 			services,
 			pods,
 			endpoints,
+			namespaces,
 			nodes,
 			deployments,
 			replicaSets,

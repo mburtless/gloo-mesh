@@ -26,12 +26,14 @@ import (
 var _ = Describe("WorkloadDetector", func() {
 
 	var (
-		ctrl                *gomock.Controller
-		mockSidecarDetector *mock_detector.MockSidecarDetector
+		ctrl                 *gomock.Controller
+		mockSidecarDetector  *mock_detector.MockSidecarDetector
+		mockWorkloadDetector *mock_detector.MockInjectedWorkloadDetector
 	)
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mockSidecarDetector = mock_detector.NewMockSidecarDetector(ctrl)
+		mockWorkloadDetector = mock_detector.NewMockInjectedWorkloadDetector(ctrl)
 	})
 
 	AfterEach(func() {
@@ -118,11 +120,55 @@ var _ = Describe("WorkloadDetector", func() {
 			pods,
 			replicaSets,
 			mockSidecarDetector,
+			mockWorkloadDetector,
 		)
 
 		meshes := v1sets.NewMeshSet()
 
 		mockSidecarDetector.EXPECT().DetectMeshSidecar(pod, meshes).Return(mesh)
+
+		mockWorkloadDetector.EXPECT().DetectMeshForWorkload(types.ToWorkload(deployment), meshes).Return(nil)
+
+		workload := detector.DetectWorkload(types.ToWorkload(deployment), meshes)
+
+		outputMeta := utils.DiscoveredObjectMeta(deployment)
+		// expect appended workload kind
+		outputMeta.Name += "-deployment"
+
+		Expect(workload).To(Equal(&v1.Workload{
+			ObjectMeta: outputMeta,
+			Spec: v1.WorkloadSpec{
+				Type: &v1.WorkloadSpec_Kubernetes{
+					Kubernetes: &v1.WorkloadSpec_KubernetesWorkload{
+						Controller:         ezkube.MakeClusterObjectRef(deployment),
+						PodLabels:          podLabels,
+						ServiceAccountName: serviceAccountName,
+					},
+				},
+				Mesh: ezkube.MakeObjectRef(mesh),
+			},
+		}))
+	})
+
+	It("translates a deployment with detected injection labels to a workload", func() {
+
+		deployment := makeDeployment()
+		rs := makeReplicaSet(deployment)
+		pod := makePod(rs)
+
+		pods := corev1sets.NewPodSet(pod)
+		replicaSets := appsv1sets.NewReplicaSetSet(rs)
+		detector := NewWorkloadDetector(
+			context.TODO(),
+			pods,
+			replicaSets,
+			mockSidecarDetector,
+			mockWorkloadDetector,
+		)
+
+		meshes := v1sets.NewMeshSet()
+
+		mockWorkloadDetector.EXPECT().DetectMeshForWorkload(types.ToWorkload(deployment), meshes).Return(mesh)
 
 		workload := detector.DetectWorkload(types.ToWorkload(deployment), meshes)
 

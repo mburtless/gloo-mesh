@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/989
+    description: Decouple Workloads from backing pods. Switch to using injection labels and annotations to detect in-mesh workloads.

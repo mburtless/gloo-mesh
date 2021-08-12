@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	appsv1sets "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1/sets"
+
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
 
 	"github.com/hashicorp/go-multierror"
@@ -114,7 +116,7 @@ func (d *meshDetector) detectMesh(
 
 	agent := getAgent(
 		deployment.ClusterName,
-		in.Pods(),
+		in.Deployments(),
 	)
 
 	region, err := localityutils.GetClusterRegion(deployment.ClusterName, in.Nodes())
@@ -413,9 +415,9 @@ type Agent struct {
 
 func getAgent(
 	cluster string,
-	pods corev1sets.PodSet,
+	deployments appsv1sets.DeploymentSet,
 ) *discoveryv1.MeshSpec_AgentInfo {
-	agentNamespace := getCertAgentNamespace(cluster, pods)
+	agentNamespace := getCertAgentNamespace(cluster, deployments)
 	if agentNamespace == "" {
 		return nil
 	}
@@ -426,20 +428,19 @@ func getAgent(
 
 func getCertAgentNamespace(
 	cluster string,
-	pods corev1sets.PodSet,
+	deployments appsv1sets.DeploymentSet,
 ) string {
 	if defaults.GetAgentCluster() != "" {
 		// discovery is running as the agent, assume the cert agent runs in the same namespace
 		return defaults.GetPodNamespace()
 	}
-	agentPods := pods.List(func(pod *corev1.Pod) bool {
-
-		return pod.ClusterName != cluster ||
-			!labels.SelectorFromSet(agentLabels).Matches(labels.Set(pod.Labels))
+	agentDeployments := deployments.List(func(deployment *appsv1.Deployment) bool {
+		return deployment.ClusterName != cluster ||
+			!labels.SelectorFromSet(agentLabels).Matches(labels.Set(deployment.Spec.Template.Labels))
 	})
-	if len(agentPods) == 0 {
+	if len(agentDeployments) == 0 {
 		return ""
 	}
 	// currently assume only one agent installed per cluster/mesh
-	return agentPods[0].Namespace
+	return agentDeployments[0].Namespace
 }

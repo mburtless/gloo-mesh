@@ -63,11 +63,18 @@ func (d DependencyFactoryImpl) MakeWorkloadTranslator(
 		osmsidecar.NewSidecarDetector(ctx),
 	}
 
+	injectionDetector := istiosidecar.NewWorkloadDetector(
+		ctx,
+		in.Namespaces(),
+		in.ConfigMaps(),
+	)
+
 	workloadDetector := workloaddetector.NewWorkloadDetector(
 		ctx,
 		in.Pods(),
 		in.ReplicaSets(),
 		sidecarDetectors,
+		injectionDetector,
 	)
 	return workload.NewTranslator(ctx, workloadDetector)
 }

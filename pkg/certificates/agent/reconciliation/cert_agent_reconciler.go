@@ -68,6 +68,7 @@ func Start(
 	translator translation.Translator,
 ) error {
 	ctx = contextutils.WithLogger(ctx, "cert-agent")
+	ctx = reconciliation.ContextWithRecorder(ctx, recorder)
 	d := &certAgentReconciler{
 		ctx:         ctx,
 		builder:     builder,

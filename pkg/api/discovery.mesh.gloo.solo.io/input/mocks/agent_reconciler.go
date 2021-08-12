@@ -129,6 +129,21 @@ func (mr *MockmultiClusterAgentReconcilerMockRecorder) ReconcileMesh(clusterName
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileMesh", reflect.TypeOf((*MockmultiClusterAgentReconciler)(nil).ReconcileMesh), clusterName, obj)
 }
 
+// ReconcileNamespace mocks base method.
+func (m *MockmultiClusterAgentReconciler) ReconcileNamespace(clusterName string, obj *v12.Namespace) (reconcile.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReconcileNamespace", clusterName, obj)
+	ret0, _ := ret[0].(reconcile.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReconcileNamespace indicates an expected call of ReconcileNamespace.
+func (mr *MockmultiClusterAgentReconcilerMockRecorder) ReconcileNamespace(clusterName, obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileNamespace", reflect.TypeOf((*MockmultiClusterAgentReconciler)(nil).ReconcileNamespace), clusterName, obj)
+}
+
 // ReconcileNode mocks base method.
 func (m *MockmultiClusterAgentReconciler) ReconcileNode(clusterName string, obj *v12.Node) (reconcile.Result, error) {
 	m.ctrl.T.Helper()
@@ -330,6 +345,21 @@ func (m *MocksingleClusterAgentReconciler) ReconcileMesh(obj *v1beta2.Mesh) (rec
 func (mr *MocksingleClusterAgentReconcilerMockRecorder) ReconcileMesh(obj interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileMesh", reflect.TypeOf((*MocksingleClusterAgentReconciler)(nil).ReconcileMesh), obj)
+}
+
+// ReconcileNamespace mocks base method.
+func (m *MocksingleClusterAgentReconciler) ReconcileNamespace(obj *v12.Namespace) (reconcile.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReconcileNamespace", obj)
+	ret0, _ := ret[0].(reconcile.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReconcileNamespace indicates an expected call of ReconcileNamespace.
+func (mr *MocksingleClusterAgentReconcilerMockRecorder) ReconcileNamespace(obj interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReconcileNamespace", reflect.TypeOf((*MocksingleClusterAgentReconciler)(nil).ReconcileNamespace), obj)
 }
 
 // ReconcileNode mocks base method.

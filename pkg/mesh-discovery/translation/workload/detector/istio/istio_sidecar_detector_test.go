@@ -3,6 +3,8 @@ package istio_test
 import (
 	"context"
 
+	"istio.io/istio/pkg/kube/inject"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
@@ -28,6 +30,7 @@ var _ = Describe("IstioSidecarDetector", func() {
 			Spec: corev1.PodSpec{
 				Containers: []corev1.Container{
 					{
+						Name:  inject.ProxyContainerName,
 						Image: "istio-proxy:latest",
 					},
 				},

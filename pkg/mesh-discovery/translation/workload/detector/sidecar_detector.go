@@ -12,6 +12,7 @@ import (
 type SidecarDetector interface {
 	// returns a ref to a mesh if the provided Pod contains a sidecar
 	// pointing at that mesh. returns nil if the
+	// DEPRECATED: use InjectedWorkloadDetector instead
 	DetectMeshSidecar(pod *corev1.Pod, meshes v1sets.MeshSet) *v1.Mesh
 }
 

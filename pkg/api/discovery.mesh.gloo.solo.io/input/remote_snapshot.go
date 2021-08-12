@@ -9,6 +9,7 @@
 // * Services
 // * Pods
 // * Endpoints
+// * Namespaces
 // * Nodes
 // * Deployments
 // * ReplicaSets
@@ -96,6 +97,11 @@ var DiscoveryInputSnapshotGVKs = []schema.GroupVersionKind{
 	schema.GroupVersionKind{
 		Group:   "",
 		Version: "v1",
+		Kind:    "Namespace",
+	},
+	schema.GroupVersionKind{
+		Group:   "",
+		Version: "v1",
 		Kind:    "Node",
 	},
 
@@ -138,6 +144,8 @@ type DiscoveryInputSnapshot interface {
 	Pods() v1_sets.PodSet
 	// return the set of input Endpoints
 	Endpoints() v1_sets.EndpointsSet
+	// return the set of input Namespaces
+	Namespaces() v1_sets.NamespaceSet
 	// return the set of input Nodes
 	Nodes() v1_sets.NodeSet
 
@@ -185,6 +193,8 @@ type DiscoveryInputSyncStatusOptions struct {
 	Pod bool
 	// sync status of Endpoints objects
 	Endpoints bool
+	// sync status of Namespace objects
+	Namespace bool
 	// sync status of Node objects
 	Node bool
 
@@ -209,6 +219,7 @@ type snapshotDiscoveryInput struct {
 	services   v1_sets.ServiceSet
 	pods       v1_sets.PodSet
 	endpoints  v1_sets.EndpointsSet
+	namespaces v1_sets.NamespaceSet
 	nodes      v1_sets.NodeSet
 
 	deployments  apps_v1_sets.DeploymentSet
@@ -228,6 +239,7 @@ func NewDiscoveryInputSnapshot(
 	services v1_sets.ServiceSet,
 	pods v1_sets.PodSet,
 	endpoints v1_sets.EndpointsSet,
+	namespaces v1_sets.NamespaceSet,
 	nodes v1_sets.NodeSet,
 
 	deployments apps_v1_sets.DeploymentSet,
@@ -245,6 +257,7 @@ func NewDiscoveryInputSnapshot(
 		services:           services,
 		pods:               pods,
 		endpoints:          endpoints,
+		namespaces:         namespaces,
 		nodes:              nodes,
 		deployments:        deployments,
 		replicaSets:        replicaSets,
@@ -266,6 +279,7 @@ func NewDiscoveryInputSnapshotFromGeneric(
 	serviceSet := v1_sets.NewServiceSet()
 	podSet := v1_sets.NewPodSet()
 	endpointsSet := v1_sets.NewEndpointsSet()
+	namespaceSet := v1_sets.NewNamespaceSet()
 	nodeSet := v1_sets.NewNodeSet()
 
 	deploymentSet := apps_v1_sets.NewDeploymentSet()
@@ -331,6 +345,15 @@ func NewDiscoveryInputSnapshotFromGeneric(
 		for _, endpoints := range endpoints {
 			endpointsSet.Insert(endpoints.(*v1_types.Endpoints))
 		}
+		namespaces := snapshot[schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Namespace",
+		}]
+
+		for _, namespace := range namespaces {
+			namespaceSet.Insert(namespace.(*v1_types.Namespace))
+		}
 		nodes := snapshot[schema.GroupVersionKind{
 			Group:   "",
 			Version: "v1",
@@ -387,6 +410,7 @@ func NewDiscoveryInputSnapshotFromGeneric(
 		serviceSet,
 		podSet,
 		endpointsSet,
+		namespaceSet,
 		nodeSet,
 		deploymentSet,
 		replicaSetSet,
@@ -417,6 +441,10 @@ func (s snapshotDiscoveryInput) Pods() v1_sets.PodSet {
 
 func (s snapshotDiscoveryInput) Endpoints() v1_sets.EndpointsSet {
 	return s.endpoints
+}
+
+func (s snapshotDiscoveryInput) Namespaces() v1_sets.NamespaceSet {
+	return s.namespaces
 }
 
 func (s snapshotDiscoveryInput) Nodes() v1_sets.NodeSet {
@@ -481,6 +509,7 @@ func (s snapshotDiscoveryInput) MarshalJSON() ([]byte, error) {
 	snapshotMap["services"] = s.services.List()
 	snapshotMap["pods"] = s.pods.List()
 	snapshotMap["endpoints"] = s.endpoints.List()
+	snapshotMap["namespaces"] = s.namespaces.List()
 	snapshotMap["nodes"] = s.nodes.List()
 	snapshotMap["deployments"] = s.deployments.List()
 	snapshotMap["replicaSets"] = s.replicaSets.List()
@@ -499,6 +528,7 @@ func (s snapshotDiscoveryInput) Clone() DiscoveryInputSnapshot {
 		services:           s.services.Clone(),
 		pods:               s.pods.Clone(),
 		endpoints:          s.endpoints.Clone(),
+		namespaces:         s.namespaces.Clone(),
 		nodes:              s.nodes.Clone(),
 		deployments:        s.deployments.Clone(),
 		replicaSets:        s.replicaSets.Clone(),
@@ -575,6 +605,15 @@ func (s snapshotDiscoveryInput) ForEachObject(handleObject func(cluster string, 
 		}
 		handleObject(cluster, gvk, obj)
 	}
+	for _, obj := range s.namespaces.List() {
+		cluster := obj.GetClusterName()
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Namespace",
+		}
+		handleObject(cluster, gvk, obj)
+	}
 	for _, obj := range s.nodes.List() {
 		cluster := obj.GetClusterName()
 		gvk := schema.GroupVersionKind{
@@ -645,6 +684,8 @@ type DiscoveryInputBuildOptions struct {
 	Pods ResourceDiscoveryInputBuildOptions
 	// List options for composing a snapshot from Endpoints
 	Endpoints ResourceDiscoveryInputBuildOptions
+	// List options for composing a snapshot from Namespaces
+	Namespaces ResourceDiscoveryInputBuildOptions
 	// List options for composing a snapshot from Nodes
 	Nodes ResourceDiscoveryInputBuildOptions
 
@@ -695,6 +736,7 @@ func (b *multiClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, n
 	services := v1_sets.NewServiceSet()
 	pods := v1_sets.NewPodSet()
 	endpoints := v1_sets.NewEndpointsSet()
+	namespaces := v1_sets.NewNamespaceSet()
 	nodes := v1_sets.NewNodeSet()
 
 	deployments := apps_v1_sets.NewDeploymentSet()
@@ -724,6 +766,9 @@ func (b *multiClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, n
 		if err := b.insertEndpointsFromCluster(ctx, cluster, endpoints, opts.Endpoints); err != nil {
 			errs = multierror.Append(errs, err)
 		}
+		if err := b.insertNamespacesFromCluster(ctx, cluster, namespaces, opts.Namespaces); err != nil {
+			errs = multierror.Append(errs, err)
+		}
 		if err := b.insertNodesFromCluster(ctx, cluster, nodes, opts.Nodes); err != nil {
 			errs = multierror.Append(errs, err)
 		}
@@ -751,6 +796,7 @@ func (b *multiClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, n
 		services,
 		pods,
 		endpoints,
+		namespaces,
 		nodes,
 		deployments,
 		replicaSets,
@@ -1015,6 +1061,48 @@ func (b *multiClusterDiscoveryInputBuilder) insertEndpointsFromCluster(ctx conte
 
 	return nil
 }
+func (b *multiClusterDiscoveryInputBuilder) insertNamespacesFromCluster(ctx context.Context, cluster string, namespaces v1_sets.NamespaceSet, opts ResourceDiscoveryInputBuildOptions) error {
+	namespaceClient, err := v1.NewMulticlusterNamespaceClient(b.client).Cluster(cluster)
+	if err != nil {
+		return err
+	}
+
+	if opts.Verifier != nil {
+		mgr, err := b.clusters.Cluster(cluster)
+		if err != nil {
+			return err
+		}
+
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Namespace",
+		}
+
+		if resourceRegistered, err := opts.Verifier.VerifyServerResource(
+			cluster,
+			mgr.GetConfig(),
+			gvk,
+		); err != nil {
+			return err
+		} else if !resourceRegistered {
+			return nil
+		}
+	}
+
+	namespaceList, err := namespaceClient.ListNamespace(ctx, opts.ListOptions...)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range namespaceList.Items {
+		item := item.DeepCopy()    // pike + own
+		item.ClusterName = cluster // set cluster for in-memory processing
+		namespaces.Insert(item)
+	}
+
+	return nil
+}
 func (b *multiClusterDiscoveryInputBuilder) insertNodesFromCluster(ctx context.Context, cluster string, nodes v1_sets.NodeSet, opts ResourceDiscoveryInputBuildOptions) error {
 	nodeClient, err := v1.NewMulticlusterNodeClient(b.client).Cluster(cluster)
 	if err != nil {
@@ -1262,6 +1350,7 @@ func (b *singleClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, 
 	services := v1_sets.NewServiceSet()
 	pods := v1_sets.NewPodSet()
 	endpoints := v1_sets.NewEndpointsSet()
+	namespaces := v1_sets.NewNamespaceSet()
 	nodes := v1_sets.NewNodeSet()
 
 	deployments := apps_v1_sets.NewDeploymentSet()
@@ -1289,6 +1378,9 @@ func (b *singleClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, 
 	if err := b.insertEndpoints(ctx, endpoints, opts.Endpoints); err != nil {
 		errs = multierror.Append(errs, err)
 	}
+	if err := b.insertNamespaces(ctx, namespaces, opts.Namespaces); err != nil {
+		errs = multierror.Append(errs, err)
+	}
 	if err := b.insertNodes(ctx, nodes, opts.Nodes); err != nil {
 		errs = multierror.Append(errs, err)
 	}
@@ -1314,6 +1406,7 @@ func (b *singleClusterDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, 
 		services,
 		pods,
 		endpoints,
+		namespaces,
 		nodes,
 		deployments,
 		replicaSets,
@@ -1524,6 +1617,39 @@ func (b *singleClusterDiscoveryInputBuilder) insertEndpoints(ctx context.Context
 
 	return nil
 }
+func (b *singleClusterDiscoveryInputBuilder) insertNamespaces(ctx context.Context, namespaces v1_sets.NamespaceSet, opts ResourceDiscoveryInputBuildOptions) error {
+
+	if opts.Verifier != nil {
+		gvk := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Namespace",
+		}
+
+		if resourceRegistered, err := opts.Verifier.VerifyServerResource(
+			"", // verify in the local cluster
+			b.mgr.GetConfig(),
+			gvk,
+		); err != nil {
+			return err
+		} else if !resourceRegistered {
+			return nil
+		}
+	}
+
+	namespaceList, err := v1.NewNamespaceClient(b.mgr.GetClient()).ListNamespace(ctx, opts.ListOptions...)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range namespaceList.Items {
+		item := item.DeepCopy() // pike + own the item.
+		item.ClusterName = b.clusterName
+		namespaces.Insert(item)
+	}
+
+	return nil
+}
 func (b *singleClusterDiscoveryInputBuilder) insertNodes(ctx context.Context, nodes v1_sets.NodeSet, opts ResourceDiscoveryInputBuildOptions) error {
 
 	if opts.Verifier != nil {
@@ -1719,6 +1845,7 @@ func (i *inMemoryDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, name 
 	services := v1_sets.NewServiceSet()
 	pods := v1_sets.NewPodSet()
 	endpoints := v1_sets.NewEndpointsSet()
+	namespaces := v1_sets.NewNamespaceSet()
 	nodes := v1_sets.NewNodeSet()
 
 	deployments := apps_v1_sets.NewDeploymentSet()
@@ -1746,6 +1873,9 @@ func (i *inMemoryDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, name 
 		// insert Endpoints
 		case *v1_types.Endpoints:
 			i.insertEndpoints(ctx, obj, endpoints, opts)
+		// insert Namespaces
+		case *v1_types.Namespace:
+			i.insertNamespace(ctx, obj, namespaces, opts)
 		// insert Nodes
 		case *v1_types.Node:
 			i.insertNode(ctx, obj, nodes, opts)
@@ -1773,6 +1903,7 @@ func (i *inMemoryDiscoveryInputBuilder) BuildSnapshot(ctx context.Context, name 
 		services,
 		pods,
 		endpoints,
+		namespaces,
 		nodes,
 		deployments,
 		replicaSets,
@@ -1955,6 +2086,35 @@ func (i *inMemoryDiscoveryInputBuilder) insertEndpoints(
 
 	if !filteredOut {
 		endpointsSet.Insert(endpoints)
+	}
+}
+func (i *inMemoryDiscoveryInputBuilder) insertNamespace(
+	ctx context.Context,
+	namespace *v1_types.Namespace,
+	namespaceSet v1_sets.NamespaceSet,
+	buildOpts DiscoveryInputBuildOptions,
+) {
+
+	opts := buildOpts.Namespaces.ListOptions
+
+	listOpts := &client.ListOptions{}
+	for _, opt := range opts {
+		opt.ApplyToList(listOpts)
+	}
+
+	filteredOut := false
+	if listOpts.Namespace != "" {
+		filteredOut = namespace.Namespace != listOpts.Namespace
+	}
+	if listOpts.LabelSelector != nil {
+		filteredOut = !listOpts.LabelSelector.Matches(labels.Set(namespace.Labels))
+	}
+	if listOpts.FieldSelector != nil {
+		contextutils.LoggerFrom(ctx).DPanicf("field selector is not implemented for in-memory remote snapshot")
+	}
+
+	if !filteredOut {
+		namespaceSet.Insert(namespace)
 	}
 }
 func (i *inMemoryDiscoveryInputBuilder) insertNode(

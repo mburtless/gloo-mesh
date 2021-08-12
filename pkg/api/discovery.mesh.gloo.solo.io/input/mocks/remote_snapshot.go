@@ -182,6 +182,20 @@ func (mr *MockDiscoveryInputSnapshotMockRecorder) Meshes() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Meshes", reflect.TypeOf((*MockDiscoveryInputSnapshot)(nil).Meshes))
 }
 
+// Namespaces mocks base method.
+func (m *MockDiscoveryInputSnapshot) Namespaces() v1sets0.NamespaceSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Namespaces")
+	ret0, _ := ret[0].(v1sets0.NamespaceSet)
+	return ret0
+}
+
+// Namespaces indicates an expected call of Namespaces.
+func (mr *MockDiscoveryInputSnapshotMockRecorder) Namespaces() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Namespaces", reflect.TypeOf((*MockDiscoveryInputSnapshot)(nil).Namespaces))
+}
+
 // Nodes mocks base method.
 func (m *MockDiscoveryInputSnapshot) Nodes() v1sets0.NodeSet {
 	m.ctrl.T.Helper()

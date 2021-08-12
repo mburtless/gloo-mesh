@@ -36,23 +36,26 @@ const (
 
 // detects a workload
 type workloadDetector struct {
-	ctx         context.Context
-	pods        corev1sets.PodSet
-	replicaSets appsv1sets.ReplicaSetSet
-	detector    SidecarDetector
+	ctx               context.Context
+	pods              corev1sets.PodSet
+	replicaSets       appsv1sets.ReplicaSetSet
+	sidecarDetector   SidecarDetector
+	injectionDetector InjectedWorkloadDetector
 }
 
 func NewWorkloadDetector(
 	ctx context.Context,
 	pods corev1sets.PodSet,
 	replicaSets appsv1sets.ReplicaSetSet,
-	detector SidecarDetector,
+	sidecarDetector SidecarDetector,
+	injectionDetector InjectedWorkloadDetector,
 ) WorkloadDetector {
 	return &workloadDetector{
-		ctx:         contextutils.WithLogger(ctx, "mesh-workload-detector"),
-		pods:        pods,
-		replicaSets: replicaSets,
-		detector:    detector,
+		ctx:               contextutils.WithLogger(ctx, "mesh-workload-detector"),
+		pods:              pods,
+		replicaSets:       replicaSets,
+		sidecarDetector:   sidecarDetector,
+		injectionDetector: injectionDetector,
 	}
 }
 
@@ -62,8 +65,7 @@ func (d workloadDetector) DetectWorkload(
 ) *v1.Workload {
 	podsForWorkload := d.getPodsForWorkload(workload)
 
-	mesh := d.getMeshForPods(podsForWorkload, meshes)
-
+	mesh := d.getMeshForWorkload(workload, podsForWorkload, meshes)
 	if mesh == nil {
 		return nil
 	}
@@ -92,10 +94,22 @@ func (d workloadDetector) DetectWorkload(
 	}
 }
 
-func (d workloadDetector) getMeshForPods(pods corev1sets.PodSet, meshes v1sets.MeshSet) *v1.Mesh {
+func (d workloadDetector) getMeshForWorkload(
+	workload types.Workload,
+	pods corev1sets.PodSet,
+	meshes v1sets.MeshSet,
+) *v1.Mesh {
+
+	// if we can detect mesh from workload directly (without looking at pods) we exit early.
+	// eventually this should be the only method of detecting workloads when support is either deprecated or extended to non-istio meshes.
+	if mesh := d.injectionDetector.DetectMeshForWorkload(workload, meshes); mesh != nil {
+		return mesh
+	}
+
+	// TODO(ilackarms): deprecate / remove detection of sidecars from pods. Currently this is required for osm tests to pass.
 	// as long as one pod is detected for a mesh, consider the set owned by that mesh.
 	for _, pod := range pods.List() {
-		if mesh := d.detector.DetectMeshSidecar(pod, meshes); mesh != nil {
+		if mesh := d.sidecarDetector.DetectMeshSidecar(pod, meshes); mesh != nil {
 			return mesh
 		}
 	}

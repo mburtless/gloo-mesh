@@ -15,7 +15,12 @@ import (
 
 // the mesh-workload translator converts deployments with injected sidecars into Workload CRs
 type Translator interface {
-	TranslateWorkloads(deployments appsv1sets.DeploymentSet, daemonSets appsv1sets.DaemonSetSet, statefulSets appsv1sets.StatefulSetSet, meshes v1sets.MeshSet) v1sets.WorkloadSet
+	TranslateWorkloads(
+		deployments appsv1sets.DeploymentSet,
+		daemonSets appsv1sets.DaemonSetSet,
+		statefulSets appsv1sets.StatefulSetSet,
+		meshes v1sets.MeshSet,
+	) v1sets.WorkloadSet
 }
 
 type translator struct {
@@ -27,7 +32,12 @@ func NewTranslator(ctx context.Context, workloadDetector detector.WorkloadDetect
 	return &translator{ctx: ctx, workloadDetector: workloadDetector}
 }
 
-func (t *translator) TranslateWorkloads(deployments appsv1sets.DeploymentSet, daemonSets appsv1sets.DaemonSetSet, statefulSets appsv1sets.StatefulSetSet, meshes v1sets.MeshSet) v1sets.WorkloadSet {
+func (t *translator) TranslateWorkloads(
+	deployments appsv1sets.DeploymentSet,
+	daemonSets appsv1sets.DaemonSetSet,
+	statefulSets appsv1sets.StatefulSetSet,
+	meshes v1sets.MeshSet,
+) v1sets.WorkloadSet {
 	var workloads []types.Workload
 	for _, deployment := range deployments.List() {
 		workloads = append(workloads, types.ToWorkload(deployment))
