@@ -60,7 +60,14 @@ jobs:
       - name: Unit Tests
         run: |
           make install-go-tools run-tests
-
+      - uses: testspace-com/setup-testspace@v1
+        with:
+          domain: solo-io.testspace.com
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Push result to Testspace server
+        run: |
+          testspace push --verbose "**/junit.xml"
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
   e2e-istio:
     name: end-to-end-istio
     runs-on: ubuntu-18.04
@@ -118,6 +125,14 @@ jobs:
           istioctl version
 
           make run-tests TEST_PKG=test/e2e/istio RUN_E2E=1 GINKGOFLAGS=-v
+      - uses: testspace-com/setup-testspace@v1
+        with:
+          domain: solo-io.testspace.com
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Push result to Testspace server
+        run: |
+          testspace push --verbose "**/junit.xml"
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
   e2e-establish-trust:
     name: end-to-end-establish-trust
     runs-on: ubuntu-18.04
@@ -173,7 +188,14 @@ jobs:
           istioctl version
 
           make run-tests TEST_PKG=test/e2e/establish-trust RUN_E2E=1 GINKGOFLAGS=-v
-
+      - uses: testspace-com/setup-testspace@v1
+        with:
+          domain: solo-io.testspace.com
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Push result to Testspace server
+        run: |
+          testspace push --verbose "**/junit.xml"
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
   e2e-osm:
     name: end-to-end-osm
     runs-on: ubuntu-18.04
@@ -229,3 +251,11 @@ jobs:
           osm version
 
           make run-tests TEST_PKG=test/e2e/osm RUN_E2E=1 GINKGOFLAGS=-v
+      - uses: testspace-com/setup-testspace@v1
+        with:
+          domain: solo-io.testspace.com
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Push result to Testspace server
+        run: |
+          testspace push --verbose "**/junit.xml"
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
