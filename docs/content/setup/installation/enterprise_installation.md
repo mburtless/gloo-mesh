@@ -106,18 +106,36 @@ enterprise-networking-84fc9fd6f5-rrbnq   1/1     Running   0          4m2s
 Running the check command from meshctl will also verify everything was installed correctly:
 
 ```shell
-meshctl check
+meshctl check server
 ```
 
 ```shell
-Gloo Mesh
--------------------
-✅ Gloo Mesh pods are running
+Gloo Mesh Management Cluster Installation
+--------------------------------------------
+
+🟢 Gloo Mesh Pods Status
+
+🟡 Gloo Mesh Agents Connectivity
+    Hints:
+    * No registered clusters detected. To register a remote cluster that has a deployed Gloo Mesh agent, add a KubernetesCluster CR.
+      For more info, see: https://docs.solo.io/gloo-mesh/latest/setup/cluster_registration/enterprise_cluster_registration/
 
 Management Configuration
 ---------------------------
-✅ Gloo Mesh networking configuration resources are in a valid state
+
+🟢 Gloo Mesh CRD Versions
+
+🟢 Gloo Mesh Networking Configuration Resources
 ```
+
+These checks include the following:
+
+1. That the Gloo Mesh pods are up and running.
+
+2. That expected remote agents are connected (Because this is a first install with no registered clusters,
+   the check will warn that no agents are connected. We will register a cluster in the next guide.)
+   
+3. That the CRD versions expected by `enterprise-networking` matches the versions of the CRDs installed on the cluster.
 
 ## Advanced install options
 

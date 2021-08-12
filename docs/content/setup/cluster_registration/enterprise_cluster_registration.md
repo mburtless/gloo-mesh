@@ -209,7 +209,47 @@ spec:
 EOF
 ```
 
-#### Validate the Registration
+#### Validating the Registration
+
+To validate that the cluster was registered successfully, you can run `meshctl check agent`, 
+which if successful will return the following output:
+
+```shell
+POD LOGS: enterprise-agent-test
+Gloo Mesh Registered Cluster Installation
+--------------------------------------------
+
+🟢 Gloo Mesh Pods Status
+
+Agent Configuration
+----------------------
+
+🟢 Gloo Mesh CRD Versions
+
+Relay Connectivity
+---------------------
+
+🟢 Gloo Mesh Agent Connectivity
+```
+
+The same test can be performed via Helm test:
+
+
+The same check can be performed using Helm:
+
+```shell
+helm test <release-name> --namespace <release-namespace> --kube-context=kind-${MGMT_CLUSTER} --logs
+```
+
+These checks include the following:
+
+1. That the agent pod is up and running.
+
+2. That the CRD versions expected by the agent matches the versions of the CRDs installed on the cluster.
+
+3. That the agent can talk to the `enterprise-networking` (i.e. relay server).
+
+#### In Depth Validation of the Registration
 
 We can validate the registration process by first checking to make sure the relay agent pod and secrets have been created on the remote cluster:
 
