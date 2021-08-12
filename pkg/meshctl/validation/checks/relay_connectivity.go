@@ -131,7 +131,7 @@ func checkServerConnection(
 				"", // TODO: add documentation for manual creation of client TLS cert
 			)
 			result.AddHint(
-				fmt.Sprintf("check that the relay server's address (%s) is correct", relayServerDialOpts.Address),
+				fmt.Sprintf("check that the relay server's address \"%s\" is correct", relayServerDialOpts.Address),
 				"",
 			)
 		}

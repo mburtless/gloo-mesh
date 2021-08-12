@@ -1,0 +1,5 @@
+changelog:
+  - type: FIX
+    description: Fix `meshctl agent check` (post install check) to infer release name from agent deployment.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1720
+    resolvesIssue: false

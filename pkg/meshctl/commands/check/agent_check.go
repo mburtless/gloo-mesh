@@ -2,14 +2,11 @@ package check
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/rotisserie/eris"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
-	"github.com/solo-io/gloo-mesh/pkg/mesh-discovery/utils/dockerutils"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/gloomesh"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/install/helm"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
@@ -19,6 +16,9 @@ import (
 	"github.com/spf13/pflag"
 	client2 "sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+// helm release name annotation source of truth is here, https://github.com/helm/helm/blob/a499b4b179307c267bdf3ec49b880e3dbd2a5591/pkg/action/validate.go#L36
+const helmReleaseNameAnnotation = "meta.helm.sh/release-name"
 
 type agentOpts struct {
 	kubeconfig  string
@@ -71,24 +71,23 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 
 		// fetch the Helm chart corresponding to the version of the enterprise-agent deployment
 		// which will be used to subsequently run its Helm test
-		version, err := fetchEnterpriseAgentVersionFromDeployment(ctx, opts.kubeconfig, opts.kubecontext, opts.namespace)
+		releaseName, err := fetchEnterpriseAgentHelmReleaseName(ctx, opts.kubeconfig, opts.kubecontext, opts.namespace)
 		if err != nil {
 			return err
 		}
 
 		// if out of cluster, execute Helm test so that the checks run in-cluster
 		installer := &helm.Installer{
+			ReleaseName: releaseName,
 			KubeConfig:  opts.kubeconfig,
 			KubeContext: opts.kubecontext,
-			ChartUri:    fmt.Sprintf(gloomesh.EnterpriseAgentChartUriTemplate, version),
 			Namespace:   opts.namespace,
-			ReleaseName: "enterprise-agent-test",
 			Verbose:     true,
 			Output:      os.Stdout,
 		}
 
 		if err := installer.ExecuteHelmTest(); err != nil {
-			return err
+			return eris.Wrapf(err, "executing Helm test for release \"%s\" in namespace \"%s\"", releaseName, opts.namespace)
 		}
 	}
 
@@ -96,7 +95,7 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 }
 
 // fetch the Helm chart corresponding to the version found in the enterprise-agent deployment
-func fetchEnterpriseAgentVersionFromDeployment(
+func fetchEnterpriseAgentHelmReleaseName(
 	ctx context.Context,
 	kubeconfig, kubecontext, namespace string,
 ) (string, error) {
@@ -114,15 +113,15 @@ func fetchEnterpriseAgentVersionFromDeployment(
 		return "", eris.Wrapf(err, "could not find Gloo Mesh agent deployment")
 	}
 
-	for _, container := range deployment.Spec.Template.Spec.Containers {
-		if container.Name == consts.AgentDeployName {
-			image, err := dockerutils.ParseImageName(container.Image)
-			if err != nil {
-				return "", eris.Wrapf(err, "parsing Gloo Mesh agent deployment image string")
-			}
-			return image.Tag, nil
-		}
+	releaseName := deployment.GetAnnotations()[helmReleaseNameAnnotation]
+	if releaseName == "" {
+		return "", eris.Errorf(
+			"Gloo Mesh agent deployment %s.%s is missing Helm release annotation \"%s\" (meshctl check requires that the component is installed via Helm)",
+			deployment.GetName(),
+			deployment.GetNamespace(),
+			helmReleaseNameAnnotation,
+		)
 	}
 
-	return "", eris.New("Gloo Mesh agent deployment not found")
+	return releaseName, nil
 }
