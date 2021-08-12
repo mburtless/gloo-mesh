@@ -21,6 +21,19 @@ values for each subchart must be prefixed accordingly:
 1. Values for the RBAC Webhook must be prefixed with "rbac-webhook".
 2. Values for Enterprise Networking must be prefixed with "enterprise-networking".
 3. Values for the Gloo Mesh UI must be prefixed with "gloo-mesh-ui".
+  - Values for the Dashboard (a subchart of the Gloo Mesh UI chart) must be prefixed with "dashboard"
+  - Values for the Redis Dashboard (a subchart of the Gloo Mesh UI chart) must be prefixed with "redis-dashboard"
 
+
+The following is an example of how to set values for subcharts:
+
+
+> helm install gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise \
+> --namespace gloo-mesh \
+> --set licenseKey=${GLOO_MESH_LICENSE_KEY}  \
+> --set rbac-webhook.enabled=true
+> --set enterprise-networking.enterpriseNetworking.floatingUserId=true \
+> --set gloo-mesh-ui.dashboard.floatingUserId.floatingUserId=true \
+> --set gloo-mesh-ui.redis-dashboard.redisDashboard.floatingUserId=true
 
 {{% children description="true" %}}

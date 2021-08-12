@@ -177,8 +177,10 @@ oc create namespace $INSTALL_NAMESPACE
 helm install gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise --kube-context $MGMT_CONTEXT -n $INSTALL_NAMESPACE \
 --set licenseKey=${GLOO_MESH_LICENSE_KEY} \
 --set metricsBackend.prometheus.enabled=false \
---set gloo-mesh-ui.GlooMeshDashboard.apiserver.floatingUserId=true \
 --set rbac-webhook.enabled=false
+--set enterprise-networking.enterpriseNetworking.floatingUserId=true \
+--set gloo-mesh-ui.dashboard.floatingUserId.floatingUserId=true \
+--set gloo-mesh-ui.redis-dashboard.redisDashboard.floatingUserId=true
 ````
 
 In the example command above, Prometheus is disabled because it requires extra configuration. 
