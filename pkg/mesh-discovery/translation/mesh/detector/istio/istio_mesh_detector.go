@@ -92,7 +92,9 @@ func (d *meshDetector) detectMesh(
 		return nil, nil
 	}
 
-	meshConfig, err := getMeshConfig(in.ConfigMaps(), deployment.ClusterName, deployment.Namespace)
+	revisionSuffix := getIstioRevisionSuffix(deployment)
+
+	meshConfig, err := getMeshConfig(in.ConfigMaps(), deployment.ClusterName, deployment.Namespace, revisionSuffix)
 	if err != nil {
 		return nil, err
 	}
@@ -365,6 +367,10 @@ func (d *meshDetector) getIstiodVersion(deployment *appsv1.Deployment) (string, 
 	return "", nil
 }
 
+func getIstioRevisionSuffix(deployment *appsv1.Deployment) string {
+	return strings.Replace(deployment.GetName(), istiodDeploymentName, "", 1)
+}
+
 // Return true if deployment is inferred to be an Istiod deployment
 func isIstiod(deployment *appsv1.Deployment, container *corev1.Container) bool {
 	// Istio revision deployments may take the form `istiod-<revision-name>`
@@ -376,10 +382,10 @@ func isIstiod(deployment *appsv1.Deployment, container *corev1.Container) bool {
 func getMeshConfig(
 	configMaps corev1sets.ConfigMapSet,
 	cluster,
-	namespace string,
+	namespace, revisionSuffix string,
 ) (*istiov1alpha1.MeshConfig, error) {
 	istioConfigMap, err := configMaps.Find(&skv1.ClusterObjectRef{
-		Name:        istioConfigMapName,
+		Name:        istioConfigMapName + revisionSuffix,
 		Namespace:   namespace,
 		ClusterName: cluster,
 	})

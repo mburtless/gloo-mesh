@@ -79,7 +79,11 @@ else
   install_istio ${mgmtCluster} ${mgmtEastWestIngressPort} ${mgmtNorthSouthIngressPort}
 
   create_kind_cluster ${remoteCluster} ${remoteEastWestIngressPort} ${remoteNorthSouthIngressPort}
-  install_istio ${remoteCluster} ${remoteEastWestIngressPort} ${remoteNorthSouthIngressPort}
+  # When Istio is installed with a revision, the name of some resources includes that tag as a
+  # suffix. We want to be sure that those resources are discovered so we install Istio on the
+  # remote cluster with a revision for our e2e tests.
+  istioRevision="rev"
+  install_istio ${remoteCluster} ${remoteEastWestIngressPort} ${remoteNorthSouthIngressPort} ${istioRevision}
 
   if [ ! -z ${FLAT_NETWORKING_ENABLED} ]; then
     setup_flat_networking ${mgmtCluster} ${mgmtEastWestIngressPort} ${remoteCluster} ${remoteEastWestIngressPort}
@@ -89,7 +93,13 @@ else
   kubectl --context kind-${mgmtCluster} create namespace bookinfo
   kubectl --context kind-${mgmtCluster} label ns bookinfo istio-injection=enabled --overwrite
   kubectl --context kind-${remoteCluster} create namespace bookinfo
-  kubectl --context kind-${remoteCluster} label ns bookinfo istio-injection=enabled --overwrite
+  if istioctl version | grep -E -- '1.7'; then
+    # 1.7 does not support revisions
+    kubectl --context kind-${remoteCluster} label ns bookinfo istio-injection=enabled --overwrite
+  else
+    kubectl --context kind-${remoteCluster} label ns bookinfo istio.io/rev=${istioRevision} --overwrite
+  fi
+
 
   # install bookinfo with reviews-v1 and reviews-v2 to management cluster
   kubectl --context kind-${mgmtCluster} -n bookinfo apply -f ./ci/bookinfo.yaml -l 'app notin (details),version in (v1, v2)'

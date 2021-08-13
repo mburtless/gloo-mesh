@@ -2,6 +2,7 @@ package istio_test
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
@@ -29,6 +30,7 @@ var _ = Describe("IstioMeshDetector", func() {
 	meshNs := "namespace"
 	clusterName := "cluster"
 	istiodDeploymentName := "istiod"
+	istioConfigMapName := "istio"
 
 	istioDeployment := func(deploymentName string) *appsv1.Deployment {
 		return &appsv1.Deployment{
@@ -57,7 +59,7 @@ var _ = Describe("IstioMeshDetector", func() {
 
 	trustDomain := "cluster.local"
 	smartDnsProxyingEnabled := true
-	istioConfigMap := func() corev1sets.ConfigMapSet {
+	istioConfigMap := func(configMapName string) corev1sets.ConfigMapSet {
 		meshConfig := &istiov1alpha1.MeshConfig{
 			DefaultConfig: &istiov1alpha1.ProxyConfig{
 				ProxyMetadata: map[string]string{
@@ -71,7 +73,7 @@ var _ = Describe("IstioMeshDetector", func() {
 		return corev1sets.NewConfigMapSet(&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace:   meshNs,
-				Name:        "istio",
+				Name:        configMapName,
 				ClusterName: clusterName,
 			},
 			Data: map[string]string{
@@ -112,7 +114,7 @@ var _ = Describe("IstioMeshDetector", func() {
 	})
 
 	It("detects a mesh from a deployment named istiod", func() {
-		configMaps := istioConfigMap()
+		configMaps := istioConfigMap(istioConfigMapName)
 		deployment := istioDeployment(istiodDeploymentName)
 
 		inRemote := input.NewInputDiscoveryInputSnapshotManualBuilder("")
@@ -148,9 +150,47 @@ var _ = Describe("IstioMeshDetector", func() {
 		}))
 	})
 
+	It("detects a mesh from with an Istio revision", func() {
+		revisionTag := "1-10-3"
+		configMaps := istioConfigMap(fmt.Sprintf("%s-%s", istioConfigMapName, revisionTag))
+		deployment := istioDeployment(fmt.Sprintf("%s-%s", istiodDeploymentName, revisionTag))
+
+		inRemote := input.NewInputDiscoveryInputSnapshotManualBuilder("")
+		inRemote.AddDeployments([]*appsv1.Deployment{deployment})
+		inRemote.AddConfigMaps(configMaps.List())
+
+		detector := NewMeshDetector(
+			ctx,
+		)
+
+		meshes, err := detector.DetectMeshes(inRemote.Build(), settings)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(meshes).To(HaveLen(1))
+		Expect(meshes[0]).To(Equal(&discoveryv1.Mesh{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      fmt.Sprintf("istiod-%s-namespace-cluster", revisionTag),
+				Namespace: defaults.GetPodNamespace(),
+				Labels:    labelutils.ClusterLabels(clusterName),
+			},
+			Spec: discoveryv1.MeshSpec{
+				Type: &discoveryv1.MeshSpec_Istio_{Istio: &discoveryv1.MeshSpec_Istio{
+					SmartDnsProxyingEnabled: smartDnsProxyingEnabled,
+					Installation: &discoveryv1.MeshInstallation{
+						Namespace: meshNs,
+						Cluster:   clusterName,
+						PodLabels: map[string]string{"app": "istiod"},
+						Version:   "latest",
+					},
+					TrustDomain:          trustDomain,
+					IstiodServiceAccount: serviceAccountName,
+				}},
+			},
+		}))
+	})
+
 	It("will add an existing IssuedCert status", func() {
 
-		configMaps := istioConfigMap()
+		configMaps := istioConfigMap(istioConfigMapName)
 		deployment := istioDeployment(istiodDeploymentName)
 
 		issuedCertStatus := certificatesv1.IssuedCertificateStatus{
@@ -207,7 +247,7 @@ var _ = Describe("IstioMeshDetector", func() {
 
 		It("can detect a nodeport service", func() {
 
-			configMaps := istioConfigMap()
+			configMaps := istioConfigMap(istioConfigMapName)
 
 			istioNamespace := defaults.GetPodNamespace()
 
@@ -316,7 +356,7 @@ var _ = Describe("IstioMeshDetector", func() {
 
 		It("can detect a nodeport service with no status and a user-set external ip", func() {
 
-			configMaps := istioConfigMap()
+			configMaps := istioConfigMap(istioConfigMapName)
 
 			istioNamespace := defaults.GetPodNamespace()
 
@@ -392,7 +432,7 @@ var _ = Describe("IstioMeshDetector", func() {
 
 		It("can detect a loadbalancer service with a hostname", func() {
 
-			configMaps := istioConfigMap()
+			configMaps := istioConfigMap(istioConfigMapName)
 
 			istioNamespace := defaults.GetPodNamespace()
 
@@ -475,7 +515,7 @@ var _ = Describe("IstioMeshDetector", func() {
 		})
 
 		It("can detect a load balancer service with an ip", func() {
-			configMaps := istioConfigMap()
+			configMaps := istioConfigMap(istioConfigMapName)
 
 			istioNamespace := defaults.GetPodNamespace()
 
@@ -558,7 +598,7 @@ var _ = Describe("IstioMeshDetector", func() {
 		})
 
 		It("can detect a load balancer service with no status and a user-set external ip", func() {
-			configMaps := istioConfigMap()
+			configMaps := istioConfigMap(istioConfigMapName)
 
 			istioNamespace := defaults.GetPodNamespace()
 
@@ -635,7 +675,7 @@ var _ = Describe("IstioMeshDetector", func() {
 	})
 
 	It("uses settings to detect ingress gateways", func() {
-		configMaps := istioConfigMap()
+		configMaps := istioConfigMap(istioConfigMapName)
 		workloadLabels := map[string]string{"mykey": "myvalue"}
 		services := corev1sets.NewServiceSet(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{

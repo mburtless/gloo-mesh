@@ -1,0 +1,5 @@
+changelog:
+  - type: FIX
+    description: Fix discovery of Istio config maps with a revision
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1662
+    resolvesIssue: false

@@ -44,13 +44,16 @@ func SetupClustersAndFederation(customDeployFuc func()) {
 	dynamicClient, err := client.New(GetEnv().Management.Config, client.Options{})
 	Expect(err).NotTo(HaveOccurred())
 
+	remoteMesh, err := RemoteMesh()
+	Expect(err).NotTo(HaveOccurred())
+
 	vm, err := data.SelfSignedVirtualMesh(
 		dynamicClient,
 		"bookinfo-federation",
 		BookinfoNamespace,
 		[]*v1.ObjectRef{
 			MgmtMesh,
-			RemoteMesh,
+			remoteMesh,
 		},
 		false,
 	)
