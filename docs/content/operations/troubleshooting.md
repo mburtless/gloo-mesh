@@ -123,6 +123,15 @@ This will give you valuable insight into the control loop that manages the state
 
 You can set the `env` variable `DEBUG_MODE` to "true" in any of the Gloo Mesh pods to increase the logging level. You can set an explicit logging level using the `LOG_LEVEL` env variable. See [https://pkg.go.dev/go.uber.org/zap/zapcore?tab=doc#Level](https://pkg.go.dev/go.uber.org/zap/zapcore?tab=doc#Level) for the log levels.
 
+When you find unexpected behaviors with your request handling, here are a few areas to look in Envoy that can aid in debugging.
+The [Envoy Admin API](https://www.envoyproxy.io/docs/envoy/latest/operations/admin) can be viewed by port-forwarding the `istio-ingressgateway` service:
+
+```shell
+kubectl port-forward -n gloo-mesh deploy/istio-ingressgateway 15000:15000
+```
+
+This way you can visit localhost:15000 and get access to the Envoy Admin API.
+
 ## Common issues
 
 When following the guides for multi-cluster and multi-mesh communication, the following things could happen of which you should be aware:

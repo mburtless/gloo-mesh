@@ -40,8 +40,8 @@ and can optionally include a value.
 Let's run through a simple example that uses set-style rate limiting.
 
 #### Initial setup
-First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with extauth enabled. Please refer to the corresponding
-[installation guide]({{< versioned_link_path fromRoot="/installation/enterprise" >}}) for details.
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with Ratelimit enabled. Please refer to the corresponding
+[installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
 
 This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
 
@@ -75,16 +75,6 @@ spec:
                   clusterName: mgmt-cluster
                   name: ratings
                   namespace: bookinfo
-  ingressGatewaySelectors:
-    portName: http2
-    destinationSelectors:
-    - kubeServiceMatcher:
-        clusters:
-        - mgmt-cluster
-        labels:
-          istio: ingressgateway-ns
-        namespaces:
-        - istio-system
   ingressGatewaySelectors:
     portName: http2
     destinationSelectors:

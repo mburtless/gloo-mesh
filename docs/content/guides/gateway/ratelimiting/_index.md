@@ -12,6 +12,12 @@ Incoming requests can be numerous and varied -- protecting backend services and 
 can become incredibly complex being handled at the application level. Using an API gateway we can define client
 request limits to these varied services in one place.
 
+#### Setup
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with Ratelimit enabled. Please refer to the corresponding
+[installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
+
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
+
 #### Rate Limiting in Gloo Mesh
 
 Gloo Mesh exposes Envoy's rate-limit API, which allows users to provide their own implementation of an Envoy gRPC rate-limit
@@ -52,7 +58,7 @@ simplified API built on top of this service. Gloo Mesh uses this rate-limit serv
 
 If Gloo Mesh is running on kubernetes, the rate limiting logs can be viewed with:
 ```
-kubectl logs -n gloo-mesh deploy/rate-limit -f
+kubectl logs -n gloo-mesh deploy/rate-limiter -f
 ```
 
 Note that these logs will only be in agent clusters.

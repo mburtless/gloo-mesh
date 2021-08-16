@@ -10,7 +10,8 @@ Gloo Mesh Enterprise is the paid version of Gloo Mesh including the Gloo Mesh UI
 {{% /notice %}}
 
 In a typical deployment, Gloo Mesh Enterprise uses a single Kubernetes cluster to host the management plane while each service mesh can run on its own independent cluster.
-This document describes how to install the Gloo Mesh Enterprise management plane components with both `meshctl` and Helm.
+This document describes how to install the Gloo Mesh Enterprise management plane components with both `meshctl` and Helm. 
+We recommend using Helm to install Gloo Mesh in a production environment as it offers rich customization.
 
 A conceptual overview of the Gloo Mesh Enterprise architecture can be found [here]({{% versioned_link_path fromRoot="/concepts/relay" %}}).
 
@@ -285,6 +286,100 @@ kubectl create secret generic ${RELAY_SIGNING_CERT_NAME}-secret \
 ```
 
 You can also choose to use your own internal PKI to create and assign certificates to Gloo Mesh Enterprise. At a minimum, you would need the certificate chain to your PKI root CA, a server certificate for relay server communication, and a signing certificate the relay server can use to generate relay agent certificates. Please refer to your PKI documentation for more information.
+
+## Getting started with RateLimiting and External Authentication
+
+{{% notice note %}}
+Rate limiting and Extauth were introduced with **Gloo Mesh Enterprise**, release `v1.1.0`.
+If you are using an earlier version, these features will not be available.
+{{% /notice %}}
+
+To get started using rate limiting and external authentication, you can enable these features in the `gloo-mesh` namespace. This
+is **not** the recommended setup for using ratelimit and external authentication in a secure production environment, but
+is a quick way to get started testing the features. Follow the [recommended setup of rate limiting and external authentication]({{% versioned_link_path fromRoot="/setup/installation/recommended_setup/" %}})
+for the best practice setup environment.
+
+For demo setup, we will use a single namespace, `gloo-mesh`, for our management plane (the gloo mesh server and agents) and
+the data plane components (Ratelimit and ExtAuth). 
+This is not recommended for non-demo purposes as the injection directive on the namespace makes the 
+management plane components dependent on the functionality of Istio’s mutating webhook and is not recommended as best practice.
+
+There are two steps to install Gloo Mesh with Ratelimit and Extauth enabled in the same namespace:
+
+1. Install the Gloo Mesh Enterprise chart with the RateLimit and/or ExtAuth enabled to `gloo-mesh` namespace.
+2. Label the `gloo-mesh` namespace for istio injection.
+
+RateLimit and/or ExtAuth are disabled by default on installation. They can be enabled via helm as follows in the `enterprise-agent`:
+
+```yaml
+rate-limiter: 
+  enabled: true
+ext-auth-service: 
+  enabled: true
+```
+
+After adding the Gloo Mesh helm chart as described above, create the `gloo-mesh` namespace and install Gloo Mesh Enterprise with:
+
+```shell
+helm install gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise --create-namespace --namespace gloo-mesh \
+  --set licenseKey=${GLOO_MESH_LICENSE_KEY}
+```
+
+Once you've installed Gloo Mesh, verify what components were installed:
+
+```shell
+kubectl get pods -n gloo-mesh
+```
+
+```shell
+NAME                                     READY   STATUS    RESTARTS   AGE
+dashboard-6d6b944cdb-jcpvl               3/3     Running   0          4m2s
+enterprise-networking-84fc9fd6f5-rrbnq   1/1     Running   0          4m2s
+```
+
+For the simple demo setup, we will use `cluster-1` as the management and as a worker cluster and `cluster-2` just 
+as a worker cluster. It is best practice to separate the management cluster and the worker clusters as described in
+the [recommended setup guide]{{% versioned_link_path fromRoot="/setup/installation/recommended_setup/" %}}).
+
+To install the `enterprise-agent` on both `cluster-1` and `cluster-2`, first create the `gloo-mesh` namespace on 
+each cluster. Then install the `enterprise-agent` helm chart with Extauth and/or Ratelimit enabled:
+
+```shell
+kubectl create ns gloo-mesh
+
+helm install enterprise-agent enterprise-agent/enterprise-agent --namespace gloo-mesh \
+  --set licenseKey=${GLOO_MESH_LICENSE_KEY} --set rate-limiter.enabled=true --set ext-auth-service.enabled=true
+```
+
+To label the `gloo-mesh` namespace for istio injection, run the following on both `cluster-1` and `cluster-2`:
+
+```shell
+kubectl --context cluster-1 label ns gloo-mesh istio-injection=enabled --overwrite
+kubectl --context cluster-2 label ns gloo-mesh istio-injection=enabled --overwrite
+```
+
+Remember you will need to label the `gloo-mesh` namespace for all clusters. Check that the injection label
+has been applied with:
+
+```shell
+kubectl get pods -n gloo-mesh
+```
+
+The output should contain the Ratelimit and Extauth components successfully installed and injected:
+
+```shell
+NAME                                     READY   STATUS    RESTARTS   AGE
+dashboard-6d6b944cdb-jcpvl               3/3     Running   0          4m2s
+enterprise-networking-84fc9fd6f5-rrbnq   1/1     Running   0          4m2s
+enterprise-agent-ccfcddd1f5-frcnf        1/1     Running   0          4m2s
+rate-limit-3d62244cdb-fcrvd              2/2     Running   0          4m2s
+ext-auth-service-3d62244cdb-fcrvd        2/2     Running   0          4m2s
+```
+
+Great! Ratelimit and ExtAuth are up and running. Check out the guides for setting up [ratelimiting]({{% versioned_link_path fromRoot="/guides/gateway/ratelimiting/" %}}) 
+and [external authentication]({{% versioned_link_path fromRoot="/guides/gateway/auth/" %}})
+to use these features. For the best practice setup of Ratelimit and Extauth in a separate namespace, 
+follow the [recommended installation guide]({{% versioned_link_path fromRoot="/setup/installation/recommended_setup/" %}}).
 
 ## Next Steps
 

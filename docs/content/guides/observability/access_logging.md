@@ -192,7 +192,7 @@ EOF
 Sending a request from the `productpage` pod to the ratings Destination should yield 
 the following access log:
 
-{{< highlight json "hl_lines=2" >}}
+{{< highlight json "hl_lines=3" >}}
 {
       ...
         "upstreamTransportFailureReason": "TLS error: Secret is not supplied by SDS",

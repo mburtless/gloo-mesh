@@ -68,6 +68,12 @@ Let's go through a series of simple rate limiting examples to understand the bas
 descriptors and actions. Then, we'll go through more complex examples that use nested tuples of keys, to express more
 realistic use cases.
 
+### Setup
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with Ratelimit enabled. Please refer to the corresponding
+[installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
+
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
+
 ### Generic Key
 
 A generic key is a specific string literal that will be used to match an action to a descriptor. For instance, we could

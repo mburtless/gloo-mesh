@@ -9,8 +9,6 @@ Rate limit configuration via `RateLimitServerConfig` and `RateLimitClientConfig`
 If you are using an earlier version, this feature will not be available.
 {{% /notice %}}
 
-This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
-
 Gloo Mesh Gateway Enterprise exposes a fine-grained API that allows you to configure a vast number of rate limiting use cases.
 The two main objects that make up the API are:
 1. the [`descriptors`]({{% versioned_link_path fromRoot="/guides/security/rate_limiting/envoy//#descriptors" %}})
@@ -20,6 +18,12 @@ The two main objects that make up the API are:
    and/or [`setActions`]({{% versioned_link_path fromRoot="/guides/security/rate_limiting/set//#setactions" %}})that
    determine how Envoy composes the descriptors that are sent to the server to check whether a request should be
    rate-limited; `actions` and `setActions` are defined either on the `Route` or on the `VirtualHost` `options`.
+
+### Setup
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with Ratelimit enabled. Please refer to the corresponding
+[installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
+
+This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).
 
 ### RateLimitServerConfig resource
 Starting with Gloo Mesh Enterprise `v1.1.0` you can define rate limits by creating `RateLimitServerConfig` and `RateLimitClientConfig` resources.
@@ -176,7 +180,6 @@ To verify that the VirtualGateway works, let's send a request to bookinfo:
 
 ```bash
 curl -v $(BOOKINFO_INGRESS_GATEWAY_URL)/ratings/1
-curl -v $(BOOKINFO_INGRESS_GATEWAY_URL)/reviews/1
 ```
 
 This should return the expected response from ratings:
@@ -234,7 +237,7 @@ EOF
 
 Let’s see what each of these resources represents:
 
-* global-limit defines a simple counter. Every time a request matches a route that references this resource, the counter will be increased. After the counter has been increased 4 times within a 1-minute time window, successive requests in the same time window will be rejected with a 429 response code;
+* rl-config defines a simple counter. Every time a request matches a route that references this resource, the counter will be increased. After the counter has been increased 4 times within a 1-minute time window, successive requests in the same time window will be rejected with a 429 response code;
 
 * per-destination-counter defines a set of counters. Each counter tracks requests to a specific cluster. After a destination has received 3 requests within a 1-minute time window, successive requests to the same destination in the same time window will be rejected with a 429 response code.
 
@@ -317,7 +320,7 @@ You can verify that Gloo Mesh has been correctly configured by port-forwarding t
 config dump. First run:
 
 ```shell script
-kubectl port-forward -n gloo-system deploy/rate-limit 9091
+kubectl port-forward -n gloo-mesh deploy/rate-limiter 9091
 ```
 
 Then - from a separate shell - run:
@@ -379,4 +382,4 @@ The **fifth attempt** should return the `429 Too Many Reqeusts` response:
 < content-length: 0
 ```
 
-This is becausem although we get 3 requests per minute on the destination, we have a global-limit of 4 requests per minute across both destinations.
+This is because although we get 3 requests per minute on the destination, we have a global-limit of 4 requests per minute across both destinations.
