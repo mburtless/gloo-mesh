@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    description: Restore deprecated fields in traffic policy request matcher.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/967

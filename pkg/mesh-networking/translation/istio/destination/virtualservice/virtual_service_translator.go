@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"sort"
 
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/trafficpolicyutils"
+
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/routeutils"
 
 	"github.com/golang/protobuf/proto"
@@ -213,7 +215,10 @@ func groupAppliedTpsByRequestMatcher(
 
 func requestMatchersEqual(tp1, tp2 *v1.TrafficPolicySpec) bool {
 	return workloadSelectorListsEqual(tp1.GetSourceSelector(), tp2.GetSourceSelector()) &&
-		httpRequestMatchersEqual(tp1.GetHttpRequestMatchers(), tp2.GetHttpRequestMatchers())
+		httpRequestMatchersEqual(
+			trafficpolicyutils.ConvertDeprecatedRequestMatchers(tp1.GetHttpRequestMatchers()),
+			trafficpolicyutils.ConvertDeprecatedRequestMatchers(tp2.GetHttpRequestMatchers()),
+		)
 }
 
 func httpRequestMatchersEqual(matchers1, matchers2 []*v1.HttpMatcher) bool {
@@ -403,7 +408,7 @@ func translateRequestMatchers(
 	trafficPolicy *v1.TrafficPolicySpec,
 ) []*networkingv1alpha3spec.HTTPMatchRequest {
 	return routeutils.TranslateRequestMatchers(
-		trafficPolicy.HttpRequestMatchers,
+		trafficpolicyutils.ConvertDeprecatedRequestMatchers(trafficPolicy.HttpRequestMatchers),
 		trafficPolicy.SourceSelector,
 	)
 }

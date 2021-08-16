@@ -308,6 +308,158 @@ func (x *HttpMatcher) GetMethod() string {
 	return ""
 }
 
+// Specify HTTP request level match criteria. All specified conditions must be satisfied for a match to occur.
+// DEPRECATED: use HttpMatcher
+type DeprecatedHttpMatcher struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// The name assigned to a match. The match's name will be
+	// concatenated with the parent route's name and will be logged in
+	// the access logs for requests matching this route.
+	Name string `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"`
+	// Specify match criteria against the targeted path.
+	// DEPRECATED. Use uri instead
+	//
+	// Types that are assignable to PathSpecifier:
+	//	*DeprecatedHttpMatcher_Prefix
+	//	*DeprecatedHttpMatcher_Exact
+	//	*DeprecatedHttpMatcher_Regex
+	PathSpecifier isDeprecatedHttpMatcher_PathSpecifier `protobuf_oneof:"path_specifier"`
+	// Specify match criteria against the targeted path.
+	Uri *v1.StringMatch `protobuf:"bytes,10,opt,name=uri,proto3" json:"uri,omitempty"`
+	// Specify a set of headers which requests must match in entirety (all headers must match).
+	Headers []*HeaderMatcher `protobuf:"bytes,4,rep,name=headers,proto3" json:"headers,omitempty"`
+	// Specify a set of URL query parameters which requests must match in entirety (all query params must match).
+	QueryParameters []*DeprecatedHttpMatcher_QueryParameterMatcher `protobuf:"bytes,5,rep,name=query_parameters,json=queryParameters,proto3" json:"query_parameters,omitempty"`
+	// Specify an HTTP method to match against.
+	Method string `protobuf:"bytes,6,opt,name=method,proto3" json:"method,omitempty"`
+}
+
+func (x *DeprecatedHttpMatcher) Reset() {
+	*x = DeprecatedHttpMatcher{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeprecatedHttpMatcher) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeprecatedHttpMatcher) ProtoMessage() {}
+
+func (x *DeprecatedHttpMatcher) ProtoReflect() protoreflect.Message {
+	mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeprecatedHttpMatcher.ProtoReflect.Descriptor instead.
+func (*DeprecatedHttpMatcher) Descriptor() ([]byte, []int) {
+	return file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeprecatedHttpMatcher) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (m *DeprecatedHttpMatcher) GetPathSpecifier() isDeprecatedHttpMatcher_PathSpecifier {
+	if m != nil {
+		return m.PathSpecifier
+	}
+	return nil
+}
+
+func (x *DeprecatedHttpMatcher) GetPrefix() string {
+	if x, ok := x.GetPathSpecifier().(*DeprecatedHttpMatcher_Prefix); ok {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *DeprecatedHttpMatcher) GetExact() string {
+	if x, ok := x.GetPathSpecifier().(*DeprecatedHttpMatcher_Exact); ok {
+		return x.Exact
+	}
+	return ""
+}
+
+func (x *DeprecatedHttpMatcher) GetRegex() string {
+	if x, ok := x.GetPathSpecifier().(*DeprecatedHttpMatcher_Regex); ok {
+		return x.Regex
+	}
+	return ""
+}
+
+func (x *DeprecatedHttpMatcher) GetUri() *v1.StringMatch {
+	if x != nil {
+		return x.Uri
+	}
+	return nil
+}
+
+func (x *DeprecatedHttpMatcher) GetHeaders() []*HeaderMatcher {
+	if x != nil {
+		return x.Headers
+	}
+	return nil
+}
+
+func (x *DeprecatedHttpMatcher) GetQueryParameters() []*DeprecatedHttpMatcher_QueryParameterMatcher {
+	if x != nil {
+		return x.QueryParameters
+	}
+	return nil
+}
+
+func (x *DeprecatedHttpMatcher) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+type isDeprecatedHttpMatcher_PathSpecifier interface {
+	isDeprecatedHttpMatcher_PathSpecifier()
+}
+
+type DeprecatedHttpMatcher_Prefix struct {
+	// If specified, the targeted path must begin with the prefix.
+	// DEPRECATED. Use uri.prefix instead
+	Prefix string `protobuf:"bytes,1,opt,name=prefix,proto3,oneof"`
+}
+
+type DeprecatedHttpMatcher_Exact struct {
+	// If specified, the targeted path must exactly match the value.
+	// DEPRECATED. Use uri.exact instead
+	Exact string `protobuf:"bytes,2,opt,name=exact,proto3,oneof"`
+}
+
+type DeprecatedHttpMatcher_Regex struct {
+	// If specified, the targeted path must match the regex.
+	// DEPRECATED. Use uri.regex instead
+	Regex string `protobuf:"bytes,3,opt,name=regex,proto3,oneof"`
+}
+
+func (*DeprecatedHttpMatcher_Prefix) isDeprecatedHttpMatcher_PathSpecifier() {}
+
+func (*DeprecatedHttpMatcher_Exact) isDeprecatedHttpMatcher_PathSpecifier() {}
+
+func (*DeprecatedHttpMatcher_Regex) isDeprecatedHttpMatcher_PathSpecifier() {}
+
 // Specify match criteria against the target URL's query parameters.
 type HttpMatcher_QueryParameterMatcher struct {
 	state         protoimpl.MessageState
@@ -325,7 +477,7 @@ type HttpMatcher_QueryParameterMatcher struct {
 func (x *HttpMatcher_QueryParameterMatcher) Reset() {
 	*x = HttpMatcher_QueryParameterMatcher{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3]
+		mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -338,7 +490,7 @@ func (x *HttpMatcher_QueryParameterMatcher) String() string {
 func (*HttpMatcher_QueryParameterMatcher) ProtoMessage() {}
 
 func (x *HttpMatcher_QueryParameterMatcher) ProtoReflect() protoreflect.Message {
-	mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3]
+	mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,6 +521,73 @@ func (x *HttpMatcher_QueryParameterMatcher) GetValue() string {
 }
 
 func (x *HttpMatcher_QueryParameterMatcher) GetRegex() bool {
+	if x != nil {
+		return x.Regex
+	}
+	return false
+}
+
+// Specify match criteria against the target URL's query parameters.
+type DeprecatedHttpMatcher_QueryParameterMatcher struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Specify the name of a key that must be present in the requested path's query string.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Specify the value of the query parameter keyed on `name`.
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	// If true, treat `value` as a regular expression.
+	Regex bool `protobuf:"varint,3,opt,name=regex,proto3" json:"regex,omitempty"`
+}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) Reset() {
+	*x = DeprecatedHttpMatcher_QueryParameterMatcher{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeprecatedHttpMatcher_QueryParameterMatcher) ProtoMessage() {}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) ProtoReflect() protoreflect.Message {
+	mi := &file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeprecatedHttpMatcher_QueryParameterMatcher.ProtoReflect.Descriptor instead.
+func (*DeprecatedHttpMatcher_QueryParameterMatcher) Descriptor() ([]byte, []int) {
+	return file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *DeprecatedHttpMatcher_QueryParameterMatcher) GetRegex() bool {
 	if x != nil {
 		return x.Regex
 	}
@@ -430,12 +649,43 @@ var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_r
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x76,
 	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75,
 	0x65, 0x12, 0x14, 0x0a, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08,
-	0x52, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x42, 0x46, 0x5a, 0x44, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x6f, 0x6c, 0x6f, 0x2d, 0x69, 0x6f, 0x2f, 0x67, 0x6c,
-	0x6f, 0x6f, 0x2d, 0x6d, 0x65, 0x73, 0x68, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x6e, 0x65, 0x74, 0x77, 0x6f, 0x72, 0x6b, 0x69, 0x6e, 0x67, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e,
-	0x67, 0x6c, 0x6f, 0x6f, 0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2f, 0x76, 0x31, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x22, 0xee, 0x03, 0x0a, 0x15, 0x44, 0x65, 0x70, 0x72,
+	0x65, 0x63, 0x61, 0x74, 0x65, 0x64, 0x48, 0x74, 0x74, 0x70, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x65,
+	0x72, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x12,
+	0x16, 0x0a, 0x05, 0x65, 0x78, 0x61, 0x63, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00,
+	0x52, 0x05, 0x65, 0x78, 0x61, 0x63, 0x74, 0x12, 0x16, 0x0a, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x12,
+	0x37, 0x0a, 0x03, 0x75, 0x72, 0x69, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x63,
+	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e, 0x67, 0x6c, 0x6f, 0x6f, 0x2e,
+	0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x4d, 0x61,
+	0x74, 0x63, 0x68, 0x52, 0x03, 0x75, 0x72, 0x69, 0x12, 0x45, 0x0a, 0x07, 0x68, 0x65, 0x61, 0x64,
+	0x65, 0x72, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6e, 0x65, 0x74, 0x77,
+	0x6f, 0x72, 0x6b, 0x69, 0x6e, 0x67, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e, 0x67, 0x6c, 0x6f, 0x6f,
+	0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2e, 0x48, 0x65, 0x61, 0x64, 0x65, 0x72, 0x4d,
+	0x61, 0x74, 0x63, 0x68, 0x65, 0x72, 0x52, 0x07, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x73, 0x12,
+	0x74, 0x0a, 0x10, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x65, 0x74,
+	0x65, 0x72, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x49, 0x2e, 0x6e, 0x65, 0x74, 0x77,
+	0x6f, 0x72, 0x6b, 0x69, 0x6e, 0x67, 0x2e, 0x6d, 0x65, 0x73, 0x68, 0x2e, 0x67, 0x6c, 0x6f, 0x6f,
+	0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2e, 0x44, 0x65, 0x70, 0x72, 0x65, 0x63, 0x61,
+	0x74, 0x65, 0x64, 0x48, 0x74, 0x74, 0x70, 0x4d, 0x61, 0x74, 0x63, 0x68, 0x65, 0x72, 0x2e, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x65, 0x74, 0x65, 0x72, 0x4d, 0x61, 0x74,
+	0x63, 0x68, 0x65, 0x72, 0x52, 0x0f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x65, 0x74, 0x65, 0x72, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6d, 0x65, 0x74, 0x68, 0x6f, 0x64, 0x1a, 0x57, 0x0a,
+	0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x65, 0x74, 0x65, 0x72, 0x4d,
+	0x61, 0x74, 0x63, 0x68, 0x65, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x12, 0x14, 0x0a, 0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x05, 0x72, 0x65, 0x67, 0x65, 0x78, 0x42, 0x10, 0x0a, 0x0e, 0x70, 0x61, 0x74, 0x68, 0x5f, 0x73,
+	0x70, 0x65, 0x63, 0x69, 0x66, 0x69, 0x65, 0x72, 0x42, 0x46, 0x5a, 0x44, 0x67, 0x69, 0x74, 0x68,
+	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x6f, 0x6c, 0x6f, 0x2d, 0x69, 0x6f, 0x2f, 0x67,
+	0x6c, 0x6f, 0x6f, 0x2d, 0x6d, 0x65, 0x73, 0x68, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x61, 0x70, 0x69,
+	0x2f, 0x6e, 0x65, 0x74, 0x77, 0x6f, 0x72, 0x6b, 0x69, 0x6e, 0x67, 0x2e, 0x6d, 0x65, 0x73, 0x68,
+	0x2e, 0x67, 0x6c, 0x6f, 0x6f, 0x2e, 0x73, 0x6f, 0x6c, 0x6f, 0x2e, 0x69, 0x6f, 0x2f, 0x76, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -451,25 +701,30 @@ func file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_
 }
 
 var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_goTypes = []interface{}{
-	(StatusCodeMatcher_Comparator)(0),         // 0: networking.mesh.gloo.solo.io.StatusCodeMatcher.Comparator
-	(*HeaderMatcher)(nil),                     // 1: networking.mesh.gloo.solo.io.HeaderMatcher
-	(*StatusCodeMatcher)(nil),                 // 2: networking.mesh.gloo.solo.io.StatusCodeMatcher
-	(*HttpMatcher)(nil),                       // 3: networking.mesh.gloo.solo.io.HttpMatcher
-	(*HttpMatcher_QueryParameterMatcher)(nil), // 4: networking.mesh.gloo.solo.io.HttpMatcher.QueryParameterMatcher
-	(*v1.StringMatch)(nil),                    // 5: common.mesh.gloo.solo.io.StringMatch
+	(StatusCodeMatcher_Comparator)(0),                   // 0: networking.mesh.gloo.solo.io.StatusCodeMatcher.Comparator
+	(*HeaderMatcher)(nil),                               // 1: networking.mesh.gloo.solo.io.HeaderMatcher
+	(*StatusCodeMatcher)(nil),                           // 2: networking.mesh.gloo.solo.io.StatusCodeMatcher
+	(*HttpMatcher)(nil),                                 // 3: networking.mesh.gloo.solo.io.HttpMatcher
+	(*DeprecatedHttpMatcher)(nil),                       // 4: networking.mesh.gloo.solo.io.DeprecatedHttpMatcher
+	(*HttpMatcher_QueryParameterMatcher)(nil),           // 5: networking.mesh.gloo.solo.io.HttpMatcher.QueryParameterMatcher
+	(*DeprecatedHttpMatcher_QueryParameterMatcher)(nil), // 6: networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher
+	(*v1.StringMatch)(nil),                              // 7: common.mesh.gloo.solo.io.StringMatch
 }
 var file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_depIdxs = []int32{
 	0, // 0: networking.mesh.gloo.solo.io.StatusCodeMatcher.comparator:type_name -> networking.mesh.gloo.solo.io.StatusCodeMatcher.Comparator
-	5, // 1: networking.mesh.gloo.solo.io.HttpMatcher.uri:type_name -> common.mesh.gloo.solo.io.StringMatch
+	7, // 1: networking.mesh.gloo.solo.io.HttpMatcher.uri:type_name -> common.mesh.gloo.solo.io.StringMatch
 	1, // 2: networking.mesh.gloo.solo.io.HttpMatcher.headers:type_name -> networking.mesh.gloo.solo.io.HeaderMatcher
-	4, // 3: networking.mesh.gloo.solo.io.HttpMatcher.query_parameters:type_name -> networking.mesh.gloo.solo.io.HttpMatcher.QueryParameterMatcher
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 3: networking.mesh.gloo.solo.io.HttpMatcher.query_parameters:type_name -> networking.mesh.gloo.solo.io.HttpMatcher.QueryParameterMatcher
+	7, // 4: networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.uri:type_name -> common.mesh.gloo.solo.io.StringMatch
+	1, // 5: networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.headers:type_name -> networking.mesh.gloo.solo.io.HeaderMatcher
+	6, // 6: networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.query_parameters:type_name -> networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_init() }
@@ -515,6 +770,18 @@ func file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_
 			}
 		}
 		file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeprecatedHttpMatcher); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*HttpMatcher_QueryParameterMatcher); i {
 			case 0:
 				return &v.state
@@ -526,6 +793,23 @@ func file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_
 				return nil
 			}
 		}
+		file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeprecatedHttpMatcher_QueryParameterMatcher); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
+	file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_msgTypes[3].OneofWrappers = []interface{}{
+		(*DeprecatedHttpMatcher_Prefix)(nil),
+		(*DeprecatedHttpMatcher_Exact)(nil),
+		(*DeprecatedHttpMatcher_Regex)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -533,7 +817,7 @@ func file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_github_com_solo_io_gloo_mesh_api_networking_v1_request_matchers_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

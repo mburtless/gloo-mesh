@@ -106,7 +106,7 @@ var _ = Describe("VirtualServiceTranslator", func() {
 									},
 								},
 							},
-							HttpRequestMatchers: []*networkingv1.HttpMatcher{
+							HttpRequestMatchers: []*networkingv1.DeprecatedHttpMatcher{
 								{
 									Uri: &commonv1.StringMatch{
 										MatchType: &commonv1.StringMatch_Exact{
@@ -148,7 +148,7 @@ var _ = Describe("VirtualServiceTranslator", func() {
 									},
 								},
 							},
-							HttpRequestMatchers: []*networkingv1.HttpMatcher{
+							HttpRequestMatchers: []*networkingv1.DeprecatedHttpMatcher{
 								{
 									Uri: &commonv1.StringMatch{
 										MatchType: &commonv1.StringMatch_Exact{
@@ -534,7 +534,7 @@ var _ = Describe("VirtualServiceTranslator", func() {
 									},
 								},
 							},
-							HttpRequestMatchers: []*networkingv1.HttpMatcher{
+							HttpRequestMatchers: []*networkingv1.DeprecatedHttpMatcher{
 								{
 									Uri: &commonv1.StringMatch{
 										MatchType: &commonv1.StringMatch_Exact{
@@ -1140,7 +1140,7 @@ var _ = Describe("VirtualServiceTranslator", func() {
 									},
 								},
 							},
-							HttpRequestMatchers: []*networkingv1.HttpMatcher{
+							HttpRequestMatchers: []*networkingv1.DeprecatedHttpMatcher{
 								{
 									Headers: []*networkingv1.HeaderMatcher{
 										{

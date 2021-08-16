@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/trafficpolicyutils"
+
 	"github.com/olekukonko/tablewriter"
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	networkingv1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
@@ -176,7 +178,7 @@ func describeTrafficPolicy(trafficPolicy *networkingv1.TrafficPolicy) trafficPol
 		Metadata:            &trafficPolicyMeta,
 		SourceWorkloads:     trafficPolicy.Spec.GetSourceSelector(),
 		DestinationServices: destinationServices,
-		HttpMatchers:        trafficPolicy.Spec.GetHttpRequestMatchers(),
+		HttpMatchers:        trafficpolicyutils.ConvertDeprecatedRequestMatchers(trafficPolicy.Spec.GetHttpRequestMatchers()),
 	}
 }
 

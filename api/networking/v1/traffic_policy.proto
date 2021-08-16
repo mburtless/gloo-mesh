@@ -46,7 +46,7 @@ message TrafficPolicySpec {
     // Conditions defined within a single matcher are conjunctive, i.e. all conditions must be satisfied for a match to occur.
     // Conditions defined between different matchers are disjunctive, i.e. at least one matcher must be satisfied for the TrafficPolicy to apply.
     // Omit to apply to any HTTP request.
-    repeated .networking.mesh.gloo.solo.io.HttpMatcher http_request_matchers = 3;
+    repeated .networking.mesh.gloo.solo.io.DeprecatedHttpMatcher http_request_matchers = 3;
 
     // Specify L7 routing and post-routing configuration.
     Policy policy = 4;

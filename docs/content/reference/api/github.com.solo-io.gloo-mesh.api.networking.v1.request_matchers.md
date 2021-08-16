@@ -18,6 +18,8 @@ title: "request_matchers.proto"
 
 
 ## Table of Contents
+  - [DeprecatedHttpMatcher](#networking.mesh.gloo.solo.io.DeprecatedHttpMatcher)
+  - [DeprecatedHttpMatcher.QueryParameterMatcher](#networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher)
   - [HeaderMatcher](#networking.mesh.gloo.solo.io.HeaderMatcher)
   - [HttpMatcher](#networking.mesh.gloo.solo.io.HttpMatcher)
   - [HttpMatcher.QueryParameterMatcher](#networking.mesh.gloo.solo.io.HttpMatcher.QueryParameterMatcher)
@@ -25,6 +27,45 @@ title: "request_matchers.proto"
 
   - [StatusCodeMatcher.Comparator](#networking.mesh.gloo.solo.io.StatusCodeMatcher.Comparator)
 
+
+
+
+
+
+<a name="networking.mesh.gloo.solo.io.DeprecatedHttpMatcher"></a>
+
+### DeprecatedHttpMatcher
+Specify HTTP request level match criteria. All specified conditions must be satisfied for a match to occur. DEPRECATED: use HttpMatcher
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | string |  | The name assigned to a match. The match's name will be concatenated with the parent route's name and will be logged in the access logs for requests matching this route. |
+  | prefix | string |  | If specified, the targeted path must begin with the prefix. DEPRECATED. Use uri.prefix instead |
+  | exact | string |  | If specified, the targeted path must exactly match the value. DEPRECATED. Use uri.exact instead |
+  | regex | string |  | If specified, the targeted path must match the regex. DEPRECATED. Use uri.regex instead |
+  | uri | [common.mesh.gloo.solo.io.StringMatch]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.string_match#common.mesh.gloo.solo.io.StringMatch" >}}) |  | Specify match criteria against the targeted path. |
+  | headers | [][networking.mesh.gloo.solo.io.HeaderMatcher]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.request_matchers#networking.mesh.gloo.solo.io.HeaderMatcher" >}}) | repeated | Specify a set of headers which requests must match in entirety (all headers must match). |
+  | queryParameters | [][networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.request_matchers#networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher" >}}) | repeated | Specify a set of URL query parameters which requests must match in entirety (all query params must match). |
+  | method | string |  | Specify an HTTP method to match against. |
+  
+
+
+
+
+
+<a name="networking.mesh.gloo.solo.io.DeprecatedHttpMatcher.QueryParameterMatcher"></a>
+
+### DeprecatedHttpMatcher.QueryParameterMatcher
+Specify match criteria against the target URL's query parameters.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | string |  | Specify the name of a key that must be present in the requested path's query string. |
+  | value | string |  | Specify the value of the query parameter keyed on `name`. |
+  | regex | bool |  | If true, treat `value` as a regular expression. |
+  
 
 
 
