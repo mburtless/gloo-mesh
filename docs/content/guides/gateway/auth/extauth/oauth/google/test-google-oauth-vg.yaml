@@ -13,16 +13,27 @@ spec:
         routeConfig:
           - virtualHost:
               domains:
-                - www.example.com
+                - '*'
               routes:
                 - matchers:
                     - uri:
-                        prefix: /ratings
+                        prefix: /callback
+                  name: callback
+                  routeAction:
+                    pathRewrite: /ratings/2
+                    destinations:
+                      - kubeService:
+                          clusterName: mgmt-cluster
+                          name: ratings
+                          namespace: bookinfo
+                - matchers:
+                    - uri:
+                        exact: /ratings/1
                   name: ratings
                   options:
                     extauth:
                       configRef:
-                        name: apikey-auth
+                        name: google-oidc
                         namespace: bookinfo
                   routeAction:
                     destinations:

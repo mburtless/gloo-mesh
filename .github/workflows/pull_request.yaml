@@ -11,6 +11,10 @@ jobs:
     name: check-code-gen
     runs-on: ubuntu-18.04
     steps:
+      - name: Cancel Previous Actions
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - run: |
           git fetch --prune --unshallow
@@ -39,6 +43,10 @@ jobs:
     name: unit-tests
     runs-on: ubuntu-18.04
     steps:
+      - name: Cancel Previous Actions
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - run: |
           git fetch --prune --unshallow
@@ -81,6 +89,10 @@ jobs:
             'https://github.com/istio/istio/releases/download/1.10.3/istio-1.10.3-linux-amd64.tar.gz'
         ]
     steps:
+      - name: Cancel Previous Actions
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - run: |
           git fetch --prune --unshallow
@@ -143,6 +155,10 @@ jobs:
             'provided-ca'
         ]
     steps:
+      - name: Cancel Previous Actions
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - run: |
           git fetch --prune --unshallow
@@ -207,6 +223,10 @@ jobs:
             'https://github.com/openservicemesh/osm/releases/download/v0.4.0/osm-v0.4.0-linux-amd64.tar.gz',
         ]
     steps:
+      - name: Cancel Previous Actions
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - run: |
           git fetch --prune --unshallow

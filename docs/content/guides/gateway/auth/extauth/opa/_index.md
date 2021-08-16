@@ -23,7 +23,7 @@ The [Open Policy Agent](https://www.openpolicyagent.org/) (OPA) is an open sourc
     - [Testing our configuration](#testing-the-configuration)
 
 ## Setup
-First, we need to install Gloo Mesh Enterprise (minimum version `1.1`). Please refer to the corresponding
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with extauth enabled. Please refer to the corresponding
 [installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
 
 This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).

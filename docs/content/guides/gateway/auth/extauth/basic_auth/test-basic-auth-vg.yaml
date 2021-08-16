@@ -30,17 +30,16 @@ spec:
                           clusterName: mgmt-cluster
                           name: ratings
                           namespace: bookinfo
-  deployToIngressGateways:
-    bindPort: 8080
-    gatewayWorkloads:
-      - kubeWorkloadMatcher:
-          clusters:
-            - mgmt-cluster
-          labels:
-            istio: ingressgateway-ns
-          namespaces:
-            - istio-system
-
+  ingressGatewaySelectors:
+    - destinationSelectors:
+        - kubeServiceMatcher:
+            clusters:
+              - mgmt-cluster
+            labels:
+              istio: ingressgateway-ns
+            namespaces:
+              - istio-system
+      portName: http2
 ---
 apiVersion: enterprise.gloo.solo.io/v1
 kind: AuthConfig

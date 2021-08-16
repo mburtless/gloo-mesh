@@ -1,0 +1,5 @@
+changelog:
+  - type: NON_USER_FACING
+    description: extauth docs part 2, oauth, oidc, access token, custom auth docs. update to new api
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/527
+    resolvesIssue: false

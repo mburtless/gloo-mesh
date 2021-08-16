@@ -22,7 +22,7 @@ spec:
                   options:
                     extauth:
                       configRef:
-                        name: apikey-auth
+                        name: oidc-hydra
                         namespace: bookinfo
                   routeAction:
                     destinations:

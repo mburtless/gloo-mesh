@@ -10,6 +10,15 @@ metadata:
 spec:
   connectionHandlers:
     - http:
+        routeOptions:
+          extauth:
+            extauthzRef:
+              name: auth-service-bookinfo-mgmt-cluster
+              namespace: gloo-mesh
+            httpService:
+              request:
+                allowedHeaders:
+                  - "X-foo"
         routeConfig:
           - virtualHost:
               domains:
@@ -21,9 +30,7 @@ spec:
                   name: ratings
                   options:
                     extauth:
-                      configRef:
-                        name: apikey-auth
-                        namespace: bookinfo
+                      customAuth: {}
                   routeAction:
                     destinations:
                       - kubeService:
@@ -40,4 +47,4 @@ spec:
             namespaces:
               - istio-system
       portName: http2
-  ```
+```

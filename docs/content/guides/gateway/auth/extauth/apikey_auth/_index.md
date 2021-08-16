@@ -34,7 +34,7 @@ Gloo Mesh will deny the request and return a 401 response to the downstream clie
 Internally, Gloo Mesh will generate a mapping of API keys to _user identities_ for all API keys present in the system. The _user identity_ for a given API key is the name of the `Secret` which contains the API key. The _user identity_ will be added to the request as a header, `x-user-id` by default, which can be utilized in subsequent filters. For security reasons, this header will be sanitized from the response before it leaves the proxy.
 
 ## Setup
-First, we need to install Gloo Mesh Enterprise (minimum version `1.1`). Please refer to the corresponding
+First, we need to install Gloo Mesh Enterprise (minimum version `1.1`) with extauth enabled. Please refer to the corresponding
 [installation guide]({{< versioned_link_path fromRoot="/setup/installation/enterprise_installation" >}}) for details.
 
 This guide makes use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section]({{% versioned_link_path fromRoot="/guides/#bookinfo-deployment" %}}).

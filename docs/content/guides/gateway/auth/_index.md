@@ -1,7 +1,7 @@
 ---
 title: Authentication and Authorization
 weight: 30
-description: An overview of authentication and authorization options with Gloo Edge.
+description: An overview of authentication and authorization options with Gloo Mesh Gateway.
 ---
 
 {{% notice note %}} External Authorization requires a Gloo Mesh Gateway license. {{% /notice %}}
