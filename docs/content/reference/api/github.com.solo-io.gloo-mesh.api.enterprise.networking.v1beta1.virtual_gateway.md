@@ -18,22 +18,18 @@ title: "virtual_gateway.proto"
 
 
 ## Table of Contents
-  - [SDSConfig](#networking.enterprise.mesh.gloo.solo.io.SDSConfig)
-  - [SDSConfig.CallCredentials](#networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials)
-  - [SDSConfig.CallCredentials.FileCredentialSource](#networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials.FileCredentialSource)
+  - [SslConfig](#networking.enterprise.mesh.gloo.solo.io.SslConfig)
+  - [SslConfig.SSLFiles](#networking.enterprise.mesh.gloo.solo.io.SslConfig.SSLFiles)
+  - [SslConfig.SslParameters](#networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters)
   - [VirtualGatewaySpec](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec)
   - [VirtualGatewaySpec.ConnectionHandler](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler)
   - [VirtualGatewaySpec.ConnectionHandler.ConnectionMatch](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionMatch)
   - [VirtualGatewaySpec.ConnectionHandler.ConnectionOptions](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions)
-  - [VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions)
   - [VirtualGatewaySpec.ConnectionHandler.HttpRoutes](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.HttpRoutes)
   - [VirtualGatewaySpec.ConnectionHandler.HttpRoutes.HttpOptions](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.HttpRoutes.HttpOptions)
   - [VirtualGatewaySpec.ConnectionHandler.HttpRoutes.RouteSpecifier](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.HttpRoutes.RouteSpecifier)
   - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes)
   - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost)
-  - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig)
-  - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles)
-  - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters)
   - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.TcpAction](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.TcpAction)
   - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpOptions](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpOptions)
   - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpOptions.TcpProxySettings](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpOptions.TcpProxySettings)
@@ -42,57 +38,61 @@ title: "virtual_gateway.proto"
   - [VirtualGatewayStatus](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewayStatus)
   - [VirtualGatewayStatus.CreatedIstioGatewaysEntry](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewayStatus.CreatedIstioGatewaysEntry)
 
-  - [VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion](#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion)
+  - [SslConfig.SslParameters.ProtocolVersion](#networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion)
+  - [SslConfig.TlsMode](#networking.enterprise.mesh.gloo.solo.io.SslConfig.TlsMode)
 
 
 
 
 
 
-<a name="networking.enterprise.mesh.gloo.solo.io.SDSConfig"></a>
+<a name="networking.enterprise.mesh.gloo.solo.io.SslConfig"></a>
 
-### SDSConfig
-Note: This message needs to be at this level (rather than nested) due to cue restrictions.
+### SslConfig
+SslConfig contains the options necessary to configure a virtual host or listener to use TLS
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| targetUri | string |  | Target uri for the sds channel. currently only a unix domain socket is supported. |
-  | callCredentials | [networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials" >}}) |  | Call credentials. |
-  | clusterName | string |  | The name of the sds cluster in envoy |
-  | certificatesSecretName | string |  | The name of the secret containing the certificate |
-  | validationContextName | string |  | The name of secret containing the validation context (i.e. root ca) |
+| secretName | string |  | SecretName is the name of the kubernetes secret which contains the ssl secret. Each Gateway will look for a secret with this name on it's own local cluster in it's own namespace. |
+  | sslFiles | [networking.enterprise.mesh.gloo.solo.io.SslConfig.SSLFiles]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig.SSLFiles" >}}) |  | SSLFiles reference paths to certificates which can be read by the proxy off of its local filesystem |
+  | verifySubjectAltName | []string | repeated | Verify that the Subject Alternative Name in the peer certificate is one of the specified values. note that a root_ca must be provided if this option is used. |
+  | parameters | [networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters" >}}) |  |  |
+  | tlsMode | [networking.enterprise.mesh.gloo.solo.io.SslConfig.TlsMode]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig.TlsMode" >}}) |  | TLS modes enforced by the proxy |
   
 
 
 
 
 
-<a name="networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials"></a>
+<a name="networking.enterprise.mesh.gloo.solo.io.SslConfig.SSLFiles"></a>
 
-### SDSConfig.CallCredentials
+### SslConfig.SSLFiles
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| fileCredentialSource | [networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials.FileCredentialSource]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials.FileCredentialSource" >}}) |  | Call credentials are coming from a file, |
+| tlsCert | string |  |  |
+  | tlsKey | string |  |  |
+  | rootCa | string |  | for client cert validation. optional |
   
 
 
 
 
 
-<a name="networking.enterprise.mesh.gloo.solo.io.SDSConfig.CallCredentials.FileCredentialSource"></a>
+<a name="networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters"></a>
 
-### SDSConfig.CallCredentials.FileCredentialSource
-
+### SslConfig.SslParameters
+General TLS parameters. See the [envoy docs](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/auth/cert.proto#envoy-api-enum-auth-tlsparameters-tlsprotocol) for more information on the meaning of these values.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| tokenFileName | string |  | File containing auth token. |
-  | header | string |  | Header to carry the token. |
+| minimumProtocolVersion | [networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion" >}}) |  |  |
+  | maximumProtocolVersion | [networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion" >}}) |  |  |
+  | cipherSuites | []string | repeated |  |
   
 
 
@@ -108,7 +108,6 @@ VirtualGateway is the top-level object for configuring ingress into a Mesh or Vi
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | ingressGatewaySelectors | [][common.mesh.gloo.solo.io.IngressGatewaySelector]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.IngressGatewaySelector" >}}) | repeated | Select the destinations to deploy the gateway to. |
-  | deployToSidecars | [][common.mesh.gloo.solo.io.WorkloadSelector]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.common.v1.selectors#common.mesh.gloo.solo.io.WorkloadSelector" >}}) | repeated | deploy this VirtualGateway to one or more workload sidecars {{/* NOTE: unimplemented */}} |
   | connectionHandlers | [][networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler" >}}) | repeated | Each Gateway must implement one or more ConnectionHandlers. A ConnectionHandler instructs the gateway how to handle clients which have connected to the specified bind address. Typically `connectionHandlers` will consist of a single `http` handler which serves HTTP Routes defined in a set of VirtualHosts. Multiple `connectionHandlers` can be specified to provide different behavior on the same Gateway, e.g. one for TCP and one for HTTP traffic. NOTE: Currently having multiple connection handlers is NOT supported. Only exactly ONE connection handler can be specified. |
   | options | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.GatewayOptions]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.GatewayOptions" >}}) |  | Options applied to all clients who connect to this gateway |
   
@@ -138,13 +137,13 @@ Each ConnnectionHandler specifies a `connectionMatch` (required if using multipl
 <a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionMatch"></a>
 
 ### VirtualGatewaySpec.ConnectionHandler.ConnectionMatch
-Look at what Envoy exposes, put them all(maybe?) here Should expose everything we can do with Envoy, ideally.
+
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| transportProtocol | string |  | Protocol |
-  | serverNames | []string | repeated | If non-empty, a list of server names (e.g. SNI for TLS protocol) to consider when determining a `connectionMatch`. Those values will be compared against the server names of a new connection, when detected by one of the listener filters.<br>The server name will be matched against all wildcard domains, i.e. `www.example.com` will be first matched against `www.example.com`, then `*.example.com`, then ``*.com`.<br>Note that partial wildcards are not supported, and values like `*w.example.com` are invalid. |
+| serverNames | []string | repeated | If non-empty, a list of server names (e.g. SNI for TLS protocol) to consider when determining a `connectionMatch`. Those values will be compared against the server names of a new connection, when detected by one of the listener filters.<br>The server name will be matched against all wildcard domains, i.e. `www.example.com` will be first matched against `www.example.com`, then `*.example.com`, then ``*.com`.<br>Note that partial wildcards are not supported, and values like `*w.example.com` are invalid. |
+  | transportProtocol | string |  | Optional, if set this will be used as the protocol for the gateway, otherwise it will be inferred based on the following logic:<br>- If the connectionHandler is a HTTP handler and no SslConfig is set in the connectionOptions, use "HTTP"<br>- If the connectionHandler is a HTTP handler and any SslConfig is set in the connectionOptions, use "HTTPS"<br>- If the connectionHandler is a TCP handler and no SslConfig is set in the connectionOptions, use "TCP"<br>- If the connectionHandler is a TCP handler and any SslConfig is set in the connectionOptions, use "TLS" |
   
 
 
@@ -154,30 +153,15 @@ Look at what Envoy exposes, put them all(maybe?) here Should expose everything w
 <a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions"></a>
 
 ### VirtualGatewaySpec.ConnectionHandler.ConnectionOptions
-TODO: Fill ConnectionOptions
+
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| tlsContext | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions" >}}) |  | TODO |
+| sslConfig | [networking.enterprise.mesh.gloo.solo.io.SslConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SslConfig" >}}) |  | Contains the options necessary to configure a virtual host or listener to use TLS |
+  | httpsRedirect | bool |  | If set to true, the load balancer will send a 301 redirect for all http connections, asking the clients to use HTTPS. |
   | strictFilterManagement | bool |  | Restricts filter from being added to the corresponding Envoy Listener unless they are explicitly configured in the connection handler options |
   | enableProxyProtocol | bool |  | enable PROXY protocol for this connection handler. |
-  
-
-
-
-
-
-<a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions"></a>
-
-### VirtualGatewaySpec.ConnectionHandler.ConnectionOptions.TlsTerminationOptions
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| presented | [google.protobuf.BoolValue]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.protoc-gen-ext.external.google.protobuf.wrappers#google.protobuf.BoolValue" >}}) |  | If specified, the route will match against whether or not a certificate is presented. If not specified, certificate presentation status (true or false) will not be considered when route matching. |
-  | validated | [google.protobuf.BoolValue]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.protoc-gen-ext.external.google.protobuf.wrappers#google.protobuf.BoolValue" >}}) |  | If specified, the route will match against whether or not a certificate is validated. If not specified, certificate validation status (true or false) will not be considered when route matching. |
   
 
 
@@ -258,64 +242,7 @@ TODO: Fill ConnectionOptions
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | string |  | the logical name of the tcp host. names must be unique for each tcp host within a listener |
-  | sslConfig | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig" >}}) |  | If provided, the Gateway will serve TLS/SSL traffic for this set of routes |
   | destination | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.TcpAction]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.TcpAction" >}}) |  |  |
-  
-
-
-
-
-
-<a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig"></a>
-
-### VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig
-SslConfig contains the options necessary to configure a virtual host or listener to use TLS
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| secretRef | [core.skv2.solo.io.ObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectRef" >}}) |  | SecretRef contains the secret ref to a gloo tls secret or a kubernetes tls secret. gloo tls secret can contain a root ca as well if verification is needed. |
-  | sslFiles | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles" >}}) |  | SSLFiles reference paths to certificates which are local to the proxy |
-  | sds | [networking.enterprise.mesh.gloo.solo.io.SDSConfig]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.SDSConfig" >}}) |  | Use secret discovery service. |
-  | sniDomains | []string | repeated | optional. the SNI domains that should be considered for TLS connections |
-  | verifySubjectAltName | []string | repeated | Verify that the Subject Alternative Name in the peer certificate is one of the specified values. note that a root_ca must be provided if this option is used. |
-  | parameters | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters" >}}) |  |  |
-  | alpnProtocols | []string | repeated | Set Application Level Protocol Negotiation If empty, defaults to ["h2", "http/1.1"]. |
-  
-
-
-
-
-
-<a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles"></a>
-
-### VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SSLFiles
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| tlsCert | string |  |  |
-  | tlsKey | string |  |  |
-  | rootCa | string |  | for client cert validation. optional |
-  
-
-
-
-
-
-<a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters"></a>
-
-### VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters
-General TLS parameters. See the [envoy docs](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/auth/cert.proto#envoy-api-enum-auth-tlsparameters-tlsprotocol) for more information on the meaning of these values.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| minimumProtocolVersion | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion" >}}) |  |  |
-  | maximumProtocolVersion | [networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.enterprise.networking.v1beta1.virtual_gateway#networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion" >}}) |  |  |
-  | cipherSuites | []string | repeated |  |
-  | ecdhCurves | []string | repeated |  |
   
 
 
@@ -444,9 +371,9 @@ TODO: Fill in more options<br>gateway-level options (only apply to gateway/liste
  <!-- end messages -->
 
 
-<a name="networking.enterprise.mesh.gloo.solo.io.VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion"></a>
+<a name="networking.enterprise.mesh.gloo.solo.io.SslConfig.SslParameters.ProtocolVersion"></a>
 
-### VirtualGatewaySpec.ConnectionHandler.TcpRoutes.TcpHost.SslConfig.SslParameters.ProtocolVersion
+### SslConfig.SslParameters.ProtocolVersion
 
 
 | Name | Number | Description |
@@ -456,6 +383,21 @@ TODO: Fill in more options<br>gateway-level options (only apply to gateway/liste
 | TLSv1_1 | 2 | TLS 1.1 |
 | TLSv1_2 | 3 | TLS 1.2 |
 | TLSv1_3 | 4 | TLS 1.3 |
+
+
+
+<a name="networking.enterprise.mesh.gloo.solo.io.SslConfig.TlsMode"></a>
+
+### SslConfig.TlsMode
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| PASSTHROUGH | 0 | The SNI string presented by the client will be used as the match criterion in a VirtualService TLS route to determine the destination service from the service registry. |
+| SIMPLE | 1 | Secure connections with standard TLS semantics. |
+| MUTUAL | 2 | Secure connections to the downstream using mutual TLS by presenting server certificates for authentication. |
+| AUTO_PASSTHROUGH | 3 | Similar to the passthrough mode, except servers with this TLS mode do not require an associated VirtualService to map from the SNI value to service in the registry. The destination details such as the service/subset/port are encoded in the SNI value. The proxy will forward to the upstream (Envoy) cluster (a group of endpoints) specified by the SNI value. This server is typically used to provide connectivity between services in disparate L3 networks that otherwise do not have direct connectivity between their respective endpoints. Use of this mode assumes that both the source and the destination are using Istio mTLS to secure traffic. In order for this mode to be enabled, the gateway deployment must be configured with the ISTIO_META_ROUTER_MODE=sni-dnat environment variable. |
+| ISTIO_MUTUAL | 4 | Secure connections from the downstream using mutual TLS by presenting server certificates for authentication. Compared to Mutual mode, this mode uses certificates, representing gateway workload identity, generated automatically by Istio for mTLS authentication. When this mode is used, all other fields in TLSOptions should be empty. |
 
 
  <!-- end enums -->

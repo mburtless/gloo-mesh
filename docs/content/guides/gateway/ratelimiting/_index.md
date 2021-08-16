@@ -1,6 +1,6 @@
 ---
 title: Rate Limiting
-weight: 30
+weight: 40
 description: Control the rate of traffic sent to your services.
 ---
 

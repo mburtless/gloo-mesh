@@ -363,7 +363,7 @@ spec:
   routeSelector:
   - routeTableRefs:
     - name: demo-routetable
-    - namespace: gloo-mesh
+      namespace: gloo-mesh
   policy:
     headerManipulation:
       appendResponseHeaders:
@@ -388,7 +388,7 @@ spec:
   routeSelector:
   - routeTableRefs:
     - name: demo-routetable
-    - namespace: gloo-mesh
+      namespace: gloo-mesh
   policy:
     headerManipulation:
       appendResponseHeaders:

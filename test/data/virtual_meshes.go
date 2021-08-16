@@ -4,6 +4,7 @@ import (
 	"context"
 
 	certificatesv1 "github.com/solo-io/gloo-mesh/pkg/api/certificates.mesh.gloo.solo.io/v1"
+	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
 	networkingv1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
 	skv2corev1 "github.com/solo-io/skv2/pkg/api/core.skv2.solo.io/v1"
@@ -49,6 +50,20 @@ func SelfSignedVirtualMesh(
 			Federation: &networkingv1.VirtualMeshSpec_Federation{
 				Selectors: []*networkingv1.VirtualMeshSpec_Federation_FederationSelector{
 					{}, // permissive federation
+				},
+				IngressGatewaySelectors: []*commonv1.IngressGatewaySelector{
+					{
+						PortName: "tls",
+						DestinationSelectors: []*commonv1.DestinationSelector{
+							{
+								KubeServiceMatcher: &commonv1.DestinationSelector_KubeServiceMatcher{
+									Labels: map[string]string{
+										"istio": "ingressgateway",
+									},
+								},
+							},
+						},
+					},
 				},
 				FlatNetwork:    flatNetwork,
 				HostnameSuffix: hostnameSuffix,

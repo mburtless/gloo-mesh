@@ -1593,37 +1593,133 @@ spec:
                           type: string
                         type: array
                       transportProtocol:
-                        description: Protocol
+                        description: |-
+                          Optional, if set this will be used as the protocol for the gateway, otherwise it will be inferred based on the following logic:
+
+                          - If the connectionHandler is a HTTP handler and no SslConfig is set in the connectionOptions, use "HTTP"
+
+                          - If the connectionHandler is a HTTP handler and any SslConfig is set in the connectionOptions, use "HTTPS"
+
+                          - If the connectionHandler is a TCP handler and no SslConfig is set in the connectionOptions, use "TCP"
+
+                          - If the connectionHandler is a TCP handler and any SslConfig is set in the connectionOptions, use "TLS"
                         type: string
                     type: object
                   connectionOptions:
                     description: Top level optional configuration for all routes on
                       the ConnectionHandler.
+                    oneOf:
+                    - not:
+                        anyOf:
+                        - properties:
+                            sslConfig:
+                              oneOf:
+                              - not:
+                                  anyOf:
+                                  - required:
+                                    - secretName
+                                  - required:
+                                    - sslFiles
+                              - required:
+                                - secretName
+                              - required:
+                                - sslFiles
+                          required:
+                          - sslConfig
+                        - required:
+                          - httpsRedirect
+                    - properties:
+                        sslConfig:
+                          oneOf:
+                          - not:
+                              anyOf:
+                              - required:
+                                - secretName
+                              - required:
+                                - sslFiles
+                          - required:
+                            - secretName
+                          - required:
+                            - sslFiles
+                      required:
+                      - sslConfig
+                    - required:
+                      - httpsRedirect
                     properties:
                       enableProxyProtocol:
                         description: enable PROXY protocol for this connection handler.
                         type: boolean
+                      httpsRedirect:
+                        description: If set to true, the load balancer will send a
+                          301 redirect for all http connections, asking the clients
+                          to use HTTPS.
+                        type: boolean
+                      sslConfig:
+                        description: Contains the options necessary to configure a
+                          virtual host or listener to use TLS
+                        properties:
+                          parameters:
+                            properties:
+                              cipherSuites:
+                                items:
+                                  type: string
+                                type: array
+                              maximumProtocolVersion:
+                                enum:
+                                - TLS_AUTO
+                                - TLSv1_0
+                                - TLSv1_1
+                                - TLSv1_2
+                                - TLSv1_3
+                                type: string
+                              minimumProtocolVersion:
+                                enum:
+                                - TLS_AUTO
+                                - TLSv1_0
+                                - TLSv1_1
+                                - TLSv1_2
+                                - TLSv1_3
+                                type: string
+                            type: object
+                          secretName:
+                            description: |-
+                              SecretName is the name of the kubernetes secret which contains the ssl secret. Each
+                              Gateway will look for a secret with this name on it's own local cluster in it's own namespace.
+                            type: string
+                          sslFiles:
+                            description: SSLFiles reference paths to certificates
+                              which can be read by the proxy off of its local filesystem
+                            properties:
+                              rootCa:
+                                description: for client cert validation. optional
+                                type: string
+                              tlsCert:
+                                type: string
+                              tlsKey:
+                                type: string
+                            type: object
+                          tlsMode:
+                            description: TLS modes enforced by the proxy
+                            enum:
+                            - PASSTHROUGH
+                            - SIMPLE
+                            - MUTUAL
+                            - AUTO_PASSTHROUGH
+                            - ISTIO_MUTUAL
+                            type: string
+                          verifySubjectAltName:
+                            description: |-
+                              Verify that the Subject Alternative Name in the peer certificate is one of the specified values.
+                              note that a root_ca must be provided if this option is used.
+                            items:
+                              type: string
+                            type: array
+                        type: object
                       strictFilterManagement:
                         description: |-
                           Restricts filter from being added to the corresponding Envoy Listener unless they are explicitly configured
                           in the connection handler options
                         type: boolean
-                      tlsContext:
-                        description: TODO
-                        properties:
-                          presented:
-                            description: |-
-                              If specified, the route will match against whether or not a certificate is presented.
-                              If not specified, certificate presentation status (true or false) will not be considered when route matching.
-                            nullable: true
-                            type: boolean
-                          validated:
-                            description: |-
-                              If specified, the route will match against whether or not a certificate is validated.
-                              If not specified, certificate validation status (true or false) will not be considered when route matching.
-                            nullable: true
-                            type: boolean
-                        type: object
                     type: object
                   http:
                     properties:
@@ -2065,197 +2161,7 @@ spec:
                               description: the logical name of the tcp host. names
                                 must be unique for each tcp host within a listener
                               type: string
-                            sslConfig:
-                              description: If provided, the Gateway will serve TLS/SSL
-                                traffic for this set of routes
-                              oneOf:
-                              - not:
-                                  anyOf:
-                                  - required:
-                                    - secretRef
-                                  - required:
-                                    - sslFiles
-                                  - properties:
-                                      sds:
-                                        oneOf:
-                                        - not:
-                                            anyOf:
-                                            - required:
-                                              - callCredentials
-                                            - required:
-                                              - clusterName
-                                        - required:
-                                          - callCredentials
-                                        - required:
-                                          - clusterName
-                                    required:
-                                    - sds
-                              - required:
-                                - secretRef
-                              - required:
-                                - sslFiles
-                              - properties:
-                                  sds:
-                                    oneOf:
-                                    - not:
-                                        anyOf:
-                                        - required:
-                                          - callCredentials
-                                        - required:
-                                          - clusterName
-                                    - required:
-                                      - callCredentials
-                                    - required:
-                                      - clusterName
-                                required:
-                                - sds
-                              properties:
-                                alpnProtocols:
-                                  description: |-
-                                    Set Application Level Protocol Negotiation
-                                    If empty, defaults to ["h2", "http/1.1"].
-                                  items:
-                                    type: string
-                                  type: array
-                                parameters:
-                                  properties:
-                                    cipherSuites:
-                                      items:
-                                        type: string
-                                      type: array
-                                    ecdhCurves:
-                                      items:
-                                        type: string
-                                      type: array
-                                    maximumProtocolVersion:
-                                      enum:
-                                      - TLS_AUTO
-                                      - TLSv1_0
-                                      - TLSv1_1
-                                      - TLSv1_2
-                                      - TLSv1_3
-                                      type: string
-                                    minimumProtocolVersion:
-                                      enum:
-                                      - TLS_AUTO
-                                      - TLSv1_0
-                                      - TLSv1_1
-                                      - TLSv1_2
-                                      - TLSv1_3
-                                      type: string
-                                  type: object
-                                sds:
-                                  description: Use secret discovery service.
-                                  properties:
-                                    callCredentials:
-                                      description: Call credentials.
-                                      properties:
-                                        fileCredentialSource:
-                                          description: Call credentials are coming
-                                            from a file,
-                                          properties:
-                                            header:
-                                              description: Header to carry the token.
-                                              type: string
-                                            tokenFileName:
-                                              description: File containing auth token.
-                                              type: string
-                                          type: object
-                                      type: object
-                                    certificatesSecretName:
-                                      description: The name of the secret containing
-                                        the certificate
-                                      type: string
-                                    clusterName:
-                                      description: The name of the sds cluster in
-                                        envoy
-                                      type: string
-                                    targetUri:
-                                      description: Target uri for the sds channel.
-                                        currently only a unix domain socket is supported.
-                                      type: string
-                                    validationContextName:
-                                      description: The name of secret containing the
-                                        validation context (i.e. root ca)
-                                      type: string
-                                  type: object
-                                secretRef:
-                                  description: |-
-                                    SecretRef contains the secret ref to a gloo tls secret or a kubernetes tls secret.
-                                    gloo tls secret can contain a root ca as well if verification is needed.
-                                  properties:
-                                    name:
-                                      description: name of the resource being referenced
-                                      type: string
-                                    namespace:
-                                      description: namespace of the resource being
-                                        referenced
-                                      type: string
-                                  type: object
-                                sniDomains:
-                                  description: optional. the SNI domains that should
-                                    be considered for TLS connections
-                                  items:
-                                    type: string
-                                  type: array
-                                sslFiles:
-                                  description: SSLFiles reference paths to certificates
-                                    which are local to the proxy
-                                  properties:
-                                    rootCa:
-                                      description: for client cert validation. optional
-                                      type: string
-                                    tlsCert:
-                                      type: string
-                                    tlsKey:
-                                      type: string
-                                  type: object
-                                verifySubjectAltName:
-                                  description: |-
-                                    Verify that the Subject Alternative Name in the peer certificate is one of the specified values.
-                                    note that a root_ca must be provided if this option is used.
-                                  items:
-                                    type: string
-                                  type: array
-                              type: object
                           type: object
-                        type: array
-                    type: object
-                type: object
-              type: array
-            deployToSidecars:
-              description: |-
-                deploy this VirtualGateway to one or more workload sidecars
-                {{/* NOTE: unimplemented */}}
-              items:
-                properties:
-                  kubeWorkloadMatcher:
-                    description: Match Kubernetes workloads by their labels, namespaces,
-                      and/or clusters.
-                    properties:
-                      clusters:
-                        description: |-
-                          If specified, match Kubernetes workloads if they exist in one of the specified clusters.
-                                     When used in a networking policy, omission matches any cluster.
-                                     When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any cluster.
-                        items:
-                          type: string
-                        type: array
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: |-
-                          If specified, all labels must exist on Kubernetes workload.
-                                 When used in a networking policy, omission matches any labels.
-                                 When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any label key and/or value.
-                        type: object
-                      namespaces:
-                        description: |-
-                          If specified, match Kubernetes workloads if they exist in one of the specified namespaces.
-                                     When used in a networking policy, omission matches any namespace.
-                                     When used in a Gloo Mesh Role, a wildcard (`"*"`) must be specified to match any namespace.
-                        items:
-                          type: string
                         type: array
                     type: object
                 type: object

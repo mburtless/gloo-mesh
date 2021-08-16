@@ -2,7 +2,7 @@
 title: Traffic Policies
 menuTitle: TrafficPolicies
 description: A walkthrough of using traffic policies with Gloo Mesh Gateway
-weight: 29
+weight: 20
 ---
 
 {{% notice note %}} Basic Gateway features are available to anyone with a Gloo Mesh Enterprise license. Some advanced features require a Gloo Mesh Gateway license. {{% /notice %}}

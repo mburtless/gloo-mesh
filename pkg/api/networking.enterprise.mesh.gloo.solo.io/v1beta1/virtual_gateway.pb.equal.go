@@ -67,23 +67,6 @@ func (m *VirtualGatewaySpec) Equal(that interface{}) bool {
 
 	}
 
-	if len(m.GetDeployToSidecars()) != len(target.GetDeployToSidecars()) {
-		return false
-	}
-	for idx, v := range m.GetDeployToSidecars() {
-
-		if h, ok := interface{}(v).(equality.Equalizer); ok {
-			if !h.Equal(target.GetDeployToSidecars()[idx]) {
-				return false
-			}
-		} else {
-			if !proto.Equal(v, target.GetDeployToSidecars()[idx]) {
-				return false
-			}
-		}
-
-	}
-
 	if len(m.GetConnectionHandlers()) != len(target.GetConnectionHandlers()) {
 		return false
 	}
@@ -237,14 +220,14 @@ func (m *VirtualGatewayStatus) Equal(that interface{}) bool {
 }
 
 // Equal function
-func (m *SDSConfig) Equal(that interface{}) bool {
+func (m *SslConfig) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*SDSConfig)
+	target, ok := that.(*SslConfig)
 	if !ok {
-		that2, ok := that.(SDSConfig)
+		that2, ok := that.(SslConfig)
 		if ok {
 			target = &that2
 		} else {
@@ -257,47 +240,60 @@ func (m *SDSConfig) Equal(that interface{}) bool {
 		return false
 	}
 
-	if strings.Compare(m.GetTargetUri(), target.GetTargetUri()) != 0 {
+	if len(m.GetVerifySubjectAltName()) != len(target.GetVerifySubjectAltName()) {
 		return false
 	}
+	for idx, v := range m.GetVerifySubjectAltName() {
 
-	if strings.Compare(m.GetCertificatesSecretName(), target.GetCertificatesSecretName()) != 0 {
-		return false
-	}
-
-	if strings.Compare(m.GetValidationContextName(), target.GetValidationContextName()) != 0 {
-		return false
-	}
-
-	switch m.SdsBuilder.(type) {
-
-	case *SDSConfig_CallCredentials_:
-		if _, ok := target.SdsBuilder.(*SDSConfig_CallCredentials_); !ok {
+		if strings.Compare(v, target.GetVerifySubjectAltName()[idx]) != 0 {
 			return false
 		}
 
-		if h, ok := interface{}(m.GetCallCredentials()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetCallCredentials()) {
+	}
+
+	if h, ok := interface{}(m.GetParameters()).(equality.Equalizer); ok {
+		if !h.Equal(target.GetParameters()) {
+			return false
+		}
+	} else {
+		if !proto.Equal(m.GetParameters(), target.GetParameters()) {
+			return false
+		}
+	}
+
+	if m.GetTlsMode() != target.GetTlsMode() {
+		return false
+	}
+
+	switch m.Certificates.(type) {
+
+	case *SslConfig_SecretName:
+		if _, ok := target.Certificates.(*SslConfig_SecretName); !ok {
+			return false
+		}
+
+		if strings.Compare(m.GetSecretName(), target.GetSecretName()) != 0 {
+			return false
+		}
+
+	case *SslConfig_SslFiles:
+		if _, ok := target.Certificates.(*SslConfig_SslFiles); !ok {
+			return false
+		}
+
+		if h, ok := interface{}(m.GetSslFiles()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetSslFiles()) {
 				return false
 			}
 		} else {
-			if !proto.Equal(m.GetCallCredentials(), target.GetCallCredentials()) {
+			if !proto.Equal(m.GetSslFiles(), target.GetSslFiles()) {
 				return false
 			}
-		}
-
-	case *SDSConfig_ClusterName:
-		if _, ok := target.SdsBuilder.(*SDSConfig_ClusterName); !ok {
-			return false
-		}
-
-		if strings.Compare(m.GetClusterName(), target.GetClusterName()) != 0 {
-			return false
 		}
 
 	default:
 		// m is nil but target is not nil
-		if m.SdsBuilder != target.SdsBuilder {
+		if m.Certificates != target.Certificates {
 			return false
 		}
 	}
@@ -447,10 +443,6 @@ func (m *VirtualGatewaySpec_ConnectionHandler_ConnectionMatch) Equal(that interf
 		return false
 	}
 
-	if strings.Compare(m.GetTransportProtocol(), target.GetTransportProtocol()) != 0 {
-		return false
-	}
-
 	if len(m.GetServerNames()) != len(target.GetServerNames()) {
 		return false
 	}
@@ -460,6 +452,10 @@ func (m *VirtualGatewaySpec_ConnectionHandler_ConnectionMatch) Equal(that interf
 			return false
 		}
 
+	}
+
+	if strings.Compare(m.GetTransportProtocol(), target.GetTransportProtocol()) != 0 {
+		return false
 	}
 
 	return true
@@ -486,22 +482,45 @@ func (m *VirtualGatewaySpec_ConnectionHandler_ConnectionOptions) Equal(that inte
 		return false
 	}
 
-	if h, ok := interface{}(m.GetTlsContext()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetTlsContext()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetTlsContext(), target.GetTlsContext()) {
-			return false
-		}
-	}
-
 	if m.GetStrictFilterManagement() != target.GetStrictFilterManagement() {
 		return false
 	}
 
 	if m.GetEnableProxyProtocol() != target.GetEnableProxyProtocol() {
 		return false
+	}
+
+	switch m.SslSettings.(type) {
+
+	case *VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_SslConfig:
+		if _, ok := target.SslSettings.(*VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_SslConfig); !ok {
+			return false
+		}
+
+		if h, ok := interface{}(m.GetSslConfig()).(equality.Equalizer); ok {
+			if !h.Equal(target.GetSslConfig()) {
+				return false
+			}
+		} else {
+			if !proto.Equal(m.GetSslConfig(), target.GetSslConfig()) {
+				return false
+			}
+		}
+
+	case *VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_HttpsRedirect:
+		if _, ok := target.SslSettings.(*VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_HttpsRedirect); !ok {
+			return false
+		}
+
+		if m.GetHttpsRedirect() != target.GetHttpsRedirect() {
+			return false
+		}
+
+	default:
+		// m is nil but target is not nil
+		if m.SslSettings != target.SslSettings {
+			return false
+		}
 	}
 
 	return true
@@ -602,50 +621,6 @@ func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes) Equal(that interface{})
 		}
 	} else {
 		if !proto.Equal(m.GetOptions(), target.GetOptions()) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// Equal function
-func (m *VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_TlsTerminationOptions) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_TlsTerminationOptions)
-	if !ok {
-		that2, ok := that.(VirtualGatewaySpec_ConnectionHandler_ConnectionOptions_TlsTerminationOptions)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if h, ok := interface{}(m.GetPresented()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetPresented()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetPresented(), target.GetPresented()) {
-			return false
-		}
-	}
-
-	if h, ok := interface{}(m.GetValidated()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetValidated()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetValidated(), target.GetValidated()) {
 			return false
 		}
 	}
@@ -795,16 +770,6 @@ func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost) Equal(that inte
 		return false
 	}
 
-	if h, ok := interface{}(m.GetSslConfig()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetSslConfig()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetSslConfig(), target.GetSslConfig()) {
-			return false
-		}
-	}
-
 	if h, ok := interface{}(m.GetDestination()).(equality.Equalizer); ok {
 		if !h.Equal(target.GetDestination()) {
 			return false
@@ -845,127 +810,6 @@ func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpOptions) Equal(that i
 		}
 	} else {
 		if !proto.Equal(m.GetTcpProxySettings(), target.GetTcpProxySettings()) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// Equal function
-func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig)
-	if !ok {
-		that2, ok := that.(VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if len(m.GetSniDomains()) != len(target.GetSniDomains()) {
-		return false
-	}
-	for idx, v := range m.GetSniDomains() {
-
-		if strings.Compare(v, target.GetSniDomains()[idx]) != 0 {
-			return false
-		}
-
-	}
-
-	if len(m.GetVerifySubjectAltName()) != len(target.GetVerifySubjectAltName()) {
-		return false
-	}
-	for idx, v := range m.GetVerifySubjectAltName() {
-
-		if strings.Compare(v, target.GetVerifySubjectAltName()[idx]) != 0 {
-			return false
-		}
-
-	}
-
-	if h, ok := interface{}(m.GetParameters()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetParameters()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetParameters(), target.GetParameters()) {
-			return false
-		}
-	}
-
-	if len(m.GetAlpnProtocols()) != len(target.GetAlpnProtocols()) {
-		return false
-	}
-	for idx, v := range m.GetAlpnProtocols() {
-
-		if strings.Compare(v, target.GetAlpnProtocols()[idx]) != 0 {
-			return false
-		}
-
-	}
-
-	switch m.SslSecrets.(type) {
-
-	case *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SecretRef:
-		if _, ok := target.SslSecrets.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SecretRef); !ok {
-			return false
-		}
-
-		if h, ok := interface{}(m.GetSecretRef()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetSecretRef()) {
-				return false
-			}
-		} else {
-			if !proto.Equal(m.GetSecretRef(), target.GetSecretRef()) {
-				return false
-			}
-		}
-
-	case *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SslFiles:
-		if _, ok := target.SslSecrets.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SslFiles); !ok {
-			return false
-		}
-
-		if h, ok := interface{}(m.GetSslFiles()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetSslFiles()) {
-				return false
-			}
-		} else {
-			if !proto.Equal(m.GetSslFiles(), target.GetSslFiles()) {
-				return false
-			}
-		}
-
-	case *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_Sds:
-		if _, ok := target.SslSecrets.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_Sds); !ok {
-			return false
-		}
-
-		if h, ok := interface{}(m.GetSds()).(equality.Equalizer); ok {
-			if !h.Equal(target.GetSds()) {
-				return false
-			}
-		} else {
-			if !proto.Equal(m.GetSds(), target.GetSds()) {
-				return false
-			}
-		}
-
-	default:
-		// m is nil but target is not nil
-		if m.SslSecrets != target.SslSecrets {
 			return false
 		}
 	}
@@ -1071,96 +915,6 @@ func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_TcpAction) Equal
 }
 
 // Equal function
-func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SSLFiles) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SSLFiles)
-	if !ok {
-		that2, ok := that.(VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SSLFiles)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if strings.Compare(m.GetTlsCert(), target.GetTlsCert()) != 0 {
-		return false
-	}
-
-	if strings.Compare(m.GetTlsKey(), target.GetTlsKey()) != 0 {
-		return false
-	}
-
-	if strings.Compare(m.GetRootCa(), target.GetRootCa()) != 0 {
-		return false
-	}
-
-	return true
-}
-
-// Equal function
-func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SslParameters) Equal(that interface{}) bool {
-	if that == nil {
-		return m == nil
-	}
-
-	target, ok := that.(*VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SslParameters)
-	if !ok {
-		that2, ok := that.(VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpHost_SslConfig_SslParameters)
-		if ok {
-			target = &that2
-		} else {
-			return false
-		}
-	}
-	if target == nil {
-		return m == nil
-	} else if m == nil {
-		return false
-	}
-
-	if m.GetMinimumProtocolVersion() != target.GetMinimumProtocolVersion() {
-		return false
-	}
-
-	if m.GetMaximumProtocolVersion() != target.GetMaximumProtocolVersion() {
-		return false
-	}
-
-	if len(m.GetCipherSuites()) != len(target.GetCipherSuites()) {
-		return false
-	}
-	for idx, v := range m.GetCipherSuites() {
-
-		if strings.Compare(v, target.GetCipherSuites()[idx]) != 0 {
-			return false
-		}
-
-	}
-
-	if len(m.GetEcdhCurves()) != len(target.GetEcdhCurves()) {
-		return false
-	}
-	for idx, v := range m.GetEcdhCurves() {
-
-		if strings.Compare(v, target.GetEcdhCurves()[idx]) != 0 {
-			return false
-		}
-
-	}
-
-	return true
-}
-
-// Equal function
 func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpOptions_TcpProxySettings) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
@@ -1243,14 +997,14 @@ func (m *VirtualGatewaySpec_ConnectionHandler_TcpRoutes_TcpOptions_TcpProxySetti
 }
 
 // Equal function
-func (m *SDSConfig_CallCredentials) Equal(that interface{}) bool {
+func (m *SslConfig_SSLFiles) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*SDSConfig_CallCredentials)
+	target, ok := that.(*SslConfig_SSLFiles)
 	if !ok {
-		that2, ok := that.(SDSConfig_CallCredentials)
+		that2, ok := that.(SslConfig_SSLFiles)
 		if ok {
 			target = &that2
 		} else {
@@ -1263,28 +1017,30 @@ func (m *SDSConfig_CallCredentials) Equal(that interface{}) bool {
 		return false
 	}
 
-	if h, ok := interface{}(m.GetFileCredentialSource()).(equality.Equalizer); ok {
-		if !h.Equal(target.GetFileCredentialSource()) {
-			return false
-		}
-	} else {
-		if !proto.Equal(m.GetFileCredentialSource(), target.GetFileCredentialSource()) {
-			return false
-		}
+	if strings.Compare(m.GetTlsCert(), target.GetTlsCert()) != 0 {
+		return false
+	}
+
+	if strings.Compare(m.GetTlsKey(), target.GetTlsKey()) != 0 {
+		return false
+	}
+
+	if strings.Compare(m.GetRootCa(), target.GetRootCa()) != 0 {
+		return false
 	}
 
 	return true
 }
 
 // Equal function
-func (m *SDSConfig_CallCredentials_FileCredentialSource) Equal(that interface{}) bool {
+func (m *SslConfig_SslParameters) Equal(that interface{}) bool {
 	if that == nil {
 		return m == nil
 	}
 
-	target, ok := that.(*SDSConfig_CallCredentials_FileCredentialSource)
+	target, ok := that.(*SslConfig_SslParameters)
 	if !ok {
-		that2, ok := that.(SDSConfig_CallCredentials_FileCredentialSource)
+		that2, ok := that.(SslConfig_SslParameters)
 		if ok {
 			target = &that2
 		} else {
@@ -1297,12 +1053,23 @@ func (m *SDSConfig_CallCredentials_FileCredentialSource) Equal(that interface{})
 		return false
 	}
 
-	if strings.Compare(m.GetTokenFileName(), target.GetTokenFileName()) != 0 {
+	if m.GetMinimumProtocolVersion() != target.GetMinimumProtocolVersion() {
 		return false
 	}
 
-	if strings.Compare(m.GetHeader(), target.GetHeader()) != 0 {
+	if m.GetMaximumProtocolVersion() != target.GetMaximumProtocolVersion() {
 		return false
+	}
+
+	if len(m.GetCipherSuites()) != len(target.GetCipherSuites()) {
+		return false
+	}
+	for idx, v := range m.GetCipherSuites() {
+
+		if strings.Compare(v, target.GetCipherSuites()[idx]) != 0 {
+			return false
+		}
+
 	}
 
 	return true

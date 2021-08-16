@@ -32,10 +32,6 @@ message VirtualGatewaySpec {
     // Select the destinations to deploy the gateway to.
     repeated .common.mesh.gloo.solo.io.IngressGatewaySelector ingress_gateway_selectors = 1;
 
-    // deploy this VirtualGateway to one or more workload sidecars
-    // {{/* NOTE: unimplemented */}}
-    repeated .common.mesh.gloo.solo.io.WorkloadSelector deploy_to_sidecars = 2;
-
     // Each Gateway must implement one or more ConnectionHandlers.
     // A ConnectionHandler instructs the gateway how to handle clients
     // which have connected to the specified bind address.
@@ -45,10 +41,10 @@ message VirtualGatewaySpec {
     // on the same Gateway, e.g. one for TCP and one for HTTP traffic.
     // NOTE: Currently having multiple connection handlers is NOT supported. Only
     // exactly ONE connection handler can be specified.
-    repeated ConnectionHandler connection_handlers = 3;
+    repeated ConnectionHandler connection_handlers = 2;
 
     // Options applied to all clients who connect to this gateway
-    GatewayOptions options = 4;
+    GatewayOptions options = 3;
 
     // Each ConnnectionHandler specifies a `connectionMatch` (required if using multiple ConnectionHandlers) and
     // a set of (HTTP or TCP) routes to serve matched connections.
@@ -70,12 +66,6 @@ message VirtualGatewaySpec {
         ConnectionOptions connection_options = 4;
 
         message ConnectionMatch {
-            // Look at what Envoy exposes, put them all(maybe?) here
-            // Should expose everything we can do with Envoy, ideally.
-
-            // Protocol
-            string transport_protocol = 1;
-
             // If non-empty, a list of server names (e.g. SNI for TLS protocol) to consider when determining
             // a `connectionMatch`. Those values will be compared against the server names of a new
             // connection, when detected by one of the listener filters.
@@ -84,33 +74,37 @@ message VirtualGatewaySpec {
             // will be first matched against `www.example.com`, then `*.example.com`, then ``*.com`.
             //
             // Note that partial wildcards are not supported, and values like `*w.example.com` are invalid.
-            repeated string server_names = 2;
+            repeated string server_names = 1;
 
-            // TODO (add more fields from Envoy here)
+            // Optional, if set this will be used as the protocol for the gateway, otherwise it will be inferred based on the following logic:
+            //
+            // - If the connectionHandler is a HTTP handler and no SslConfig is set in the connectionOptions, use "HTTP"
+            //
+            // - If the connectionHandler is a HTTP handler and any SslConfig is set in the connectionOptions, use "HTTPS"
+            //
+            // - If the connectionHandler is a TCP handler and no SslConfig is set in the connectionOptions, use "TCP"
+            //
+            // - If the connectionHandler is a TCP handler and any SslConfig is set in the connectionOptions, use "TLS"
+            string transport_protocol = 2;
 
         }
 
-        // TODO: Fill ConnectionOptions
         message ConnectionOptions {
-            // TODO
-            TlsTerminationOptions tls_context = 1;
+            oneof ssl_settings {
+                // Contains the options necessary to configure a virtual host or listener to use TLS
+                SslConfig ssl_config = 1;
+
+                // If set to true, the load balancer will send a 301 redirect for all http connections, asking the clients to use HTTPS.
+                bool https_redirect = 2;
+            }
 
             // Restricts filter from being added to the corresponding Envoy Listener unless they are explicitly configured
             // in the connection handler options
-            bool strict_filter_management = 2;
+            bool strict_filter_management = 3;
 
             // enable PROXY protocol for this connection handler.
-            bool enable_proxy_protocol = 3;
+            bool enable_proxy_protocol = 4;
 
-            message TlsTerminationOptions {
-                // If specified, the route will match against whether or not a certificate is presented.
-                // If not specified, certificate presentation status (true or false) will not be considered when route matching.
-                google.protobuf.BoolValue presented = 1;
-
-                // If specified, the route will match against whether or not a certificate is validated.
-                // If not specified, certificate validation status (true or false) will not be considered when route matching.
-                google.protobuf.BoolValue validated = 2;
-            }
         }
 
         message HttpRoutes {
@@ -118,7 +112,7 @@ message VirtualGatewaySpec {
             repeated RouteSpecifier route_config = 1;
 
             // HTTP Listener Options // Root level RouteTable + VirtualHost + routes level
-            HttpOptions route_options = 8;
+            HttpOptions route_options = 2;
 
             message RouteSpecifier {
                 oneof route_type{
@@ -137,24 +131,20 @@ message VirtualGatewaySpec {
                 // TODO: Fill with HttpListenerOptions from gloo options.proto
                 // Team discussion topic
 
-                // TODO: Move HTTP-specific Gateway Options to here
-
-                // ExtAuth, Rate-Limiting, etc.
-
                 // grpc_web.options.gloo.solo.io.GrpcWeb grpc_web = 1;
                 // hcm.options.gloo.solo.io.HttpConnectionManagerSettings http_connection_manager_settings = 2;
                 // enable [Envoy health checks](https://www.envoyproxy.io/docs/envoy/v1.7.0/api-v2/config/filter/http/health_check/v2/health_check.proto) on this listener
                 // healthcheck.options.gloo.solo.io.HealthCheck health_check = 4;
 
                 // Configure Global CSRF options for clients connected to this Gateway.
-                .csrf.networking.mesh.gloo.solo.io.CsrfPolicy csrf = 2;
+                .csrf.networking.mesh.gloo.solo.io.CsrfPolicy csrf = 1;
 
                 // Configure Global Rate limit options for clients connected to this Gateway.
                 // Rate limits must be configured on specific routes in order to enable rate limiting for a Gateway.
-                .ratelimit.networking.mesh.gloo.solo.io.GatewayRateLimit rate_limit = 3;
+                .ratelimit.networking.mesh.gloo.solo.io.GatewayRateLimit rate_limit = 2;
 
                 // Configure the Global Extauth options for clients connected to this Gateway
-                .extauth.networking.mesh.gloo.solo.io.GatewayExtauth extauth = 4;
+                .extauth.networking.mesh.gloo.solo.io.GatewayExtauth extauth = 3;
 
             }
         }
@@ -170,74 +160,7 @@ message VirtualGatewaySpec {
                 // the logical name of the tcp host. names must be unique for each tcp host within a listener
                 string name = 1;
 
-                // If provided, the Gateway will serve TLS/SSL traffic for this set of routes
-                SslConfig ssl_config = 2;
-
-                TcpAction destination = 3;
-
-                // SslConfig contains the options necessary to configure a virtual host or listener to use TLS
-                message SslConfig {
-                    oneof ssl_secrets {
-                        // SecretRef contains the secret ref to a gloo tls secret or a kubernetes tls secret.
-                        // gloo tls secret can contain a root ca as well if verification is needed.
-                        .core.skv2.solo.io.ObjectRef secret_ref = 1;
-                        // SSLFiles reference paths to certificates which are local to the proxy
-                        SSLFiles ssl_files = 2;
-                        // Use secret discovery service.
-                        SDSConfig sds = 3;
-
-                        // SSLFiles reference paths to certificates which can be read by the proxy off of its local filesystem
-                    }
-
-
-
-                    // optional. the SNI domains that should be considered for TLS connections
-                    repeated string sni_domains = 4;
-                    
-                    // Verify that the Subject Alternative Name in the peer certificate is one of the specified values.
-                    // note that a root_ca must be provided if this option is used.
-                    repeated string verify_subject_alt_name = 5;
-
-                    SslParameters parameters = 6;
-
-                    // Set Application Level Protocol Negotiation
-                    // If empty, defaults to ["h2", "http/1.1"].
-                    repeated string alpn_protocols = 7;
-
-                    message SSLFiles {
-                        string tls_cert = 1;
-                        string tls_key = 2;
-                        // for client cert validation. optional
-                        string root_ca = 3;
-                    }
-
-                    // General TLS parameters. See the [envoy docs](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/auth/cert.proto#envoy-api-enum-auth-tlsparameters-tlsprotocol)
-                    // for more information on the meaning of these values.
-                    message SslParameters {
-                        enum ProtocolVersion {
-                            // Envoy will choose the optimal TLS version.
-                            TLS_AUTO = 0;
-
-                            // TLS 1.0
-                            TLSv1_0 = 1;
-
-                            // TLS 1.1
-                            TLSv1_1 = 2;
-
-                            // TLS 1.2
-                            TLSv1_2 = 3;
-
-                            // TLS 1.3
-                            TLSv1_3 = 4;
-                        }
-
-
-                        ProtocolVersion minimum_protocol_version = 1;
-                        ProtocolVersion maximum_protocol_version = 2;
-                        repeated string cipher_suites = 3;
-                        repeated string ecdh_curves = 4;
-                    }
-                }
+                TcpAction destination = 2;
 
                 // Name of the destinations the gateway can route to.
                 // Note: the destination spec and subsets are not supported in this context and will be ignored.
@@ -321,49 +244,105 @@ message VirtualGatewayStatus{
     int64 observed_generation = 1;
 
     // The state of the overall resource.
-    .common.mesh.gloo.solo.io.ApprovalState state = 8;
+    .common.mesh.gloo.solo.io.ApprovalState state = 2;
 
     // Any errors found while processing this generation of the resource.
-    repeated string errors = 2;
+    repeated string errors = 3;
 
     // Any warnings found while processing this generation of the resource.
-    repeated string warnings = 3;
+    repeated string warnings = 4;
 
-    repeated .common.mesh.gloo.solo.io.AppliedIngressGateway applied_ingress_gateways = 4;
+    repeated .common.mesh.gloo.solo.io.AppliedIngressGateway applied_ingress_gateways = 5;
 
-    repeated .core.skv2.solo.io.ObjectRef selected_virtual_hosts = 5;
+    repeated .core.skv2.solo.io.ObjectRef selected_virtual_hosts = 6;
 
     // List of Delegated Route tables that this Route table delegates to
-    repeated .core.skv2.solo.io.ObjectRef selected_route_tables = 6;
+    repeated .core.skv2.solo.io.ObjectRef selected_route_tables = 7;
 
     // List of Istio Gateway CRs created by this VirtualGateway in each cluster
-    map<string, .core.skv2.solo.io.ObjectRefList> created_istio_gateways = 7;
+    map<string, .core.skv2.solo.io.ObjectRefList> created_istio_gateways = 8;
 
 }
 
-// Note: This message needs to be at this level (rather than nested) due to cue restrictions.
-message SDSConfig {
-    // Target uri for the sds channel. currently only a unix domain socket is supported.
-    string target_uri = 1;
-    oneof sds_builder {
-        // Call credentials.
-        CallCredentials call_credentials = 2;
-        // The name of the sds cluster in envoy
-        string cluster_name = 3;
-    }
-    // The name of the secret containing the certificate
-    string certificates_secret_name = 4;
-    // The name of secret containing the validation context (i.e. root ca)
-    string validation_context_name = 5;
 
-    message CallCredentials {
-        // Call credentials are coming from a file,
-        FileCredentialSource file_credential_source = 1;
-        message FileCredentialSource {
-            // File containing auth token.
-            string token_file_name = 1;
-            // Header to carry the token.
-            string header = 2;
+// SslConfig contains the options necessary to configure a virtual host or listener to use TLS
+message SslConfig {
+    oneof certificates {
+        // SecretName is the name of the kubernetes secret which contains the ssl secret. Each
+        // Gateway will look for a secret with this name on it's own local cluster in it's own namespace.
+        string secret_name = 1;
+
+        // SSLFiles reference paths to certificates which can be read by the proxy off of its local filesystem
+        SSLFiles ssl_files = 2;
+
+    }
+
+    // Verify that the Subject Alternative Name in the peer certificate is one of the specified values.
+    // note that a root_ca must be provided if this option is used.
+    repeated string verify_subject_alt_name = 3;
+
+    SslParameters parameters = 4;
+
+    // TLS modes enforced by the proxy
+    TlsMode tls_mode = 5;
+
+    enum TlsMode {
+        // The SNI string presented by the client will be used as the match criterion in a
+        // VirtualService TLS route to determine the destination service from the service registry.
+        PASSTHROUGH =0;
+
+        // Secure connections with standard TLS semantics.
+        SIMPLE = 1;
+
+        // Secure connections to the downstream using mutual TLS by presenting server certificates for authentication.
+        MUTUAL = 2;
+
+        // Similar to the passthrough mode, except servers with this TLS mode do not require an associated VirtualService
+        // to map from the SNI value to service in the registry. The destination details such as the service/subset/port
+        // are encoded in the SNI value. The proxy will forward to the upstream (Envoy) cluster (a group of endpoints)
+        // specified by the SNI value. This server is typically used to provide connectivity between services in disparate
+        // L3 networks that otherwise do not have direct connectivity between their respective endpoints.
+        // Use of this mode assumes that both the source and the destination are using Istio mTLS to secure traffic.
+        // In order for this mode to be enabled, the gateway deployment must be configured with the ISTIO_META_ROUTER_MODE=sni-dnat
+        // environment variable.
+        AUTO_PASSTHROUGH=3;
+
+        // Secure connections from the downstream using mutual TLS by presenting server certificates for authentication.
+        // Compared to Mutual mode, this mode uses certificates, representing gateway workload identity, generated automatically
+        // by Istio for mTLS authentication. When this mode is used, all other fields in TLSOptions should be empty.
+        ISTIO_MUTUAL=4;
+    }
+
+    message SSLFiles {
+        string tls_cert = 1;
+        string tls_key = 2;
+        // for client cert validation. optional
+        string root_ca = 3;
+    }
+
+    // General TLS parameters. See the [envoy docs](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/auth/cert.proto#envoy-api-enum-auth-tlsparameters-tlsprotocol)
+    // for more information on the meaning of these values.
+    message SslParameters {
+        enum ProtocolVersion {
+            // Envoy will choose the optimal TLS version.
+            TLS_AUTO = 0;
+
+            // TLS 1.0
+            TLSv1_0 = 1;
+
+            // TLS 1.1
+            TLSv1_1 = 2;
+
+            // TLS 1.2
+            TLSv1_2 = 3;
+
+            // TLS 1.3
+            TLSv1_3 = 4;
         }
+
+
+        ProtocolVersion minimum_protocol_version = 1;
+        ProtocolVersion maximum_protocol_version = 2;
+        repeated string cipher_suites = 3;
     }
 }
