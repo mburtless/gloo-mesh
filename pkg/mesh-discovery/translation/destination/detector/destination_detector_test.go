@@ -247,8 +247,8 @@ var _ = Describe("DestinationDetector", func() {
 			Status: corev1.NodeStatus{
 				Addresses: []corev1.NodeAddress{
 					{
-						Type:    corev1.NodeHostName,
-						Address: "external-hostname",
+						Type:    corev1.NodeExternalIP,
+						Address: "192.168.21.2",
 					},
 				},
 			},
@@ -304,8 +304,8 @@ var _ = Describe("DestinationDetector", func() {
 								},
 							},
 							{
-								ExternalAddressType: &v1.DestinationSpec_KubeService_ExternalAddress_DnsName{
-									DnsName: "external-hostname",
+								ExternalAddressType: &v1.DestinationSpec_KubeService_ExternalAddress_Ip{
+									Ip: "192.168.21.2",
 								},
 							},
 						},

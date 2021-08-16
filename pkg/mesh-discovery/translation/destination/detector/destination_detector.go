@@ -427,9 +427,6 @@ func getExternalNodeIps(
 			case corev1.NodeExternalIP:
 				foundExternalNodeIp = true
 				externalNodeIps = append(externalNodeIps, externalAddressIp(addr.Address))
-			case corev1.NodeHostName:
-				foundExternalNodeIp = true
-				externalNodeIps = append(externalNodeIps, externalAddressDns(addr.Address))
 			}
 		}
 

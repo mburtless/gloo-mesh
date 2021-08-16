@@ -1,0 +1,5 @@
+changelog:
+  - type: FIX
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1808
+    description: Remove Hostname from default discovered NodePort services.
+    resolvesIssue: false
