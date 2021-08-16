@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	. "github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 )
 
 func TestMtls(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Mtls Suite")
+	junitReporter := reporters.NewJUnitReporter("junit.xml")
+	RunSpecsWithDefaultAndCustomReporters(t, "Mtls Suite", []Reporter{junitReporter})
 }

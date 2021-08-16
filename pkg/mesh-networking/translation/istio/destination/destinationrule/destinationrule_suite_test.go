@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	. "github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 )
 
 func TestDestinationrule(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Destinationrule Suite")
+	junitReporter := reporters.NewJUnitReporter("junit.xml")
+	RunSpecsWithDefaultAndCustomReporters(t, "Destinationrule Suite", []Reporter{junitReporter})
 }

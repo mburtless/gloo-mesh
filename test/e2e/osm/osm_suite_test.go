@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/onsi/ginkgo/reporters"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/solo-io/gloo-mesh/test/e2e"
@@ -26,7 +28,8 @@ func TestOsm(t *testing.T) {
 		utils.RunShell("./ci/print-kind-info.sh")
 		Fail(message, callerSkip...)
 	})
-	RunSpecs(t, "E2e Suite")
+	junitReporter := reporters.NewJUnitReporter("junit.xml")
+	RunSpecsWithDefaultAndCustomReporters(t, "E2e Suite", []Reporter{junitReporter})
 }
 
 // Before running tests, federate the two clusters by creating a VirtualMesh with mTLS enabled.
