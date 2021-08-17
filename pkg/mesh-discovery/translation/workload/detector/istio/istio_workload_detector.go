@@ -264,7 +264,7 @@ func injectRequired(
 		}
 	}
 
-	annos := workload.GetAnnotations()
+	annos := workload.GetPodTemplate().ObjectMeta.Annotations
 	if annos == nil {
 		annos = map[string]string{}
 	}

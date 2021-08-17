@@ -79,12 +79,14 @@ var _ = Describe("IstioWorkloadDetector", func() {
 				Namespace:   workloadNamespace,
 				Name:        workloadName,
 				ClusterName: clusterName,
-				Annotations: map[string]string{
-					annotation.SidecarInject.Name: "true",
-				},
 			},
 			Spec: appsv1.DeploymentSpec{
 				Template: corev1.PodTemplateSpec{
+					ObjectMeta: metav1.ObjectMeta{
+						Annotations: map[string]string{
+							annotation.SidecarInject.Name: "true",
+						},
+					},
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -242,12 +244,60 @@ var _ = Describe("IstioWorkloadDetector", func() {
 				Namespace:   workloadNamespace,
 				Name:        workloadName,
 				ClusterName: clusterName,
-				Annotations: map[string]string{
-					annotation.SidecarInject.Name: "false",
-				},
 			},
 			Spec: appsv1.DeploymentSpec{
 				Template: corev1.PodTemplateSpec{
+					ObjectMeta: metav1.ObjectMeta{
+						Annotations: map[string]string{
+							annotation.SidecarInject.Name: "false",
+						},
+					},
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{
+							{
+								Image: "some-image",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		mesh := detector.DetectMeshForWorkload(types.ToWorkload(workload), meshes)
+		Expect(mesh).To(BeNil())
+
+	})
+	It("does not detect injected sidecar workloads that are in a namespace with legacy label for injection when the workload is labeled to skip injection", func() {
+
+		meshes := v1sets.NewMeshSet(mesh)
+		namespace := &corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:        workloadNamespace,
+				ClusterName: clusterName,
+				Labels: map[string]string{
+					util.InjectionLabelName: util.InjectionLabelEnableValue,
+				},
+			},
+		}
+		detector := NewWorkloadDetector(
+			context.TODO(),
+			corev1sets.NewNamespaceSet(namespace),
+			corev1sets.NewConfigMapSet(sidecarConfigMap(inject.Config{})),
+		)
+
+		workload := &appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace:   workloadNamespace,
+				Name:        workloadName,
+				ClusterName: clusterName,
+			},
+			Spec: appsv1.DeploymentSpec{
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: metav1.ObjectMeta{
+						Annotations: map[string]string{
+							annotation.SidecarInject.Name: "false",
+						},
+					},
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{

@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    description: Fix bug that caused workload detection for istio sidecar label to look for injection annotation on workload metadata, not pod template spec metadata.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1822
