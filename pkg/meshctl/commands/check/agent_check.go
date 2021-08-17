@@ -86,7 +86,7 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 			Output:      os.Stdout,
 		}
 
-		if err := installer.ExecuteHelmTest(); err != nil {
+		if err := installer.ExecuteHelmTest(ctx); err != nil {
 			return eris.Wrapf(err, "executing Helm test for release \"%s\" in namespace \"%s\"", releaseName, opts.namespace)
 		}
 	}

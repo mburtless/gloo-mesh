@@ -309,7 +309,7 @@ func RegisterCluster(ctx context.Context, opts RegistrationOptions) error {
 	// agent post install checks
 	if !opts.SkipChecks {
 		logrus.Info("🔎 Performing agent post-install checks...")
-		if err := installer.ExecuteHelmTest(); err != nil {
+		if err := installer.ExecuteHelmTest(ctx); err != nil {
 			return eris.Wrap(err, "agent post-install check failed")
 		}
 		logrus.Info("✅  Agent post-install checks succeeded!")
