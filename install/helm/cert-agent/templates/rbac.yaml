@@ -3,6 +3,8 @@
 
 # Rbac manifests for cert-agent
 
+{{- $certAgent := $.Values.certAgent}}
+{{- if $certAgent.enabled }}
 ---
 
 kind: ClusterRole
@@ -87,3 +89,5 @@ roleRef:
   kind: ClusterRole
   name: cert-agent
   apiGroup: rbac.authorization.k8s.io
+
+{{- end }}

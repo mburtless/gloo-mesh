@@ -69,19 +69,20 @@ spec:
       imagePullSecrets:
         - name: {{ $certAgentImage.pullSecret }}
       {{- end}}
-
 {{- end }} {{/* define "cert-agent.deploymentSpec" */}}
 
 {{/* Render cert-agent deployment template with overrides from values*/}}
+{{- if $certAgent.enabled }}
 {{- $certAgentDeploymentOverrides := dict }}
 {{- if $certAgent.deploymentOverrides }}
 {{- $certAgentDeploymentOverrides = $certAgent.deploymentOverrides  }}
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $certAgentDeploymentOverrides "cert-agent.deploymentSpec") }}
-
+{{- end }}
 ---
 
+{{- if $certAgent.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -89,6 +90,7 @@ metadata:
     app: cert-agent
   name: cert-agent
   namespace: {{ $.Release.Namespace }}
+{{- end }}
 
 
 {{- define "cert-agent.serviceSpec"}}
@@ -113,9 +115,9 @@ spec:
   - name: metrics
     port: {{ $certAgent.ports.metrics }}
 
-
 {{- end }} {{/* define "cert-agent.serviceSpec" */}}
 
+{{- if $certAgent.enabled }}
 {{/* Render cert-agent service template with overrides from values*/}}
 {{- $certAgentServiceOverrides := dict }}
 {{- if $certAgent.serviceOverrides }}
@@ -123,5 +125,5 @@ spec:
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $certAgentServiceOverrides "cert-agent.serviceSpec") }}
-
+{{- end }}
 

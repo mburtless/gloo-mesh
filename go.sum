@@ -1344,8 +1344,8 @@ github.com/solo-io/protoc-gen-ext v0.0.13/go.mod h1:/U/jMDtVI7R6N323sfaUXK9Mmo54
 github.com/solo-io/protoc-gen-ext v0.0.15 h1:OVPo1essSt2hx5crEfnRxYlA5mwsGvrIWynNQDR/4xo=
 github.com/solo-io/protoc-gen-ext v0.0.15/go.mod h1:ch1ZUyVtN45zxAVwpuZUW+F1IR7aG0rCVAp2JrWKDCc=
 github.com/solo-io/skv2 v0.18.3/go.mod h1:yTLh572dJGj9gQJ0GpzGEIHntdINzq8rD79jrKeBz2g=
-github.com/solo-io/skv2 v0.19.2 h1:nisUNgJxR3APAlN5XztBjpMRD0pWRSvXcgNGwjBP+uI=
-github.com/solo-io/skv2 v0.19.2/go.mod h1:l9i3SVv0KexUGrXyJHhke36tc8qR+C1fMSmt+xsDdA0=
+github.com/solo-io/skv2 v0.19.3 h1:2eM4t3ZlirxVBwNXtD6l70OtRZG31m+cnbmJ37uwiFE=
+github.com/solo-io/skv2 v0.19.3/go.mod h1:l9i3SVv0KexUGrXyJHhke36tc8qR+C1fMSmt+xsDdA0=
 github.com/solo-io/solo-apis v1.6.31 h1:U+qNzQTMIxuHBr6RvmKG4JwJbnZBW5No5vDDkvoKa5Q=
 github.com/solo-io/solo-apis v1.6.31/go.mod h1:EPsm1LmDszRRw9UMJm/6HLBtUd2CiAHGhP4tO682ZE0=
 github.com/solo-io/solo-kit v0.21.0 h1:NhVyzchGNwj3FoC7aEHQK7GrhXprfUUSr2NVxD1XbQs=

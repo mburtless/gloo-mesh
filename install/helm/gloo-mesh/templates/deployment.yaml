@@ -72,19 +72,20 @@ spec:
       imagePullSecrets:
         - name: {{ $discoveryImage.pullSecret }}
       {{- end}}
-
 {{- end }} {{/* define "discovery.deploymentSpec" */}}
 
 {{/* Render discovery deployment template with overrides from values*/}}
+{{- if $discovery.enabled }}
 {{- $discoveryDeploymentOverrides := dict }}
 {{- if $discovery.deploymentOverrides }}
 {{- $discoveryDeploymentOverrides = $discovery.deploymentOverrides  }}
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $discoveryDeploymentOverrides "discovery.deploymentSpec") }}
-
+{{- end }}
 ---
 
+{{- if $discovery.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -92,6 +93,7 @@ metadata:
     app: discovery
   name: discovery
   namespace: {{ $.Release.Namespace }}
+{{- end }}
 
 
 {{- define "discovery.serviceSpec"}}
@@ -116,9 +118,9 @@ spec:
   - name: metrics
     port: {{ $discovery.ports.metrics }}
 
-
 {{- end }} {{/* define "discovery.serviceSpec" */}}
 
+{{- if $discovery.enabled }}
 {{/* Render discovery service template with overrides from values*/}}
 {{- $discoveryServiceOverrides := dict }}
 {{- if $discovery.serviceOverrides }}
@@ -126,6 +128,7 @@ spec:
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $discoveryServiceOverrides "discovery.serviceSpec") }}
+{{- end }}
 
 
 
@@ -201,19 +204,20 @@ spec:
       imagePullSecrets:
         - name: {{ $networkingImage.pullSecret }}
       {{- end}}
-
 {{- end }} {{/* define "networking.deploymentSpec" */}}
 
 {{/* Render networking deployment template with overrides from values*/}}
+{{- if $networking.enabled }}
 {{- $networkingDeploymentOverrides := dict }}
 {{- if $networking.deploymentOverrides }}
 {{- $networkingDeploymentOverrides = $networking.deploymentOverrides  }}
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $networkingDeploymentOverrides "networking.deploymentSpec") }}
-
+{{- end }}
 ---
 
+{{- if $networking.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -221,13 +225,14 @@ metadata:
     app: networking
   name: networking
   namespace: {{ $.Release.Namespace }}
+{{- end }}
 
 
 {{- define "networking.serviceSpec"}}
 
-
 {{- end }} {{/* define "networking.serviceSpec" */}}
 
+{{- if $networking.enabled }}
 {{/* Render networking service template with overrides from values*/}}
 {{- $networkingServiceOverrides := dict }}
 {{- if $networking.serviceOverrides }}
@@ -235,5 +240,5 @@ metadata:
 {{- end }}
 ---
 {{ include "skv2.utils.merge" (list . $networkingServiceOverrides "networking.serviceSpec") }}
-
+{{- end }}
 

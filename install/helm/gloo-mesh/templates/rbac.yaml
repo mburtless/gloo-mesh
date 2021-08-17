@@ -3,6 +3,8 @@
 
 # Rbac manifests for discovery
 
+{{- $discovery := $.Values.discovery}}
+{{- if $discovery.enabled }}
 ---
 
 kind: ClusterRole
@@ -61,8 +63,12 @@ roleRef:
   kind: ClusterRole
   name: discovery
   apiGroup: rbac.authorization.k8s.io
+
+{{- end }}
 # Rbac manifests for networking
 
+{{- $networking := $.Values.networking}}
+{{- if $networking.enabled }}
 ---
 
 kind: ClusterRole
@@ -311,3 +317,5 @@ roleRef:
   kind: ClusterRole
   name: networking
   apiGroup: rbac.authorization.k8s.io
+
+{{- end }}

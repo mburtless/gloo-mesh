@@ -1,0 +1,6 @@
+changelog:
+  - type: DEPENDENCY_BUMP
+    description: Add flag to enable/disable creation of operator deployment/service.
+    dependencyOwner: solo-io
+    dependencyRepo: skv2
+    dependencyTag: v0.19.3
