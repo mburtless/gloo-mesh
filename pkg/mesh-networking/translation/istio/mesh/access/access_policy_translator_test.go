@@ -16,7 +16,6 @@ import (
 	mock_reporting "github.com/solo-io/gloo-mesh/pkg/mesh-networking/reporting/mocks"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/access"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/metautils"
-	"github.com/solo-io/skv2/contrib/pkg/sets"
 	v1 "github.com/solo-io/skv2/pkg/api/core.skv2.solo.io/v1"
 	"github.com/solo-io/skv2/pkg/ezkube"
 	securityv1beta1spec "istio.io/api/security/v1beta1"
@@ -92,7 +91,98 @@ var _ = Describe("AccessPolicyTranslator", func() {
 		expectedAuthPolicies := v1beta1sets.NewAuthorizationPolicySet(
 			&securityv1beta1.AuthorizationPolicy{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:        access.IngressGatewayAuthPolicyName + "-" + sets.Key(ingressDestination),
+					Name:        access.IngressGatewayAuthPolicyName + "-istio-ingressgateway-istio-system",
+					Namespace:   "istio-system",
+					ClusterName: "cluster-name",
+					Labels:      metautils.TranslatedObjectLabels(),
+					Annotations: map[string]string{
+						metautils.ParentLabelkey: `{"networking.mesh.gloo.solo.io/v1, Kind=VirtualMesh":[{"name":"virtual-mesh","namespace":"gloo-mesh"}]}`,
+					},
+				},
+				Spec: securityv1beta1spec.AuthorizationPolicy{
+					Action: securityv1beta1spec.AuthorizationPolicy_ALLOW,
+					// A single empty rule allows all traffic.
+					// Reference: https://istio.io/docs/reference/config/security/authorization-policy/#AuthorizationPolicy
+					Rules: []*securityv1beta1spec.Rule{{}},
+					Selector: &v1beta1.WorkloadSelector{
+						MatchLabels: ingressDestination.Spec.GetKubeService().GetWorkloadSelectorLabels(),
+					},
+				},
+			},
+			&securityv1beta1.AuthorizationPolicy{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        access.GlobalAccessControlAuthPolicyName,
+					Namespace:   "istio-system",
+					ClusterName: "cluster-name",
+					Labels:      metautils.TranslatedObjectLabels(),
+					Annotations: map[string]string{
+						metautils.ParentLabelkey: `{"networking.mesh.gloo.solo.io/v1, Kind=VirtualMesh":[{"name":"virtual-mesh","namespace":"gloo-mesh"}]}`,
+					},
+				},
+				Spec: securityv1beta1spec.AuthorizationPolicy{},
+			},
+		)
+		outputs := istio.NewBuilder(context.TODO(), "")
+		translator.Translate(in, mesh, mesh.Status.AppliedVirtualMesh, outputs, nil)
+		Expect(outputs.GetAuthorizationPolicies()).To(Equal(expectedAuthPolicies))
+	})
+
+	It("should translate hash a long AuthorizationPolicy name", func() {
+		ingressDestination := &discoveryv1.Destination{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "a-quick-brown-istio-ingressgateway-jumped-over-the-lazy-red-dog",
+				Namespace: "istio-system",
+			},
+			Spec: discoveryv1.DestinationSpec{
+				Type: &discoveryv1.DestinationSpec_KubeService_{
+					KubeService: &discoveryv1.DestinationSpec_KubeService{
+						Ref: &v1.ClusterObjectRef{
+							Name:        "istio-ingressgateway",
+							Namespace:   "istio-system",
+							ClusterName: "cluster-name",
+						},
+						WorkloadSelectorLabels: map[string]string{"gateway": "selector"},
+					},
+				},
+			},
+		}
+
+		in := input.NewInputLocalSnapshotManualBuilder("test").
+			AddDestinations(discoveryv1.DestinationSlice{ingressDestination}).
+			Build()
+
+		mesh := &discoveryv1.Mesh{
+			Spec: discoveryv1.MeshSpec{
+				Type: &discoveryv1.MeshSpec_Istio_{
+					Istio: &discoveryv1.MeshSpec_Istio{
+						Installation: &discoveryv1.MeshInstallation{
+							Namespace: "istio-system",
+							Cluster:   "cluster-name",
+						},
+					},
+				},
+			},
+			Status: discoveryv1.MeshStatus{
+				AppliedVirtualMesh: &discoveryv1.MeshStatus_AppliedVirtualMesh{
+					Ref: &v1.ObjectRef{
+						Name:      "virtual-mesh",
+						Namespace: "gloo-mesh",
+					},
+					Spec: &networkingv1.VirtualMeshSpec{
+						GlobalAccessPolicy: networkingv1.VirtualMeshSpec_ENABLED,
+					},
+				},
+				AppliedEastWestIngressGateways: []*commonv1.AppliedIngressGateway{
+					{
+						DestinationRef: ezkube.MakeObjectRef(ingressDestination),
+					},
+				},
+			},
+		}
+		expectedAuthPolicies := v1beta1sets.NewAuthorizationPolicySet(
+			&securityv1beta1.AuthorizationPolicy{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:        access.IngressGatewayAuthPolicyName + "-12556735161280984284",
 					Namespace:   "istio-system",
 					ClusterName: "cluster-name",
 					Labels:      metautils.TranslatedObjectLabels(),

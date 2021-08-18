@@ -2,6 +2,7 @@ package access
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rotisserie/eris"
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
@@ -12,7 +13,10 @@ import (
 	v1 "github.com/solo-io/gloo-mesh/pkg/api/networking.mesh.gloo.solo.io/v1"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/reporting"
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/utils/metautils"
-	"github.com/solo-io/skv2/contrib/pkg/sets"
+	"github.com/solo-io/go-utils/contextutils"
+	"github.com/solo-io/go-utils/hashutils"
+	"github.com/solo-io/k8s-utils/kubeutils"
+	"go.uber.org/zap"
 	securityv1beta1spec "istio.io/api/security/v1beta1"
 	"istio.io/api/type/v1beta1"
 	securityv1beta1 "istio.io/client-go/pkg/apis/security/v1beta1"
@@ -69,6 +73,7 @@ func (t *translator) Translate(
 	installationNamespace := istioMesh.Installation.Namespace
 	globalAuthPolicy := buildGlobalAuthPolicy(installationNamespace, clusterName)
 	ingressGatewayAuthPolicies, err := buildAuthPoliciesForIngressGateways(
+		t.ctx,
 		in.Destinations(),
 		installationNamespace,
 		clusterName,
@@ -91,6 +96,7 @@ func (t *translator) Translate(
 // Creates an AuthorizationPolicy that allows all traffic into the service
 // which backs the Gateway used for multi cluster traffic.
 func buildAuthPoliciesForIngressGateways(
+	ctx context.Context,
 	destinations v1sets.DestinationSet,
 	installationNamespace string,
 	clusterName string,
@@ -102,10 +108,14 @@ func buildAuthPoliciesForIngressGateways(
 		if err != nil {
 			return nil, err
 		}
+		apName, err := ingressGatewayAuthPolicyName(ctx, ingressGateway)
+		if err != nil {
+			return nil, err
+		}
 
 		ap := &securityv1beta1.AuthorizationPolicy{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:        ingressGatewayAuthPolicyName(ingressGateway),
+				Name:        apName,
 				Namespace:   installationNamespace,
 				ClusterName: clusterName,
 				Labels:      metautils.TranslatedObjectLabels(),
@@ -146,6 +156,23 @@ func buildGlobalAuthPolicy(
 	}
 }
 
-func ingressGatewayAuthPolicyName(ingressGateway *commonv1.AppliedIngressGateway) string {
-	return IngressGatewayAuthPolicyName + "-" + sets.Key(ingressGateway.GetDestinationRef())
+func ingressGatewayAuthPolicyName(ctx context.Context, ingressGateway *commonv1.AppliedIngressGateway) (string, error) {
+	ingressDestinationRef := ingressGateway.GetDestinationRef()
+	name := kubeutils.SanitizeNameV2(
+		fmt.Sprintf(
+			"%s-%s-%s", IngressGatewayAuthPolicyName,
+			ingressDestinationRef.GetName(), ingressDestinationRef.GetNamespace(),
+		),
+	)
+	if len(name) < 63 {
+		return name, nil
+	}
+
+	hash, err := hashutils.HashAllSafe(nil, name)
+	if err != nil {
+		contextutils.LoggerFrom(ctx).DPanicw("unable to hash name", zap.String("name", name), zap.Error(err))
+		return "", eris.Wrapf(err, "unable to hash auth policy name: %s", name)
+	}
+
+	return fmt.Sprintf("%s-%d", IngressGatewayAuthPolicyName, hash), nil
 }

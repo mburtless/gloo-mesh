@@ -7,7 +7,7 @@ weight: 2
 
 |Option|Type|Default Value|Description|
 |------|----|-----------|-------------|
-|redisDashboard|struct|{"image":{"repository":"redis","registry":"docker.io","pullPolicy":"IfNotPresent"},"env":[{"name":"MASTER","value":"true"}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"redis":6379}}|Configuration for the redisDashboard deployment.|
+|redisDashboard|struct|{"image":{"repository":"redis","registry":"docker.io","pullPolicy":"IfNotPresent"},"env":[{"name":"MASTER","value":"true"}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"redis":6379},"enabled":true}|Configuration for the redisDashboard deployment.|
 |redisDashboard|struct|{"image":{"repository":"redis","registry":"docker.io","pullPolicy":"IfNotPresent"},"env":[{"name":"MASTER","value":"true"}],"resources":{"requests":{"cpu":"125m","memory":"256Mi"}}}||
 |redisDashboard.image|struct|{"repository":"redis","registry":"docker.io","pullPolicy":"IfNotPresent"}|Specify the container image|
 |redisDashboard.image.tag|string| |Tag for the container.|
@@ -51,3 +51,4 @@ weight: 2
 |redisDashboard.ports.redis|uint32|6379|Specify service ports as a map from port name to port number.|
 |redisDashboard.DeploymentOverrides|invalid| |Provide arbitrary overrides for the component's [deployment template](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)|
 |redisDashboard.ServiceOverrides|invalid| |Provide arbitrary overrides for the component's [service template](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/service-v1/).|
+|redisDashboard.enabled|bool|true|Enables or disables creation of the operator deployment/service|

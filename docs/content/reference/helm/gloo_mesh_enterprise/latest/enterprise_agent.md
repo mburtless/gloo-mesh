@@ -45,7 +45,7 @@ weight: 2
 |rate-limiter.extraTemplateAnnotations|map[string, string]| |extra annotations to add to the ratelimit service pods. Defaults to proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'|
 |rate-limiter.extraTemplateAnnotations.<MAP_KEY>|string| |extra annotations to add to the ratelimit service pods. Defaults to proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'|
 |rate-limiter.extraTemplateAnnotations.proxy.istio.io/config|string|{ "holdApplicationUntilProxyStarts": true }|extra annotations to add to the ratelimit service pods. Defaults to proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'|
-|enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"grpc":9977,"http":9988}}|Configuration for the enterpriseAgent deployment.|
+|enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}},"sidecars":{},"floatingUserId":false,"runAsUser":10101,"serviceType":"ClusterIP","ports":{"grpc":9977,"http":9988},"enabled":true}|Configuration for the enterpriseAgent deployment.|
 |enterpriseAgent|struct|{"image":{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"},"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"resources":{"requests":{"cpu":"50m","memory":"128Mi"}}}||
 |enterpriseAgent.image|struct|{"repository":"enterprise-agent","registry":"gcr.io/gloo-mesh","pullPolicy":"IfNotPresent"}|Specify the container image|
 |enterpriseAgent.image.tag|string| |Tag for the container.|
@@ -90,3 +90,4 @@ weight: 2
 |enterpriseAgent.ports.http|uint32|9988|Specify service ports as a map from port name to port number.|
 |enterpriseAgent.DeploymentOverrides|invalid| |Provide arbitrary overrides for the component's [deployment template](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/)|
 |enterpriseAgent.ServiceOverrides|invalid| |Provide arbitrary overrides for the component's [service template](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/service-v1/).|
+|enterpriseAgent.enabled|bool|true|Enables or disables creation of the operator deployment/service|
