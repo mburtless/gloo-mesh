@@ -3,6 +3,7 @@ package check
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/rotisserie/eris"
 	v1 "github.com/solo-io/external-apis/pkg/api/k8s/apps/v1"
@@ -12,6 +13,7 @@ import (
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/consts"
+	"github.com/solo-io/k8s-utils/testutils/kube"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	client2 "sigs.k8s.io/controller-runtime/pkg/client"
@@ -56,6 +58,10 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 	var checkCtx checks.CheckContext
 	var err error
 
+	// Ignore the err since it will be reported later anyway
+	// Wait a minute for all the pods in the gloo-mesh namespace to start up
+	kube.WaitUntilClusterPodsRunning(ctx, time.Minute, opts.kubeconfig, opts.kubecontext, opts.namespace, "")
+
 	if inCluster {
 		// triggered by helm test
 
@@ -86,7 +92,7 @@ func runAgentChecks(ctx context.Context, opts *agentOpts, inCluster bool) error 
 			Output:      os.Stdout,
 		}
 
-		if err := installer.ExecuteHelmTest(ctx); err != nil {
+		if err := installer.ExecuteHelmTest(); err != nil {
 			return eris.Wrapf(err, "executing Helm test for release \"%s\" in namespace \"%s\"", releaseName, opts.namespace)
 		}
 	}

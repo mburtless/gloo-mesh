@@ -2,12 +2,14 @@ package check
 
 import (
 	"context"
+	"time"
 
 	"github.com/rotisserie/eris"
 	"github.com/solo-io/gloo-mesh/pkg/common/defaults"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/validation/checks"
+	"github.com/solo-io/k8s-utils/testutils/kube"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -49,6 +51,10 @@ func serverCmd(ctx context.Context, inCluster bool) *cobra.Command {
 func runServerChecks(ctx context.Context, opts *serverOpts, inCluster bool) error {
 	var checkCtx checks.CheckContext
 	var err error
+
+	// Ignore the err since it will be reported later anyway
+	// Wait a minute for all the pods in the gloo-mesh namespace to start up
+	kube.WaitUntilClusterPodsRunning(ctx, time.Minute, opts.kubeconfig, opts.kubecontext, opts.namespace, "")
 
 	if inCluster {
 		checkCtx, err = validation.NewInClusterCheckContext()

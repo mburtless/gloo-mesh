@@ -81,7 +81,7 @@ require (
 	github.com/solo-io/external-apis v0.1.6
 	github.com/solo-io/go-list-licenses v0.1.3
 	github.com/solo-io/go-utils v0.21.9
-	github.com/solo-io/k8s-utils v0.0.8
+	github.com/solo-io/k8s-utils v0.0.11
 	github.com/solo-io/protoc-gen-ext v0.0.15
 	github.com/solo-io/skv2 v0.19.3
 	github.com/solo-io/solo-apis v1.6.31

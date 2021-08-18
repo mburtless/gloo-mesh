@@ -10,12 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/rotisserie/eris"
 	"github.com/sirupsen/logrus"
 	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
-	"github.com/solo-io/k8s-utils/testutils/kube"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -49,7 +47,7 @@ type Installer struct {
 	Output      io.Writer
 }
 
-func (i Installer) ExecuteHelmTest(ctx context.Context) error {
+func (i Installer) ExecuteHelmTest() error {
 	actionConfig, settings, err := newActionConfig(i.KubeConfig, i.KubeContext, i.Namespace)
 	if err != nil {
 		return eris.Wrapf(err, "creating helm config")
@@ -60,9 +58,6 @@ func (i Installer) ExecuteHelmTest(ctx context.Context) error {
 
 	client := action.NewReleaseTesting(actionConfig)
 	client.Namespace = i.Namespace // Helm requires setting this via struct field assignment.......
-
-	// Ignore the err since it will be reported later anyway
-	kube.WaitUntilPodsRunning(ctx, time.Minute, settings.Namespace())
 
 	release, err := client.Run(i.ReleaseName)
 	// only return an error if we weren't even able to get the

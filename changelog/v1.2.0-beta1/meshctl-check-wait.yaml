@@ -2,3 +2,9 @@ changelog:
   - type: FIX
     description: Wait for pods to be running before executing the meshctl check.
     issueLink: https://github.com/solo-io/gloo-mesh/issues/1816
+    resolvesIssue: false
+  - type: DEPENDENCY_BUMP
+    description: Add WaitUntilClusterPodsRunning function.
+    dependencyOwner: solo-io
+    dependencyRepo: k8s-utils
+    dependencyTag: v0.0.11
