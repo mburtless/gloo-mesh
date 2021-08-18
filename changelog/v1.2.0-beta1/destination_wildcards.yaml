@@ -1,0 +1,4 @@
+changelog:
+  - type: FIX
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1732
+    description: Check for wildcards in WorkloadEntry addresses and handle accordingly.

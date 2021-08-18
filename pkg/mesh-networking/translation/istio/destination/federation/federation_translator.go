@@ -24,6 +24,7 @@ import (
 	"istio.io/istio/pkg/config/protocol"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ksets "k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/utils/pointer"
 )
 
@@ -395,22 +396,29 @@ func getHostnameSuffix(hostname string) string {
 func ResolutionForEndpointIpVersions(
 	workloadEntries []*networkingv1alpha3spec.WorkloadEntry,
 ) (networkingv1alpha3spec.ServiceEntry_Resolution, error) {
-	var foundHostname bool
-	var foundIpv6 bool
+	seenAddrTypes := ksets.NewString()
 	for _, workloadEntry := range workloadEntries {
 		// only ipv6 addresses will have 2 or more colons, reference: https://datatracker.ietf.org/doc/html/rfc5952
-		if strings.Count(workloadEntry.Address, ":") >= 2 {
-			foundIpv6 = true
-		}
-		if ip := net.ParseIP(workloadEntry.Address); ip == nil {
-			foundHostname = true
+		if strings.Count(workloadEntry.GetAddress(), ":") >= 2 {
+			seenAddrTypes.Insert("ipv6")
+		} else if ip := net.ParseIP(workloadEntry.GetAddress()); ip != nil {
+			seenAddrTypes.Insert("ipv4")
+		} else if strings.HasPrefix(workloadEntry.GetAddress(), "*.") {
+			seenAddrTypes.Insert("wildcard")
+		} else {
+			seenAddrTypes.Insert("hostname")
 		}
 	}
 
-	if foundHostname && foundIpv6 {
+	if seenAddrTypes.Has("wildcard") && seenAddrTypes.Len() > 1 {
+		return networkingv1alpha3spec.ServiceEntry_NONE, eris.New("endpoints contain both wildcard and other address types")
+	} else if seenAddrTypes.HasAll("hostname", "ipv6") {
 		return networkingv1alpha3spec.ServiceEntry_NONE, eris.New("endpoints contain both ipv6 and hostname addresses")
-	} else if foundHostname && !foundIpv6 {
+	} else if seenAddrTypes.Has("hostname") {
 		return networkingv1alpha3spec.ServiceEntry_DNS, nil
+	} else if seenAddrTypes.Has("wildcard") {
+		return networkingv1alpha3spec.ServiceEntry_NONE, nil
 	}
+
 	return networkingv1alpha3spec.ServiceEntry_STATIC, nil
 }

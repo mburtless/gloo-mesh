@@ -410,4 +410,28 @@ var _ = Describe("FederationTranslator", func() {
 		Expect(err).To(BeNil())
 		Expect(res).To(Equal(networkingv1alpha3spec.ServiceEntry_DNS))
 	})
+
+	It("should set ServiceEntry resolution to NONE if all the endpoints have wildcards", func() {
+		workloadEntries := []*networkingv1alpha3spec.WorkloadEntry{
+			{
+				Address: "*.mygroovyhost.net",
+			},
+		}
+		res, err := federation.ResolutionForEndpointIpVersions(workloadEntries)
+		Expect(err).To(BeNil())
+		Expect(res).To(Equal(networkingv1alpha3spec.ServiceEntry_NONE))
+	})
+
+	It("should error if there is a mix of wildcard and other address types", func() {
+		workloadEntries := []*networkingv1alpha3spec.WorkloadEntry{
+			{
+				Address: "*.mygroovyhost.net",
+			},
+			{
+				Address: "192.168.1.2",
+			},
+		}
+		_, err := federation.ResolutionForEndpointIpVersions(workloadEntries)
+		Expect(err).To(MatchError("endpoints contain both wildcard and other address types"))
+	})
 })
