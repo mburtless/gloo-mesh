@@ -408,7 +408,7 @@ metadata:
   namespace: istio-system
 spec:
   hub: gcr.io/istio-release
-  profile: preview
+  profile: minimal
   revision: ${istioRevision}
   meshConfig:
     enableAutoMtls: true
@@ -520,6 +520,9 @@ function install_istio() {
   then
     install_istio_1_8 $cluster $eastWestIngressPort $istioRevision
   elif istioctl version | grep -E -- '1.10'
+  then
+    install_istio_1_8 $cluster $eastWestIngressPort $istioRevision
+  elif istioctl version | grep -E -- '1.11'
   then
     install_istio_1_8 $cluster $eastWestIngressPort $istioRevision
   else

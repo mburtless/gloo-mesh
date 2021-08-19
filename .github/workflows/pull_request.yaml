@@ -82,12 +82,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        istioctl-binary: [
-            'https://github.com/istio/istio/releases/download/1.7.7/istio-1.7.7-linux-amd64.tar.gz',
-            'https://github.com/istio/istio/releases/download/1.8.6/istio-1.8.6-linux-amd64.tar.gz',
-            'https://github.com/istio/istio/releases/download/1.9.7/istio-1.9.7-linux-amd64.tar.gz',
-            'https://github.com/istio/istio/releases/download/1.10.3/istio-1.10.3-linux-amd64.tar.gz'
-        ]
+        istioctl-binary:
+        - 'https://github.com/istio/istio/releases/download/1.7.7/istio-1.7.7-linux-amd64.tar.gz'
+        - 'https://github.com/istio/istio/releases/download/1.8.6/istio-1.8.6-linux-amd64.tar.gz'
+        - 'https://github.com/istio/istio/releases/download/1.9.7/istio-1.9.7-linux-amd64.tar.gz'
+        - 'https://github.com/istio/istio/releases/download/1.10.3/istio-1.10.3-linux-amd64.tar.gz'
+        - 'https://github.com/istio/istio/releases/download/1.11.0/istio-1.11.0-linux-amd64.tar.gz'
     steps:
       - name: Cancel Previous Actions
         uses: styfle/cancel-workflow-action@0.9.1

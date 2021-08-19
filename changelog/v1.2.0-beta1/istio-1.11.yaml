@@ -1,0 +1,5 @@
+changelog:
+  - type: NEW_FEATURE
+    description: Test Gloo Mesh Open Source with Istio 1.11.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1779
+    resolvesIssue: false
