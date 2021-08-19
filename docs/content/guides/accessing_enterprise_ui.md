@@ -93,6 +93,58 @@ The **Debug** section allows you to view and download the full configuration of 
 
 You can use this view to quickly ascertain information about a particular mesh or to capture the current configuration of a virtual mesh.
 
+## Securing the Admin Dashboard
+
+The Admin Dashboard supports OpenID Connect (OIDC) authentication from common providers such as Google, Okta, and Auth0.
+You can configure OIDC authentication in the dashboard with custom Helm chart values.
+More information about both are available
+[here]({{% versioned_link_path fromRoot="/setup/installation/enterprise_installation" %}}).
+
+Copy and fill out the following YAML file to set up Gloo Mesh Enterprise with the dashboard enabled and secured by OIDC.
+In order to further customize the installation, a full list of Helm values is available
+[here]({{% versioned_link_path fromRoot="/reference/helm/gloo_mesh_enterprise/latest/dashboard_helm_values_reference/" %}}).
+
+After filling out the YAML file with your OIDC provider details,
+[install Gloo Mesh Enterprise]({{% versioned_link_path fromRoot="/setup/installation/enterprise_installation/" %}})
+with the Helm values file such as with the `meshctl install enterprise --chart-values-file <file>` command
+or the `helm upgrade -f oidc.yaml gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise --namespace gloo-mesh [--install]` command.
+
+```yaml
+licenseKey: # License key
+gloo-mesh-ui:
+  enabled: true
+  auth:
+    enabled: true
+    backend: oidc
+    oidc:
+      clientId: # From the OIDC provider
+      clientSecret: # From the OIDC provider (will be stored in secret)
+      clientSecretRef:
+        name: dashboard
+        namespace: gloo-mesh
+      issuerUrl: # The issuer URL from the OIDC provider, usually something like https://<domain>.<provider url>/
+      appUrl: # URL the dashboard will is available at. This will be from DNS and other ingress settings that expose the dashboard service.
+```
+
+### Storing Sessions in Redis
+
+By default, sessions are persisted in encrypted browser cookies. If the ID tokens that the OIDC provider returns are too
+large to be stored in cookies, the dashboard can be configured to use a Redis instance instead to store them.
+The dashboard Helm chart can optionally deploy a redis instance or users can use their own Redis deployment.
+Incorporate the following values into the values file created in the previous section to use Redis as the session backend.
+
+```yaml
+gloo-mesh-ui:
+  redis:
+    enabled: true # Enables the included Redis deployment. Set to false or omit to use a custom Redis instance.
+  auth:
+    oidc:
+      session:
+        backend: redis
+        redis:
+          host: redis-dashboard.gloo-mesh.svc.cluster.local:6379 # Points at the included Redis, can be changed as needed.
+```
+
 ## Next Steps
 
 If your Admin Dashboard is looking a bit sparse, now might be a good time to walk through the [Istio installation]({{% versioned_link_path fromRoot="/guides/installing_istio/" %}}) or [traffic policy guides]({{% versioned_link_path fromRoot="/guides/traffic_policy/" %}}).
