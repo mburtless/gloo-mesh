@@ -68,7 +68,7 @@ CLIENT_SECRET=<your client secret>
 Gloo Mesh expects the client secret to stored in a Kubernetes secret. Let's create the secret with the value of our `CLIENT_SECRET` variable:
 
 ```shell
-BASE64_CLIENT_SECRET=$(echo $CLIENT_SECRET | base64)
+BASE64_CLIENT_SECRET=$(echo -n $CLIENT_SECRET | base64)
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
