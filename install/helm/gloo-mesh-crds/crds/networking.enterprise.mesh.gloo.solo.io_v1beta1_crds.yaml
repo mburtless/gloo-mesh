@@ -1896,9 +1896,11 @@ spec:
                                   the extauth service protocol (i.e., grpc or http). In practice, this means the port handling extauth requests
                                   should be named grpc and/or have protocol GRPC (both case-insensitive), unless `http_service` is configured.
 
-                                  If omitted, defaults to the expected format for the discovered extauth service shipped with Gloo Mesh Enterprise:
-                                    Name: ext-auth-service-$POD_NAMESPACE-$CLUSTER_NAME
-                                    Namespace: $POD_NAMESPACE
+                                  The provided ref will be used to search for a service of the given name/namespace on each cluster
+                                  that a Gateway will be created.
+
+                                  If omitted, Gloo Mesh will search for a service with the name ext-auth-service in each namespace on each cluster
+                                  that a Gateway will be created.
                                 properties:
                                   name:
                                     description: name of the resource being referenced
@@ -2031,8 +2033,12 @@ spec:
                                 type: boolean
                               ratelimitServerRef:
                                 description: |-
-                                  The ratelimit service to ask about ratelimit decisions. If not provided,
-                                  defaults to solo.io rate-limiter server.
+                                  The ratelimit service to ask about ratelimit decisions.
+                                  The provided ref will be used to search for a service of the given name/namespace on each cluster
+                                  that a Gateway will be created.
+
+                                  If omitted, Gloo Mesh will search for a service with the name rate-limiter in each namespace on each cluster
+                                  that a Gateway will be created.
                                 properties:
                                   name:
                                     description: name of the resource being referenced

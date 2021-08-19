@@ -96,9 +96,11 @@ type GatewayExtauth struct {
 	// the extauth service protocol (i.e., grpc or http). In practice, this means the port handling extauth requests
 	// should be named grpc and/or have protocol GRPC (both case-insensitive), unless `http_service` is configured.
 	//
-	// If omitted, defaults to the expected format for the discovered extauth service shipped with Gloo Mesh Enterprise:
-	//   Name: ext-auth-service-$POD_NAMESPACE-$CLUSTER_NAME
-	//   Namespace: $POD_NAMESPACE
+	// The provided ref will be used to search for a service of the given name/namespace on each cluster
+	// that a Gateway will be created.
+	//
+	// If omitted, Gloo Mesh will search for a service with the name ext-auth-service in each namespace on each cluster
+	// that a Gateway will be created.
 	ExtauthzRef *v1.ObjectRef `protobuf:"bytes,1,opt,name=extauthz_ref,json=extauthzRef,proto3" json:"extauthz_ref,omitempty"`
 	// If this is set, communication to the upstream will be via HTTP and not GRPC.
 	HttpService *HttpService `protobuf:"bytes,2,opt,name=http_service,json=httpService,proto3" json:"http_service,omitempty"`

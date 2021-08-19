@@ -40,7 +40,7 @@ spec:
             denyOnFail: true           # optional, default false
         ratelimitServerRef:
           name: rate-limiter # rate-limit server destination name
-          namespace: gloo-mesh  # rate-limit server upstream namespace
+          namespace: gloo-mesh-addons  # rate-limit server upstream namespace
 EOF
 ```
 

@@ -39,8 +39,12 @@ type GatewayRateLimit struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// The ratelimit service to ask about ratelimit decisions. If not provided,
-	// defaults to solo.io rate-limiter server.
+	// The ratelimit service to ask about ratelimit decisions.
+	// The provided ref will be used to search for a service of the given name/namespace on each cluster
+	// that a Gateway will be created.
+	//
+	// If omitted, Gloo Mesh will search for a service with the name rate-limiter in each namespace on each cluster
+	// that a Gateway will be created.
 	RatelimitServerRef *v1.ObjectRef `protobuf:"bytes,1,opt,name=ratelimit_server_ref,json=ratelimitServerRef,proto3" json:"ratelimit_server_ref,omitempty"`
 	// Timeout for the ratelimit service to respond. Defaults to 100ms
 	RequestTimeout *duration.Duration `protobuf:"bytes,2,opt,name=request_timeout,json=requestTimeout,proto3" json:"request_timeout,omitempty"`

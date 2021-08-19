@@ -37,7 +37,7 @@ Configure the Rate-Limit Filter on a Gateway
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| ratelimitServerRef | [core.skv2.solo.io.ObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectRef" >}}) |  | The ratelimit service to ask about ratelimit decisions. If not provided, defaults to solo.io rate-limiter server. |
+| ratelimitServerRef | [core.skv2.solo.io.ObjectRef]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.skv2.api.core.v1.core#core.skv2.solo.io.ObjectRef" >}}) |  | The ratelimit service to ask about ratelimit decisions. The provided ref will be used to search for a service of the given name/namespace on each cluster that a Gateway will be created.<br>If omitted, Gloo Mesh will search for a service with the name rate-limiter in each namespace on each cluster that a Gateway will be created. |
   | requestTimeout | [google.protobuf.Duration]({{< versioned_link_path fromRoot="/reference/api/github.com.solo-io.protoc-gen-ext.external.google.protobuf.duration#google.protobuf.Duration" >}}) |  | Timeout for the ratelimit service to respond. Defaults to 100ms |
   | denyOnFail | bool |  | Defaults to false |
   

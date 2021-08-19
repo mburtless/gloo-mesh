@@ -145,7 +145,8 @@ enterpriseAgent:
 Create a new namespace and install the RateLimit and Extauth, without the `enterprise-agent` using helm on the worker clusters `cluster-1` and `cluster-2`:
 
 ```shell
-helm install enterprise-agent enterprise-agent/enterprise-agent --create-namespace --namespace gloo-mesh-addons \
+helm install enterprise-agent-addons enterprise-agent/enterprise-agent --create-namespace --namespace 
+gloo-mesh-addons \
   --set licenseKey=${GLOO_MESH_LICENSE_KEY} --set rate-limiter.enabled=true --set ext-auth-service.enabled=true --set enterpriseAgent.enabled=false
 ```
 
