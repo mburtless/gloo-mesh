@@ -112,7 +112,7 @@ metadata:
   namespace: bookinfo
 spec:
   configs:
-  - opa_auth:
+  - opaAuth:
       modules:
       - name: allow-get-users
         namespace: bookinfo
