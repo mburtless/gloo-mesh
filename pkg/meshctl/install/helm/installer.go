@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/rotisserie/eris"
 	"github.com/sirupsen/logrus"
@@ -216,6 +217,7 @@ func upsertCrds(ctx context.Context, kubeClient client.Client, chartObj *chart.C
 	// unmarshal CRD definitions from Helm manifests
 	decoder := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
 	crdManifests := chartObj.CRDObjects()
+	var crdNames []string
 	for _, crdManifest := range crdManifests {
 		var crds []*unstructured.Unstructured
 		crdsRaw := strings.Split(string(crdManifest.File.Data), "\n---")
@@ -231,6 +233,7 @@ func upsertCrds(ctx context.Context, kubeClient client.Client, chartObj *chart.C
 		// upsert each CRD
 		for _, crd := range crds {
 			crd := crd
+			crdNames = append(crdNames, crd.GetName())
 			err := kubeClient.Create(ctx, crd)
 			if errors.IsAlreadyExists(err) {
 				// update requires manually setting the resource version
@@ -247,7 +250,8 @@ func upsertCrds(ctx context.Context, kubeClient client.Client, chartObj *chart.C
 			}
 		}
 	}
-	return nil
+	// wait until CRDs are in the "established" status to prevent race conditions when subsequently creating CRs
+	return utils.WaitUntilCRDsEstablished(ctx, kubeClient, time.Minute, crdNames)
 }
 
 func updateReleaseManifestWithCrds(chartObj *chart.Chart, release *release.Release) {

@@ -44,7 +44,7 @@ The edition registered must match the edition installed on the management cluste
 	)
 
 	opts.addToFlags(cmd.PersistentFlags())
-	cmd.MarkFlagRequired("remote-context")
+	cmd.MarkPersistentFlagRequired("remote-context")
 
 	return cmd
 }
