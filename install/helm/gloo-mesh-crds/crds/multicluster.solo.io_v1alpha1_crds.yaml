@@ -5,7 +5,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     crd.solo.io/specHash: 47b2f501357b4ccc
-    crd.solo.io/version: 1.1.0
+    crd.solo.io/version: 1.2.0
   labels:
     app: skv2
     app.kubernetes.io/name: skv2
