@@ -5,10 +5,10 @@ weight: 100
 description: Best practices for upgrading Gloo Mesh Enterprise
 ---
 
-{{< notice warning >}}
-This upgrade process is for Gloo Mesh Enterprise, from v1.1.0-betax to v1.1.0. During the upgrade, the data plane continues to run, but you might not be able to modify the configurations through the management plane. Because zero downtime is not guaranteed, try testing the upgrade in a staging environment before upgrading your production environment.
+This upgrade process is for Gloo Mesh Enterprise, from v1.1.0-betax to v1.1.0. If you are on a previous version, uninstall and re-install Gloo Mesh Enterprise, as described in one of the [setup guides]({{% versioned_link_path fromRoot="/getting_started/#deploying-gloo-mesh" %}}).
 
-If you are on a previous version, uninstall and re-install Gloo Mesh Enterprise, as described in one of the [setup guides]({{% versioned_link_path fromRoot="/getting_started/#deploying-gloo-mesh" %}}).
+{{< notice warning >}}
+During the upgrade, the data plane continues to run, but you might not be able to modify the configurations through the management plane. Because zero downtime is not guaranteed, try testing the upgrade in a staging environment before upgrading your production environment.
 {{< /notice >}}
 
 1\. In your terminal, set environment variables for your current and target Gloo Mesh Enterprise versions to use in the subsequent steps.
