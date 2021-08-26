@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Documents limitations and workarounds for using a `TrafficPolicy` with the `VirtualGateway` API.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/811
