@@ -12,18 +12,10 @@ Quickly get started with a Gloo Mesh demo environment by using Kind to run local
 Before you begin, install the following tools:
 
 * [Docker Desktop](https://www.docker.com/products/docker-desktop). In **Preferences > Resources > Advanced**, ensure that [at least 10 CPUs and 8 GiB of memory are available](https://kind.sigs.k8s.io/docs/user/quick-start/#settings-for-docker-desktop).
-* Version 1.7, 1.8, or 1.9 of [`istioctl`](https://istio.io/latest/docs/setup/getting-started/#download), the Istio command line tool. For example, to download version 1.9.7 and add the client to your `PATH` environment variable:
-  ```shell
-  curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.9.7 sh -
-  export PATH="$PATH:$HOME/istio-1.9.7/bin"
-  ```
-* [`meshctl`](https://github.com/solo-io/gloo-mesh/releases), the Gloo Mesh command line tool for bootstrapping Gloo Mesh, registering clusters, describing configured resources, and more. For example, to download the latest version and add the client to your `PATH` environment variable:
-  ```shell
-  curl -sL https://run.solo.io/meshctl/install | sh
-  export PATH=$HOME/.gloo-mesh/bin:$PATH
-  ```
+* Version 1.7, 1.8, or 1.9 of [`istioctl`](https://istio.io/latest/docs/setup/getting-started/#download), the Istio command line tool.
+* [`meshctl`]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}), the Gloo Mesh command line tool for bootstrapping Gloo Mesh, registering clusters, describing configured resources, and more.
 * [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start#installation), a tool for running local Kubernetes clusters by using Docker containers.
-* [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl), the Kubernetes command line tool.
+* [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl), the Kubernetes command line tool. Download the `kubectl` version that is within one minor version of your Kubernetes cluster. For example, this demo environment creates clusters that run Kubernetes version 1.17.17.
 
 ## Set up the Gloo Mesh demo environment
 
