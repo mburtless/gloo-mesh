@@ -5,115 +5,149 @@ description: Get started running Gloo Mesh or Gloo Mesh Enterprise locally in Ki
 weight: 20
 ---
 
-The easiest way to get started with Gloo Mesh is by using Kind to run local Kubernetes clusters in Docker. There is a `demo` command in meshctl that will create a full demonstration environment on your local system. All you need is Docker, Kind, and kubectl installed. 
+Quickly get started with a Gloo Mesh demo environment by using Kind to run local Kubernetes clusters in Docker.
 
-* [Docker](https://www.docker.com/products/docker-desktop) for desktop, with at least 8GB of RAM allocated
-* [Kind](https://kind.sigs.k8s.io) Kubernetes in Docker
-* [istioctl](https://istio.io/latest/docs/setup/getting-started/#download) Command line utility for Istio
+## Prerequisites
 
-If you prefer to use an existing Kubernetes cluster, check out our [Setup Guide]({{% versioned_link_path fromRoot="/setup/" %}}).
+Before you begin, install the following tools:
 
-To spin up two Kubernetes clusters with Kind, run:
+* [Docker Desktop](https://www.docker.com/products/docker-desktop). In **Preferences > Resources > Advanced**, ensure that [at least 10 CPUs and 8 GiB of memory are available](https://kind.sigs.k8s.io/docs/user/quick-start/#settings-for-docker-desktop).
+* Version 1.7, 1.8, or 1.9 of [`istioctl`](https://istio.io/latest/docs/setup/getting-started/#download), the Istio command line tool. For example, to download version 1.9.7 and add the client to your `PATH` environment variable:
+  ```shell
+  curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.9.7 sh -
+  export PATH="$PATH:$HOME/istio-1.9.7/bin"
+  ```
+* [`meshctl`](https://github.com/solo-io/gloo-mesh/releases), the Gloo Mesh command line tool for bootstrapping Gloo Mesh, registering clusters, describing configured resources, and more. For example, to download the latest version and add the client to your `PATH` environment variable:
+  ```shell
+  curl -sL https://run.solo.io/meshctl/install | sh
+  export PATH=$HOME/.gloo-mesh/bin:$PATH
+  ```
+* [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start#installation), a tool for running local Kubernetes clusters by using Docker containers.
+* [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl), the Kubernetes command line tool.
 
-{{< tabs >}}
-{{< tab name="Community" codelang="shell" >}}
-meshctl demo istio-multicluster init
-{{< /tab >}}
-{{< tab name="Enterprise" codelang="shell" >}}
-GLOO_MESH_LICENSE_KEY=<your_key_here> # You'll need to supply your own key
-meshctl demo istio-multicluster init --enterprise --license $GLOO_MESH_LICENSE_KEY
-{{< /tab >}}
-{{< /tabs >}}
+## Set up the Gloo Mesh demo environment
 
-The command will do the following:
+1. Use `kind` to set up the Gloo Mesh demonstration environment. This command completes the following operations:
+   * Creates two clusters named `mgmt-cluster` and `remote-cluster`.
+   * Installs Istio in both clusters.
+   * Deploys the Istio `Bookinfo` sample application to the `bookinfo` namespace in each cluster.
+   * Installs Gloo Mesh in `mgmt-cluster`, which serves as the _management cluster_ in this setup.
+   * Registers both clusters with Gloo Mesh so that both clusters are _managed clusters_ in this setup.
 
-* Create two kind clusters: `cluster-1` and `cluster-2`
-* Install Gloo Mesh on `cluster-1`. This makes `cluster-1` your *management cluster*.
-* Install Istio on both clusters.
-* Register both clusters with Gloo Mesh under the names `cluster-1` and `cluster-2`. This means that `cluster-1'
-is both your management cluster, and a managed cluster.
-* Deploy BookInfo sample application on both clusters under the `bookinfo` namespace
+   {{< tabs >}}
+   {{< tab name="Enterprise" codelang="shell" >}}
+   export GLOO_MESH_LICENSE_KEY=<your_license_key>
+   meshctl demo istio-multicluster init --enterprise --license $GLOO_MESH_LICENSE_KEY
+   {{< /tab >}}
+   {{< tab name="Open Source" codelang="shell" >}}
+   meshctl demo istio-multicluster init
+   {{< /tab >}}
+   {{< /tabs >}}
 
-```shell
-Creating cluster cluster-1 with ingress port 32001
-Creating cluster "cluster-1" ...
- ✓ Ensuring node image (kindest/node:v1.17.5) �
- ✓ Preparing nodes ��
- ✓ Writing configuration ��
- ✓ Starting control-plane 🕹
- ✓ Installing CNI ��
- ✓ Installing StorageClass ��
-Set kubectl context to "kind-cluster-1"
-You can now use your cluster with:
+   Example output for the creation of `mgmt-cluster` and `remote-cluster`:
+   ```
+   Creating cluster mgmt-cluster with ingress port 32001
+   Creating cluster "mgmt-cluster" ...
+    ✓ Ensuring node image (kindest/node:v1.17.17) 🖼 
+    ✓ Preparing nodes 📦  
+    ✓ Writing configuration 📜 
+    ✓ Starting control-plane 🕹️ 
+    ✓ Installing CNI 🔌 
+    ✓ Installing StorageClass 💾 
+   Set kubectl context to "kind-mgmt-cluster"
+   You can now use your cluster with:
 
-kubectl cluster-info --context kind-cluster-1
+   kubectl cluster-info --context kind-mgmt-cluster
 
-...
+   ...
 
-Creating cluster cluster-2 with ingress port 32000
-Creating cluster "cluster-2" ...
- ✓ Ensuring node image (kindest/node:v1.17.5) �
- ✓ Preparing nodes ��
- ✓ Writing configuration ��
- ✓ Starting control-plane 🕹
- ✓ Installing CNI ��
- ✓ Installing StorageClass ��
-Set kubectl context to "kind-cluster-2"
-You can now use your cluster with:
+   Creating cluster remote-cluster with ingress port 32000
+   Creating cluster "remote-cluster" ...
+    ✓ Ensuring node image (kindest/node:v1.17.17) 🖼 
+    ✓ Preparing nodes 📦  
+    ✓ Writing configuration 📜 
+    ✓ Starting control-plane 🕹️ 
+    ✓ Installing CNI 🔌 
+    ✓ Installing StorageClass 💾 
+   Set kubectl context to "kind-remote-cluster"
+   You can now use your cluster with:
 
-kubectl cluster-info --context kind-cluster-2
-```
+   kubectl cluster-info --context kind-remote-cluster
+   ```
 
-To connect to each of the clusters, run the following:
+2. Save the context for each cluster as an environment variable.
+   ```shell
+   export CONTEXT_1=kind-mgmt-cluster
+   export CONTEXT_2=kind-remote-cluster
+   ```
 
-```shell
-export CONTEXT_1=kind-cluster-1
-export CONTEXT_2=kind-cluster-2
-```
+3. List the pods in the `gloo-mesh` namespace of `mgmt-cluster`.
+   ```shell
+   kubectl --context $CONTEXT_1 get po -n gloo-mesh
+   ```
 
-Then you can run the following to connect to cluster-1:
+   Example output:
+   {{< tabs >}}
+   {{< tab name="Enterprise" codelang="nocopy.shell" >}}
+   NAME                                     READY   STATUS    RESTARTS   AGE
+   dashboard-6db9ff8b68-b25tx               3/3     Running   0          3m32s
+   enterprise-agent-6bb84f5d5f-647d5        1/1     Running   0          3m28s
+   enterprise-networking-77b5877b98-vrz5w   1/1     Running   0          3m32s
+   rbac-webhook-9bcf495ff-4ns65             1/1     Running   0          3m32s
+   {{< /tab >}}
+   {{< tab name="Open Source" codelang="nocopy.shellß" >}}
+   NAME                          READY   STATUS    RESTARTS   AGE
+   cert-agent-7d79bf9f44-8pl25   1/1     Running   0          3m28s
+   discovery-7bbb5bdc6c-rh59b    1/1     Running   0          3m32s
+   networking-7fb9847967-vqbt5   1/1     Running   0          3m32s
+   {{< /tab >}}
+   {{< /tabs >}}
 
-```shell
-kubectl --context $CONTEXT_1 get po -n gloo-mesh
-```
+4. To verify that the Gloo Mesh setup is complete, check the status of the Gloo Mesh pods and connectivity of Gloo Mesh agents in the managed clusters.
+   ```shell
+   meshctl check server
+   ```
 
-You should see Gloo Mesh installed:
+   Example output:
+   ```
+   Gloo Mesh Management Cluster Installation
 
-```shell
-NAME                              READY   STATUS    RESTARTS   AGE
-csr-agent-8445578f6d-6hzls        1/1     Running   0          3m28s
-mesh-discovery-8657d4dd66-dlks8   1/1     Running   0          3m32s
-mesh-networking-58b68b7b6-ljjcr   1/1     Running   0          3m32s
-```
+   🟢 Gloo Mesh Pods Status
+   +----------------+------------+-------------------------------+-----------------+
+   |    CLUSTER     | REGISTERED | DASHBOARDS AND AGENTS PULLING | AGENTS PUSHING  |
+   +----------------+------------+-------------------------------+-----------------+
+   | mgmt-cluster   | true       |                             2 |               1 |
+   +----------------+------------+-------------------------------+-----------------+
+   | remote-cluster | true       |                             2 |               1 |
+   +----------------+------------+-------------------------------+-----------------+
 
-To verify the installation came up successfully and everything is in a good state:
+   🟢 Gloo Mesh Agents Connectivity
 
-```shell
-meshctl check
-```
+   Management Configuration
 
+   🟢 Gloo Mesh CRD Versions
 
-You should see something similar to the following:
+   🟢 Gloo Mesh Networking Configuration Resources
+   ```
 
-```shell
-Gloo Mesh
--------------------
-✅ Gloo Mesh pods are running
-
-Management Configuration
----------------------------
-✅ Gloo Mesh networking configuration resources are in a valid state
-```
-
-Setting up Kind and multiple clusters on your machine isn't always the easiest, and there may be some issues/hurdles you run into, especially on "company laptops" with extra security constraints. If you ran into any issues in the previous steps, please join us on the [Solo.io slack](https://slack.solo.io) and we'll be more than happy to help troubleshoot. 
+Your Gloo Mesh management cluster is set up, and your managed clusters are registered. Your demo evironment is now ready to go!
 
 ## Next steps
 
-In this quick-start guide, we installed Gloo Mesh and registered clusters. If these installation use cases were too simplistic or not representative of your environment, please check out our [Setup Guide]({{% versioned_link_path fromRoot="/setup/" %}}). Otherwise, please check out our [Guides]({{% versioned_link_path fromRoot="/guides/" %}}) to explore the power of Gloo Mesh.
+Check out the following guides to explore more of Gloo Mesh's capabilities in your demo environment.
+* [Mesh discovery]({{% versioned_link_path fromRoot="/guides/discovery_intro/" %}}): Enable Gloo Mesh to automatically discover both service mesh installations on registered clusters by using control plane and sidecar discovery.
+* [Traffic policies]({{% versioned_link_path fromRoot="/guides/traffic_policy/" %}}): Configure traffic policies, including properties such as timeouts, retries, CORS, and header manipulation, for services that are associated with a service mesh installation.
+* [Federated trust and identity]({{% versioned_link_path fromRoot="/guides/federate_identity/" %}}): Unify the root identity between multiple service mesh installations so that any intermediates are signed by the same root certificate authority and end-to-end mTLS between clusters and destinations can be established.
 
-### Clean up
+To set up and manage the configuration of Gloo Mesh on your existing clusters, follow the steps in the [Setup documentation]({{% versioned_link_path fromRoot="/setup/" %}}).
 
-Cleaning up this demo environment is as simple as running the following:
+{{% notice tip %}}
+Running into issues? For troubleshooting help, join the [Solo.io Slack workspace](https://slack.solo.io).
+{{% /notice %}}
+
+## Clean up
+
+If you no longer need your Gloo Mesh demo environment, you can run the following command to clean up the `mgmt-cluster` and `remote-cluster` clusters and all associated resources.
 
 ```shell
 meshctl demo istio-multicluster cleanup
