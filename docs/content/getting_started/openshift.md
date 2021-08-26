@@ -30,7 +30,7 @@ Lastly, ensure that you have a Gloo Mesh Enterprise license key stored in the en
 
 ## Installing Istio
 
-[Istio has its own documentation for OpenShift installation](https://istio.io/latest/docs/setup/platform-setup/openshift/#additional-requirements-for-the-application-namespace). 
+[Istio has its own documentation for OpenShift installation](https://istio.io/latest/docs/setup/platform-setup/openshift/#additional-requirements-for-the-application-namespace).
 This guide includes those steps in the context of installing Istio for Gloo Mesh Enterprise.
 
 Gloo Mesh Enterprise will discover and configure Istio workloads running on all registered clusters. Let's begin by installing
@@ -41,10 +41,10 @@ regardless of their installation options. However, to facilitate multicluster tr
 ensure that each Istio deployment has an externally accessible ingress gateway.
 
 Istio sidecars make use of a User ID that is normally restricted by OpenShift. To allow this UID, we must elevate the permissions
-of the `istio-system` service accounts on the `istio-system` namespace. We must 
+of the `istio-system` service accounts on the `istio-system` namespace. We must
 do this for each cluster we intend to install Istio, and include the necessary commands in the example scripts below.
 
-To install Istio on cluster 1, run: 
+To install Istio on cluster 1, run:
 
 ```shell script
 oc --context $REMOTE_CONTEXT1 adm policy add-scc-to-group anyuid system:serviceaccounts:istio-system
@@ -161,7 +161,7 @@ If installation was successful, you should see the following output after each c
 ## Installing the Gloo Mesh management components
 
 Run the following commands to pull the latest Gloo Mesh Enterprise helm chart, create a namespace, and install Gloo Mesh Enterprise
- in that namespace on the management cluster.
+in that namespace on the management cluster.
 
 ```shell
 oc config use-context $MGMT_CONTEXT
@@ -180,13 +180,14 @@ helm install gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise --ku
 --set rbac-webhook.enabled=false
 --set enterprise-networking.enterpriseNetworking.floatingUserId=true \
 --set gloo-mesh-ui.dashboard.floatingUserId.floatingUserId=true \
---set gloo-mesh-ui.redis-dashboard.redisDashboard.floatingUserId=true
+--set gloo-mesh-ui.redis-dashboard.redisDashboard.floatingUserId=true \
+--set enterprise-networking.prometheus.server.securityContext=false
 ````
 
-In the example command above, Prometheus is disabled because it requires extra configuration. 
-If you wish to install Gloo Mesh Enterprise with Prometheus enabled, consult the installation instructions [here]({{% versioned_link_path fromRoot="/guides/observability/metrics/#openshift-integration" %}}). 
-The floatingUserId is needed for properer dashboard functionality in OpenShift. The disabling of rbac-webhook is meant to simplify the
-installation process. More context about that is provided [here]({{% versioned_link_path fromRoot="/getting_started/managed_kubernetes/#installing-the-gloo-mesh-management-components" %}}).
+More information about the `--set` flags:
+* **Prometheus**: The security context for the default Prometheus instance is set to `false` because of a [Helm bug](https://github.com/helm/helm/issues/5184) where `null` values do not overwrite non-`null` subchart values. Although you see a Helm warning due to this setting, the rendered YAML file is still valid. Alternatively, you can [configure a custom Prometheus instance]({{% versioned_link_path fromRoot="/guides/observability/metrics/#using-a-custom-prometheus-instance" %}}).
+* **RBAC**: Disabling the `rbac-webhook` simplifies the installation process. For more information, see the note about the role-based API in the [installation guide]({{% versioned_link_path fromRoot="/getting_started/managed_kubernetes/#installing-the-gloo-mesh-management-components" %}}).
+
 
 
 ### Verify install
@@ -369,10 +370,10 @@ multicluster traffic.
 
 To demonstrate how Gloo Mesh configures multicluster traffic, we will deploy the bookinfo application to both cluster 1
 and cluster 2. Cluster 1 will run the application with versions 1 and 2 of the reviews service, and cluster 2 will run
-version 3. In order to access version 3 from the product page hosted on cluster 1, we will have to route to the 
+version 3. In order to access version 3 from the product page hosted on cluster 1, we will have to route to the
 reviews-v3 workload on cluster 2.
 
-Note: An OpenShift namespace needs a `NetworkAttachmentDefinition` to let Istio create workloads in that namespace. 
+Note: An OpenShift namespace needs a `NetworkAttachmentDefinition` to let Istio create workloads in that namespace.
 So first ensure that you have properly created a [NetworkAttachmentDefinition]({{% versioned_link_path fromRoot="/getting_started/openshift/#istio-in-openshift-maintenence---networkattachmentdefinition-upkeep" %}}) in the relevant namespaces before creating workloads.
 
 The following example creates a `NetworkAttachmentDefinition`, then installs bookinfo with reviews-v1 and reviews-v2 on cluster 1:

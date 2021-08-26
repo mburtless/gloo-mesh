@@ -1,0 +1,7 @@
+changelog:
+  - type: FIX
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/881
+    resolvesIssue: false
+    description: >
+      Adds instructions about how to configure a custom Prometheus server for Gloo Mesh Enterprise deployments
+      on OpenShift clusters.

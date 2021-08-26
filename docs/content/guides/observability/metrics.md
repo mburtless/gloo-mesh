@@ -47,7 +47,7 @@ spec:
         clusterName: ${gloo-mesh-registered-cluster-name}
 ```
 
-The `envoyMetricsService` config ensures that all Envoy proxies are configured to emit their metrics to 
+The `envoyMetricsService` config ensures that all Envoy proxies are configured to emit their metrics to
 the Enterprise Agent, which acts as an [Envoy metrics service sink](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/metrics/v3/metrics_service.proto#extension-envoy-stat-sinks-metrics-service).
 The Enterprise Agents then forward all received metrics to Enterprise Networking, where metrics across all managed clusters are centralized.
 
@@ -68,40 +68,6 @@ After installation of the Gloo Mesh management plane into `cluster-1`, you shoul
 ```shell
 gloo-mesh      enterprise-networking-69d74c9744-8nlkd               1/1     Running   0          23m
 gloo-mesh      prometheus-server-68b58c79f8-rlq54                   2/2     Running   0          23m
-```
-
-#### OpenShift Integration
-
-If you are installing Gloo Mesh Enterprise on an [OpenShift](https://www.openshift.com/) cluster, you will need some additional helm values to make Prometheus run, as Openshift will require a user ID:
-
- - `gloo-mesh-ui.GlooMeshDashboard.apiserver.floatingUserId=true`
- - `enterprise-networking.prometheus.server.securityContext.runAsUser=$OPENSHIFT_ID`
- - `enterprise-networking.prometheus.server.securityContext.runAsGroup=$OPENSHIFT_ID`
- - `enterprise-networking.prometheus.server.securityContext.fsGroup=$OPENSHIFT_ID`
- 
- Where `$OPENSHIFT_ID` is a single valid ID from the range that OpenShift has assigned to your intended Gloo Mesh Enterprise namespace. The valid ID range can be found by examining your namespace's metadata. Note that this
- requires that your intended installation namespace already exists. If it does not, you must create it first:
- ```shell script
-% MESH_NAMESPACE='gloo-mesh' # Replace with your namespace if are installing Gloo Mesh Enterprise elsewhere.
-% oc create ns $MESH_NAMESPACE 
-```
- Once your namespace is established, check its metadata:
- ```shell 
-% oc get ns $MESH_NAMESPACE -ojsonpath='{.metadata.annotations}' 
-map[openshift.io/sa.scc.mcs: s0:c27,c9 openshift.io/sa.scc.supplemental-groups: 1000720000/10000 openshift.io/sa.scc.uid-range: 1000720000/10000]
-```
-
-OpenShift's range syntax is N through N + M - 1 inclusive, given the format N/M. So in this case, the valid ID range would be 1000720000 through 1000729999. Select a number from this range to be your ID. Assuming the number`1000720000` is a valid option, an example installation command would look like this: 
-
-```shell 
-% OPENSHIFT_ID=1000720000
-% helm install gloo-mesh-enterprise gloo-mesh-enterprise/gloo-mesh-enterprise --namespace gloo-mesh \
---set licenseKey=${GLOO_MESH_LICENSE_KEY} \
---set enterprise-networking.metricsBackend.prometheus.enabled=true \
---set gloo-mesh-ui.GlooMeshDashboard.apiserver.floatingUserId=true \
---set enterprise-networking.prometheus.server.securityContext.runAsUser=$OPENSHIFT_ID \
---set enterprise-networking.prometheus.server.securityContext.runAsGroup=$OPENSHIFT_ID \
---set enterprise-networking.prometheus.server.securityContext.fsGroup=$OPENSHIFT_ID
 ```
 
 ## Functionality
@@ -136,7 +102,7 @@ The Prometheus server comes with a builtin UI suitable for basic metrics queryin
 kubectl -n gloo-mesh port-forward deploy/prometheus-server 9090
 ```
 
-Then open `localhost:9090` in your browser of choice. 
+Then open `localhost:9090` in your browser of choice.
 Here is a simple promql query to get you started with navigating the collected metrics.
 This query fetches the `istio_requests_total` metric (which counts the total number of requests) emitted by the
 `productpage-v1.bookinfo.cluster-1` workload's Envoy proxy. You can read more about PromQL in the [official documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/).
@@ -154,3 +120,33 @@ sum(
   response_code,
 )
 ```
+
+## Using a Custom Prometheus Instance
+
+To integrate Gloo Mesh with an existing Prometheus server or other Prometheus-compatible solution, you must disable the default Prometheus server. Then, configure Gloo Mesh and your Prometheus server to communicate with each other.
+
+1\. Set up Gloo Mesh Enterprise to disable the default Prometheus instance and instead read from your custom Prometheus instance's full URL, including the port number. You can include the following `--set` flags in a `helm upgrade` [command](https://helm.sh/docs/helm/helm_upgrade/), or update these fields in your [Helm values configuration file]({{% versioned_link_path fromRoot="/reference/helm/gloo_mesh_enterprise/" %}}) when you install Gloo Mesh Enterprise.
+
+```
+--set enterprise-networking.metricsBackend.prometheus.enabled=false
+--set enterprise-networking.metricsBackend.prometheus.url=<URL (with port) to Prometheus server>
+```
+
+2\. Configure your Prometheus server to scrape metrics from Gloo Mesh. Although each solution might have a different setup, configure your solution to scrape from the `enterprise-networking.gloo-mesh:9091` endpoint and respect the [Prometheus scrapping annotations](https://github.com/solo-io/gloo-mesh-enterprise/blob/main/enterprise-networking/install/helm/enterprise-networking/templates/deployment.yaml#L32) in the Gloo Mesh deployment.
+
+For example, if you have the [Prometheus Community Chart](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus), update the Helm `values.yaml` file as follows to scrape metrics from Gloo Mesh.
+
+```yaml
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+    - job_name: gloo-mesh
+      scrape_interval: 15s
+      scrape_timeout: 10s
+      static_configs:
+      - targets:
+        - enterprise-networking.gloo-mesh:9091
+```
+
+
+3\. **Optional**: Scrape metrics from the agents on data plane clusters. You might collect these metrics for operational awareness of the system, such as for troubleshooting purposes. Note that these metrics are not rendered in the service graph of the Gloo Mesh UI. To collect these metrics, configure your Prometheus instance to scrape the `enterprise-agent.gloo-mesh:9091/metrics` endpoint on the data plane clusters.
