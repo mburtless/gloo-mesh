@@ -18,18 +18,27 @@ During the upgrade, the data plane continues to run, but you might not be able t
 CURRENT_VERSION=v1.1.0-beta35
 # Add your desired version here (Must be a v1.1.x version)
 UPGRADE_VERSION=v1.1.0
+# Include the Gloo Mesh Open Source version that this Gloo Mesh Enterprise version depends on
+GLOO_MESH_DEPENDENCY_VERSION=v1.1.0
+
+# If you do not use default values for your Gloo Mesh installation, specify your custom values
+NAMESPACE=gloo-mesh
+RELEASE_NAME=gloo-mesh
 ```
+
+To find the Gloo Mesh Open Source version that the Gloo Mesh Enterprise ugrade version depends on, 
+see the [release dependency map]({{% versioned_link_path fromRoot="/reference/release_dependency_map/" %}}).
 
 2\. Upgrade the Gloo Mesh CRDs on your management cluster and all of your data plane clusters. You can change contexts before applying the CRDs by running `kubectl config set-context <cluster-name>`.
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/admin.enterprise.mesh.gloo.solo.io_v1alpha1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/discovery.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/multicluster.solo.io_v1alpha1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/networking.enterprise.mesh.gloo.solo.io_v1beta1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/networking.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/observability.enterprise.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/rbac.enterprise.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$UPGRADE_VERSION/install/helm/gloo-mesh-crds/crds/settings.mesh.gloo.solo.io_v1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/admin.enterprise.mesh.gloo.solo.io_v1alpha1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/discovery.mesh.gloo.solo.io_v1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/multicluster.solo.io_v1alpha1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/networking.enterprise.mesh.gloo.solo.io_v1beta1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/networking.mesh.gloo.solo.io_v1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/observability.enterprise.mesh.gloo.solo.io_v1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/rbac.enterprise.mesh.gloo.solo.io_v1_crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/settings.mesh.gloo.solo.io_v1_crds.yaml
 ```
 
 3\. On each cluster, clean up resources that Helm does not manage. If left behind, they
@@ -42,22 +51,24 @@ kubectl delete crd ratelimiterserverconfigs.networking.enterprise.mesh.gloo.solo
 ```
 
 On just the management cluster, clean up resources that Helm doees not manage.
+
 ```shell
-helm upgrade gloo-mesh --namespace gloo-mesh --reuse-values --set gloo-mesh-ui.enabled=false
+helm upgrade $RELEASE_NAME --namespace $NAMESPACE --reuse-values --set gloo-mesh-ui.enabled=false
 ```
+
 Then, when reinstalling, set `gloo-mesh-ui.enabled` back to true if desired.
 
 4\. Set your Kubernetes context to the management plane cluster, and upgrade the Helm installation.
 ```shell
-helm upgrade --install gloo-mesh --namespace gloo-mesh \
+helm upgrade $RELEASE_NAME --namespace $NAMESPACE \
   'https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise/gloo-mesh-enterprise-$UPGRADE_VERSION.tgz' \
-  --set licenseKey=$LICENSE_KEY
+  --set licenseKey=$LICENSE_KEY \
   --set relayClientAuthority="enterprise-networking.gloo-mesh"
 ```
 
 5\. For each data plane cluster, set your Kubernetes context to the cluster, and upgrade the Helm installation.
 ```shell
-helm upgrade --install enterprise-agent --namespace gloo-mesh https://storage.googleapis.com/gloo-mesh-enterprise/enterprise-agent/enterprise-agent-$UPGRADE_VERSION.tgz
+helm upgrade enterprise-agent --namespace $NAMESPACE https://storage.googleapis.com/gloo-mesh-enterprise/enterprise-agent/enterprise-agent-$UPGRADE_VERSION.tgz
 ```
 
 6\. Set the Kubernetes context to the management plane cluster and then check that your Gloo Mesh Enterprise resources are in a healthy state. Refer to our

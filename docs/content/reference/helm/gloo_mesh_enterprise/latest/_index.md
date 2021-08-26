@@ -1,21 +1,19 @@
 
 ---
-title: "v1.1.0"
+title: "v1.2.0-beta4"
 description: Reference for Helm values. 
 weight: 2
 ---
 
-The following pages provide reference documentation for Helm values for the various Gloo Mesh
-components. These components include:
+The following pages provide Helm value reference documentation for various Gloo Mesh components, including:
 
 1. **Open source Gloo Mesh**: the OSS version of Gloo Mesh
-2. **Enterprise Networking (enterprise only)**: the management plane of Gloo Mesh Enterprise, deployed on the management cluster
-3. **Enterprise Agent (enterprise only)**: the agent of Gloo Mesh Enterprise, deployed on each managed cluster
-4. **RBAC Webhook (enterprise only)**: the Kubernetes webhook that enforces Gloo Mesh Enterprise's role-based API
-5. **Gloo Mesh UI (enterprise only)**: the UI for Gloo Mesh Enterprise
+2. **Enterprise Networking (enterprise only)**: The management plane of Gloo Mesh Enterprise, deployed on the management cluster.
+3. **Enterprise Agent (enterprise only)**: The agent of Gloo Mesh Enterprise, deployed on each remote cluster.
+4. **RBAC Webhook (enterprise only)**: The Kubernetes webhook that enforces Gloo Mesh Enterprise's role-based API.
+5. **Gloo Mesh UI (enterprise only)**: The UI for Gloo Mesh Enterprise, which includes the Dashboard and Redis subcharts.
 
-Note that when providing Helm values for the bundled Gloo Mesh Enterprise chart 
-(located at https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise),
+Note that when you provide Helm values for the [bundled Gloo Mesh Enterprise chart](https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise),
 values for each subchart must be prefixed accordingly:
 
 1. Values for the RBAC Webhook must be prefixed with "rbac-webhook".

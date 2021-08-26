@@ -9,7 +9,7 @@ weight: 2
 |------|----|-----------|-------------|
 |licenseKey|string| |Gloo Mesh Enterprise license key|
 |networkingAdminAddress|string|enterprise-networking-admin.gloo-mesh.svc.cluster.local:11100|Enterprise networking admin service address|
-|relayClientAuthority|string|enterprise-networking.gloo-mesh|SNI name used to connect to relay forwarding server|
+|relayClientAuthority|string|enterprise-networking|SNI name used to connect to relay forwarding server|
 |settingsName|string|settings|Name of the dashboard settings object to use|
 |auth|struct|{"enabled":false,"backend":"","oidc":{"clientId":"","clientSecret":"","clientSecretRef":{},"issuerUrl":"","appUrl":"","session":{"backend":"","redis":{"host":""}}}}|Authentication configuration|
 |auth.enabled|bool|false|Require authentication to access the dashboard|
