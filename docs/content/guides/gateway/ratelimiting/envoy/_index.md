@@ -101,6 +101,8 @@ EOF
 ```
 
 This defines a limit of 2 requests per second for any request that triggers an action on the generic key called `per-second`.
+Note that the namespace field in this `RateLimitServerConfig` determines where the translated `RateLimitConfig` resources are created in the remote clusters.
+
 We could define that action on a VirtualGateway like so:
 
 {{< highlight yaml "hl_lines=22-30" >}}
@@ -125,12 +127,12 @@ spec:
                 prefix: /ratings
             name: ratings
             options:
-              - rateLimit:
-                  raw:
-                    - rateLimits:
-                      - actions:
-                        - genericKey:
-                            descriptorValue: per-second
+              rateLimit:
+                raw:
+                  rateLimits:
+                  - actions:
+                    - genericKey:
+                        descriptorValue: per-second
                 ratelimitServerConfigSelector:
                   namespaces:
                   - bookinfo
