@@ -5,71 +5,99 @@ weight: 100
 description: Best practices for upgrading Gloo Mesh Enterprise
 ---
 
-This upgrade process is for Gloo Mesh Enterprise, from v1.1.0-betax to v1.1.0. If you are on a previous version, uninstall and re-install Gloo Mesh Enterprise, as described in one of the [setup guides]({{% versioned_link_path fromRoot="/getting_started/#deploying-gloo-mesh" %}}).
+Upgrade Gloo Mesh Enterprise from version 1.1.0 or beta tag to version 1.1.1 or later. If you are on version 1.0 or earlier, uninstall and re-install Gloo Mesh Enterprise, as described in one of the [setup guides]({{% versioned_link_path fromRoot="/getting_started/#deploying-gloo-mesh" %}}).
 
 {{< notice warning >}}
 During the upgrade, the data plane continues to run, but you might not be able to modify the configurations through the management plane. Because zero downtime is not guaranteed, try testing the upgrade in a staging environment before upgrading your production environment.
 {{< /notice >}}
 
-1\. In your terminal, set environment variables for your current and target Gloo Mesh Enterprise versions to use in the subsequent steps.
+## Upgrade from 1.1.0 to 1.1.1 or later
 
-```shell
-# Set your current version here (Must be a v1.1.0-betax version)
-CURRENT_VERSION=v1.1.0-beta35
-# Add your desired version here (Must be a v1.1.x version)
-UPGRADE_VERSION=v1.1.0
-# Include the Gloo Mesh Open Source version that this Gloo Mesh Enterprise version depends on
-GLOO_MESH_DEPENDENCY_VERSION=v1.1.0
+1.  In your terminal, set environment variables for your current and target Gloo Mesh Enterprise versions to use in the subsequent steps.
 
-# If you do not use default values for your Gloo Mesh installation, specify your custom values
-NAMESPACE=gloo-mesh
-RELEASE_NAME=gloo-mesh
-```
+    ```shell
+    # Set the 1.1.x version to upgrade to
+    export UPGRADE_VERSION=1.1.1
 
-To find the Gloo Mesh Open Source version that the Gloo Mesh Enterprise ugrade version depends on, 
-see the [release dependency map]({{% versioned_link_path fromRoot="/reference/release_dependency_map/" %}}).
+    # Specify the values of your Gloo Mesh installation
+    export NAMESPACE=gloo-mesh
+    export RELEASE_NAME=gloo-mesh-enterprise
+    export GLOO_MESH_LICENSE_KEY=<your-key>
+    ```
 
-2\. Upgrade the Gloo Mesh CRDs on your management cluster and all of your data plane clusters. You can change contexts before applying the CRDs by running `kubectl config set-context <cluster-name>`.
-```shell
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/admin.enterprise.mesh.gloo.solo.io_v1alpha1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/discovery.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/multicluster.solo.io_v1alpha1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/networking.enterprise.mesh.gloo.solo.io_v1beta1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/networking.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/observability.enterprise.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/rbac.enterprise.mesh.gloo.solo.io_v1_crds.yaml
-kubectl apply -f https://raw.githubusercontent.com/solo-io/gloo-mesh/$GLOO_MESH_DEPENDENCY_VERSION/install/helm/gloo-mesh-crds/crds/settings.mesh.gloo.solo.io_v1_crds.yaml
-```
+2.  Set your Kubernetes context to the management cluster, and upgrade the Helm installation.
 
-3\. On each cluster, clean up resources that Helm does not manage. If left behind, they
-may cause problems with future upgrade steps. If these resources do not exist, the following
-commands will simply be a no-op.
-```shell
-kubectl delete rolebinding -n gloo-mesh enterprise-networking-test enterprise-agent-test
-kubectl delete pod -n gloo-mesh enterprise-agent-test
-kubectl delete crd ratelimiterserverconfigs.networking.enterprise.mesh.gloo.solo.io
-```
+    ```shell
+    helm upgrade $RELEASE_NAME --namespace $NAMESPACE \
+    https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise/gloo-mesh-enterprise-$UPGRADE_VERSION.tgz \
+    --set licenseKey=$GLOO_MESH_LICENSE_KEY \
+    --reuse-values \
+    ```
 
-On just the management cluster, clean up resources that Helm doees not manage.
+3.  For each remote cluster, set your Kubernetes context to the cluster, and upgrade the Helm installation.
+    ```shell
+    helm upgrade enterprise-agent --namespace $NAMESPACE https://storage.googleapis.com/gloo-mesh-enterprise/enterprise-agent/enterprise-agent-$UPGRADE_VERSION.tgz
+    ```
 
-```shell
-helm upgrade $RELEASE_NAME --namespace $NAMESPACE --reuse-values --set gloo-mesh-ui.enabled=false
-```
+4.  Set the Kubernetes context to the management cluster and check that your Gloo Mesh resources are in a healthy state. Refer to the [Troubleshooting Guide]({{% versioned_link_path fromRoot="/operations/troubleshooting" %}}) for more details.
 
-Then, when reinstalling, set `gloo-mesh-ui.enabled` back to true if desired.
+    ```shell
+    meshctl check server
+    ```
 
-4\. Set your Kubernetes context to the management plane cluster, and upgrade the Helm installation.
-```shell
-helm upgrade $RELEASE_NAME --namespace $NAMESPACE \
-  'https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise/gloo-mesh-enterprise-$UPGRADE_VERSION.tgz' \
-  --set licenseKey=$LICENSE_KEY \
-  --set relayClientAuthority="enterprise-networking.gloo-mesh"
-```
+## Upgrade from 1.1.0 beta tag to 1.1.1 or later
 
-5\. For each data plane cluster, set your Kubernetes context to the cluster, and upgrade the Helm installation.
-```shell
-helm upgrade enterprise-agent --namespace $NAMESPACE https://storage.googleapis.com/gloo-mesh-enterprise/enterprise-agent/enterprise-agent-$UPGRADE_VERSION.tgz
-```
+1.  In your terminal, set environment variables for your current and target Gloo Mesh Enterprise versions to use in the subsequent steps.
 
-6\. Set the Kubernetes context to the management plane cluster and then check that your Gloo Mesh Enterprise resources are in a healthy state. Refer to our
-[Troubleshooting Guide]({{% versioned_link_path fromRoot="/operations/troubleshooting" %}}) for more details.
+    ```shell
+    # Set the 1.1.x version to upgrade to
+    export UPGRADE_VERSION=1.1.1
+
+    # Specify the values of your Gloo Mesh installation
+    export NAMESPACE=gloo-mesh
+    export RELEASE_NAME=gloo-mesh-enterprise
+    export GLOO_MESH_LICENSE_KEY=<your-key>
+    ```
+2.  Set your Kubernetes context to the management cluster.
+
+    ```shell
+    kubectl config set-context <cluster-name>
+    ```
+3.  Update the Helm repo for Gloo Mesh Enterprise.
+    ```shell
+    helm repo update
+    ```
+4.  Pull the latest Gloo Mesh Enterprise Helm chart files.
+    ```shell
+    helm pull gloo-mesh-enterprise/gloo-mesh-enterprise --version $UPGRADE_VERSION --untar
+    ```
+5.  Apply the Gloo Mesh Enterprise CRDs on your management cluster. 
+    ```shell
+    kubectl apply -f gloo-mesh-enterprise/charts/enterprise-networking/charts/gloo-mesh-crds/crds/
+    ```
+6.  Clean up the Kubernetes resources that the Gloo Mesh Helm chart does not manage. If you keep these resources, the resources might cause problems with future upgrade steps. If the resources do not exist, proceed to the next step.
+    ```shell
+    kubectl delete rolebinding -n gloo-mesh enterprise-networking-test enterprise-agent-test
+    kubectl delete pod -n gloo-mesh enterprise-agent-test
+    kubectl delete crd ratelimiterserverconfigs.networking.enterprise.mesh.gloo.solo.io
+    ```
+7.  Repeat the previous steps to change the context, apply the CRDs, and clean up the Kubernetes resources on all of your remote clusters.
+8.  Set your Kubernetes context to the management cluster, and upgrade the Helm installation.
+
+    ```shell
+    helm upgrade $RELEASE_NAME --namespace $NAMESPACE \
+    https://storage.googleapis.com/gloo-mesh-enterprise/gloo-mesh-enterprise/gloo-mesh-enterprise-$UPGRADE_VERSION.tgz \
+    --set licenseKey=$GLOO_MESH_LICENSE_KEY \
+    --set relayClientAuthority="enterprise-networking.gloo-mesh" \
+    ```
+
+9.  For each remote cluster, set your Kubernetes context to the cluster, and upgrade the Helm installation.
+    ```shell
+    helm upgrade enterprise-agent --namespace $NAMESPACE https://storage.googleapis.com/gloo-mesh-enterprise/enterprise-agent/enterprise-agent-$UPGRADE_VERSION.tgz
+    ```
+
+10. Set the Kubernetes context to the management cluster and check that your Gloo Mesh Enterprise resources are in a healthy state.
+
+    ```shell
+    meshctl check server
+    ```
