@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"k8s.io/client-go/rest"
+
 	"github.com/solo-io/skv2/contrib/pkg/output"
 	"github.com/solo-io/skv2/pkg/ezkube"
 
@@ -50,7 +52,7 @@ type NetworkingReconcilerExtensionOpts struct {
 func (opts *NetworkingReconcilerExtensionOpts) initDefaults(parameters bootstrap.StartParameters) {
 	if opts.RegisterNetworkingReconciler == nil {
 		// use default translator
-		opts.RegisterNetworkingReconciler = func(ctx context.Context, reconcile skinput.SingleClusterReconcileFunc, reconcileOpts input.ReconcileOptions) (skinput.InputReconciler, error) {
+		opts.RegisterNetworkingReconciler = func(ctx context.Context, cfg *rest.Config, reconcile skinput.SingleClusterReconcileFunc, reconcileOpts input.ReconcileOptions) (skinput.InputReconciler, error) {
 			return input.RegisterInputReconciler(
 				ctx,
 				parameters.Clusters,
@@ -75,9 +77,9 @@ func (opts *NetworkingReconcilerExtensionOpts) initDefaults(parameters bootstrap
 			ctx context.Context,
 			_ input.LocalSnapshot,
 			outputSnap *translation.Outputs,
-			errHandler output.ErrorHandler,
+			syncOpts output.OutputOpts,
 		) error {
-			return outputSnap.ApplyMultiCluster(ctx, parameters.MasterManager.GetClient(), parameters.McClient, errHandler)
+			return outputSnap.ApplyMultiCluster(ctx, parameters.MasterManager.GetClient(), parameters.McClient, syncOpts)
 		}
 	}
 	if opts.MakeUserSnapshotBuilder == nil {

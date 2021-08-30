@@ -43,27 +43,27 @@ func (m *MockSnapshot) EXPECT() *MockSnapshotMockRecorder {
 }
 
 // ApplyLocalCluster mocks base method.
-func (m *MockSnapshot) ApplyLocalCluster(ctx context.Context, clusterClient client.Client, errHandler output.ErrorHandler) {
+func (m *MockSnapshot) ApplyLocalCluster(ctx context.Context, clusterClient client.Client, opts output.OutputOpts) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ApplyLocalCluster", ctx, clusterClient, errHandler)
+	m.ctrl.Call(m, "ApplyLocalCluster", ctx, clusterClient, opts)
 }
 
 // ApplyLocalCluster indicates an expected call of ApplyLocalCluster.
-func (mr *MockSnapshotMockRecorder) ApplyLocalCluster(ctx, clusterClient, errHandler interface{}) *gomock.Call {
+func (mr *MockSnapshotMockRecorder) ApplyLocalCluster(ctx, clusterClient, opts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyLocalCluster", reflect.TypeOf((*MockSnapshot)(nil).ApplyLocalCluster), ctx, clusterClient, errHandler)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyLocalCluster", reflect.TypeOf((*MockSnapshot)(nil).ApplyLocalCluster), ctx, clusterClient, opts)
 }
 
 // ApplyMultiCluster mocks base method.
-func (m *MockSnapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, errHandler output.ErrorHandler) {
+func (m *MockSnapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, opts output.OutputOpts) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ApplyMultiCluster", ctx, multiClusterClient, errHandler)
+	m.ctrl.Call(m, "ApplyMultiCluster", ctx, multiClusterClient, opts)
 }
 
 // ApplyMultiCluster indicates an expected call of ApplyMultiCluster.
-func (mr *MockSnapshotMockRecorder) ApplyMultiCluster(ctx, multiClusterClient, errHandler interface{}) *gomock.Call {
+func (mr *MockSnapshotMockRecorder) ApplyMultiCluster(ctx, multiClusterClient, opts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyMultiCluster", reflect.TypeOf((*MockSnapshot)(nil).ApplyMultiCluster), ctx, multiClusterClient, errHandler)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ApplyMultiCluster", reflect.TypeOf((*MockSnapshot)(nil).ApplyMultiCluster), ctx, multiClusterClient, opts)
 }
 
 // ForEachObject mocks base method.
@@ -428,18 +428,18 @@ func (mr *MockBuilderMockRecorder) AddVirtualServices(virtualServices ...interfa
 }
 
 // BuildLabelPartitionedSnapshot mocks base method.
-func (m *MockBuilder) BuildLabelPartitionedSnapshot(labelKey string) (appmesh.Snapshot, error) {
+func (m *MockBuilder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (appmesh.Snapshot, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BuildLabelPartitionedSnapshot", labelKey)
+	ret := m.ctrl.Call(m, "BuildLabelPartitionedSnapshot", labelKey, gvk)
 	ret0, _ := ret[0].(appmesh.Snapshot)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BuildLabelPartitionedSnapshot indicates an expected call of BuildLabelPartitionedSnapshot.
-func (mr *MockBuilderMockRecorder) BuildLabelPartitionedSnapshot(labelKey interface{}) *gomock.Call {
+func (mr *MockBuilderMockRecorder) BuildLabelPartitionedSnapshot(labelKey, gvk interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildLabelPartitionedSnapshot", reflect.TypeOf((*MockBuilder)(nil).BuildLabelPartitionedSnapshot), labelKey)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildLabelPartitionedSnapshot", reflect.TypeOf((*MockBuilder)(nil).BuildLabelPartitionedSnapshot), labelKey, gvk)
 }
 
 // BuildSinglePartitionedSnapshot mocks base method.

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/solo-io/skv2/contrib/pkg/output"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/solo-io/gloo-mesh/pkg/common/reconciliation"
 
@@ -116,7 +118,10 @@ func (r *certAgentReconciler) reconcile(_ ezkube.ResourceId) (bool, error) {
 	}
 
 	errHandler := errhandlers.AppendingErrHandler{}
-	outSnap.ApplyLocalCluster(r.ctx, r.localClient, errHandler)
+	syncOpts := output.OutputOpts{
+		ErrHandler: errHandler,
+	}
+	outSnap.ApplyLocalCluster(r.ctx, r.localClient, syncOpts)
 
 	errs := errHandler.Errors()
 	if err := inputSnap.SyncStatuses(r.ctx, r.localClient, input.SyncStatusOptions{

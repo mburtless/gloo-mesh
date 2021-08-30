@@ -12,6 +12,7 @@ replace (
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
 	github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
 	github.com/envoyproxy/go-control-plane => github.com/envoyproxy/go-control-plane v0.9.9-0.20210115003313-31f9241a16e6
+
 	github.com/spf13/viper => github.com/istio/viper v1.3.3-0.20190515210538-2789fed3109c
 
 	k8s.io/api => k8s.io/api v0.20.4
@@ -83,7 +84,7 @@ require (
 	github.com/solo-io/go-utils v0.21.9
 	github.com/solo-io/k8s-utils v0.0.11
 	github.com/solo-io/protoc-gen-ext v0.0.15
-	github.com/solo-io/skv2 v0.19.3
+	github.com/solo-io/skv2 v0.19.4
 	github.com/solo-io/solo-apis v1.6.31
 	github.com/solo-io/solo-kit v0.21.0
 	github.com/spf13/afero v1.6.0

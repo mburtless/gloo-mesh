@@ -6,6 +6,10 @@ import (
 	"sync"
 	"time"
 
+	ratelimit "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
+	"k8s.io/client-go/rest"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+
 	"github.com/solo-io/gloo-mesh/pkg/mesh-networking/translation/istio/mesh/mtls"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -63,6 +67,7 @@ var recorder = reconciliation.NewRecorder(
 // function which defines how the Networking reconciler should be registered with internal components.
 type RegisterReconcilerFunc func(
 	ctx context.Context,
+	cfg *rest.Config,
 	reconcile skinput.SingleClusterReconcileFunc,
 	reconcileOpts input.ReconcileOptions,
 ) (skinput.InputReconciler, error)
@@ -72,11 +77,12 @@ type SyncOutputsFunc func(
 	ctx context.Context,
 	inputs input.LocalSnapshot,
 	outputSnap *translation.Outputs,
-	errHandler output.ErrorHandler,
+	syncOpts output.OutputOpts,
 ) error
 
 type networkingReconciler struct {
 	ctx                        context.Context
+	cfg                        *rest.Config
 	localBuilder               input.LocalBuilder
 	remoteBuilder              input.RemoteBuilder
 	applier                    apply.Applier
@@ -115,7 +121,7 @@ func Start(
 	translator translation.Translator,
 	registerReconciler RegisterReconcilerFunc,
 	syncOutputs SyncOutputsFunc,
-	mgmtClient client.Client,
+	mgr manager.Manager,
 	history *stats.SnapshotHistory,
 	verboseMode bool,
 	settingsRef *v1.ObjectRef,
@@ -123,6 +129,7 @@ func Start(
 	disallowIntersectingConfig bool,
 	watchOutputTypes bool,
 ) error {
+	mgmtClient := mgr.GetClient()
 
 	ctx = contextutils.WithLogger(ctx, "networking-reconciler")
 	ctx = reconciliation.ContextWithRecorder(ctx, recorder)
@@ -131,6 +138,7 @@ func Start(
 
 	r := &networkingReconciler{
 		ctx:                        ctx,
+		cfg:                        mgr.GetConfig(),
 		localBuilder:               localBuilder,
 		remoteBuilder:              remoteBuilder,
 		applier:                    applier,
@@ -184,6 +192,7 @@ func Start(
 	contextutils.LoggerFrom(ctx).Debugw("starting input watches", "watch_gvks", input.LocalSnapshotGVKs)
 	reconciler, err := registerReconciler(
 		ctx,
+		mgr.GetConfig(),
 		r.reconcile,
 		input.ReconcileOptions{
 			Local: input.LocalReconcileOptions{
@@ -365,7 +374,15 @@ func (r *networkingReconciler) translateAndSyncOutputs(ctx context.Context, in i
 
 	contextutils.LoggerFrom(ctx).Debugf("syncing outputs")
 	errHandler := newErrHandler(ctx, in)
-	if err := r.syncOutputs(ctx, in, outputSnap, errHandler); err != nil {
+	verifier := verifier.NewOutputVerifier(ctx, r.cfg, map[schema.GroupVersionKind]verifier.ServerVerifyOption{
+		// ignore if ratelimitconfig resource is not available on cluster
+		ratelimit.RateLimitConfigGVK: verifier.ServerVerifyOption_IgnoreIfNotPresent,
+	})
+	syncOpts := output.OutputOpts{
+		Verifier:   verifier,
+		ErrHandler: errHandler,
+	}
+	if err := r.syncOutputs(ctx, in, outputSnap, syncOpts); err != nil {
 		return nil, multierror.Append(err, errHandler.Errors())
 	}
 

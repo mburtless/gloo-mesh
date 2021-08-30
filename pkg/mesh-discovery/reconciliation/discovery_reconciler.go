@@ -237,7 +237,7 @@ func (r *discoveryReconciler) reconcile(obj ezkube.ClusterResourceId) (bool, err
 	}
 
 	var errs error
-	outputSnap.ApplyLocalCluster(ctx, r.localClient, output.ErrorHandlerFuncs{
+	errHandler := output.ErrorHandlerFuncs{
 		HandleWriteErrorFunc: func(resource ezkube.Object, err error) {
 			errs = multierror.Append(errs, eris.Wrapf(err, "writing resource %v failed", sets.Key(resource)))
 		},
@@ -247,7 +247,11 @@ func (r *discoveryReconciler) reconcile(obj ezkube.ClusterResourceId) (bool, err
 		HandleListErrorFunc: func(err error) {
 			errs = multierror.Append(errs, eris.Wrapf(err, "listing failed"))
 		},
-	})
+	}
+	syncOpts := output.OutputOpts{
+		ErrHandler: errHandler,
+	}
+	outputSnap.ApplyLocalCluster(ctx, r.localClient, syncOpts)
 
 	r.history.SetInput(remoteInputSnap)
 	r.history.SetOutput(outputSnap)

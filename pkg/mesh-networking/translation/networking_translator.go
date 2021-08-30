@@ -134,18 +134,18 @@ func (t *Outputs) ApplyMultiCluster(
 	ctx context.Context,
 	clusterClient client.Client,
 	multiClusterClient multicluster.Client,
-	errHandler output.ErrorHandler,
+	opts output.OutputOpts,
 ) error {
 	snaps, err := t.snapshots()
 	if err != nil {
 		return err
 	}
 	// Apply mesh resources to registered clusters
-	snaps.istio.ApplyMultiCluster(ctx, multiClusterClient, errHandler)
-	snaps.appmesh.ApplyMultiCluster(ctx, multiClusterClient, errHandler)
-	snaps.smi.ApplyMultiCluster(ctx, multiClusterClient, errHandler)
+	snaps.istio.ApplyMultiCluster(ctx, multiClusterClient, opts)
+	snaps.appmesh.ApplyMultiCluster(ctx, multiClusterClient, opts)
+	snaps.smi.ApplyMultiCluster(ctx, multiClusterClient, opts)
 	// Apply local resources only to management cluster
-	snaps.local.ApplyLocalCluster(ctx, clusterClient, errHandler)
+	snaps.local.ApplyLocalCluster(ctx, clusterClient, opts)
 
 	return nil
 }

@@ -114,7 +114,7 @@ func (s networkingStarter) startReconciler(ctx context.Context, parameters boots
 		translator,
 		extensionOpts.NetworkingReconciler.RegisterNetworkingReconciler,
 		extensionOpts.NetworkingReconciler.SyncNetworkingOutputs,
-		parameters.MasterManager.GetClient(),
+		parameters.MasterManager,
 		parameters.SnapshotHistory,
 		parameters.VerboseMode,
 		&parameters.SettingsRef,

@@ -26,8 +26,8 @@ import (
 
 // this error can occur if constructing a Partitioned Snapshot from a resource
 // that is missing the partition label
-var MissingRequiredLabelError = func(labelKey, resourceKind string, obj ezkube.ResourceId) error {
-	return eris.Errorf("expected label %v not on labels of %v %v", labelKey, resourceKind, sets.Key(obj))
+var MissingRequiredLabelError = func(labelKey string, gvk schema.GroupVersionKind, obj ezkube.ResourceId) error {
+	return eris.Errorf("expected label %v not on labels of %v %v", labelKey, gvk.String(), sets.Key(obj))
 }
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
@@ -61,10 +61,10 @@ type Snapshot interface {
 	Meshes() []LabeledMeshSet
 
 	// apply the snapshot to the local cluster, garbage collecting stale resources
-	ApplyLocalCluster(ctx context.Context, clusterClient client.Client, errHandler output.ErrorHandler)
+	ApplyLocalCluster(ctx context.Context, clusterClient client.Client, opts output.OutputOpts)
 
 	// apply resources from the snapshot across multiple clusters, garbage collecting stale resources
-	ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, errHandler output.ErrorHandler)
+	ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, opts output.OutputOpts)
 
 	// serialize the entire snapshot as JSON
 	MarshalJSON() ([]byte, error)
@@ -108,6 +108,7 @@ func NewSnapshot(
 func NewLabelPartitionedSnapshot(
 	name,
 	labelKey string, // the key by which to partition the resources
+	gvk schema.GroupVersionKind,
 
 	destinations discovery_mesh_gloo_solo_io_v1_sets.DestinationSet,
 	workloads discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet,
@@ -115,15 +116,15 @@ func NewLabelPartitionedSnapshot(
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
-	partitionedDestinations, err := partitionDestinationsByLabel(labelKey, destinations)
+	partitionedDestinations, err := partitionDestinationsByLabel(labelKey, gvk, destinations)
 	if err != nil {
 		return nil, err
 	}
-	partitionedWorkloads, err := partitionWorkloadsByLabel(labelKey, workloads)
+	partitionedWorkloads, err := partitionWorkloadsByLabel(labelKey, gvk, workloads)
 	if err != nil {
 		return nil, err
 	}
-	partitionedMeshes, err := partitionMeshesByLabel(labelKey, meshes)
+	partitionedMeshes, err := partitionMeshesByLabel(labelKey, gvk, meshes)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +175,7 @@ func NewSinglePartitionedSnapshot(
 }
 
 // apply the desired resources to the cluster state; remove stale resources where necessary
-func (s *snapshot) ApplyLocalCluster(ctx context.Context, cli client.Client, errHandler output.ErrorHandler) {
+func (s *snapshot) ApplyLocalCluster(ctx context.Context, clusterClient client.Client, opts output.OutputOpts) {
 	var genericLists []output.ResourceList
 
 	for _, outputSet := range s.destinations {
@@ -190,11 +191,11 @@ func (s *snapshot) ApplyLocalCluster(ctx context.Context, cli client.Client, err
 	output.Snapshot{
 		Name:        s.name,
 		ListsToSync: genericLists,
-	}.SyncLocalCluster(ctx, cli, errHandler)
+	}.SyncLocalCluster(ctx, clusterClient, opts)
 }
 
 // apply the desired resources to multiple cluster states; remove stale resources where necessary
-func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, errHandler output.ErrorHandler) {
+func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient multicluster.Client, opts output.OutputOpts) {
 	var genericLists []output.ResourceList
 
 	for _, outputSet := range s.destinations {
@@ -211,7 +212,7 @@ func (s *snapshot) ApplyMultiCluster(ctx context.Context, multiClusterClient mul
 		Name:        s.name,
 		Clusters:    s.clusters,
 		ListsToSync: genericLists,
-	}.SyncMultiCluster(ctx, multiClusterClient, errHandler)
+	}.SyncMultiCluster(ctx, multiClusterClient, opts)
 }
 
 func (s *snapshot) Generic() resource.ClusterSnapshot {
@@ -261,16 +262,16 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 	}
 }
 
-func partitionDestinationsByLabel(labelKey string, set discovery_mesh_gloo_solo_io_v1_sets.DestinationSet) ([]LabeledDestinationSet, error) {
+func partitionDestinationsByLabel(labelKey string, gvk schema.GroupVersionKind, set discovery_mesh_gloo_solo_io_v1_sets.DestinationSet) ([]LabeledDestinationSet, error) {
 	setsByLabel := map[string]discovery_mesh_gloo_solo_io_v1_sets.DestinationSet{}
 
 	for _, obj := range set.List() {
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, "Destination", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, "Destination", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -305,16 +306,16 @@ func partitionDestinationsByLabel(labelKey string, set discovery_mesh_gloo_solo_
 	return partitionedDestinations, nil
 }
 
-func partitionWorkloadsByLabel(labelKey string, set discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet) ([]LabeledWorkloadSet, error) {
+func partitionWorkloadsByLabel(labelKey string, gvk schema.GroupVersionKind, set discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet) ([]LabeledWorkloadSet, error) {
 	setsByLabel := map[string]discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet{}
 
 	for _, obj := range set.List() {
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, "Workload", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, "Workload", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -349,16 +350,16 @@ func partitionWorkloadsByLabel(labelKey string, set discovery_mesh_gloo_solo_io_
 	return partitionedWorkloads, nil
 }
 
-func partitionMeshesByLabel(labelKey string, set discovery_mesh_gloo_solo_io_v1_sets.MeshSet) ([]LabeledMeshSet, error) {
+func partitionMeshesByLabel(labelKey string, gvk schema.GroupVersionKind, set discovery_mesh_gloo_solo_io_v1_sets.MeshSet) ([]LabeledMeshSet, error) {
 	setsByLabel := map[string]discovery_mesh_gloo_solo_io_v1_sets.MeshSet{}
 
 	for _, obj := range set.List() {
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, "Mesh", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, "Mesh", obj)
+			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -491,9 +492,13 @@ func (l labeledDestinationSet) Generic() output.ResourceList {
 	}
 
 	return output.ResourceList{
-		Resources:    desiredResources,
-		ListFunc:     listFunc,
-		ResourceKind: "Destination",
+		Resources: desiredResources,
+		ListFunc:  listFunc,
+		GVK: schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Destination",
+		},
 	}
 }
 
@@ -559,9 +564,13 @@ func (l labeledWorkloadSet) Generic() output.ResourceList {
 	}
 
 	return output.ResourceList{
-		Resources:    desiredResources,
-		ListFunc:     listFunc,
-		ResourceKind: "Workload",
+		Resources: desiredResources,
+		ListFunc:  listFunc,
+		GVK: schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Workload",
+		},
 	}
 }
 
@@ -627,9 +636,13 @@ func (l labeledMeshSet) Generic() output.ResourceList {
 	}
 
 	return output.ResourceList{
-		Resources:    desiredResources,
-		ListFunc:     listFunc,
-		ResourceKind: "Mesh",
+		Resources: desiredResources,
+		ListFunc:  listFunc,
+		GVK: schema.GroupVersionKind{
+			Group:   "discovery.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "Mesh",
+		},
 	}
 }
 
@@ -677,7 +690,7 @@ type Builder interface {
 	GetMeshes() discovery_mesh_gloo_solo_io_v1_sets.MeshSet
 
 	// build the collected outputs into a label-partitioned snapshot
-	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
+	BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error)
 
 	// build the collected outputs into a snapshot with a single partition
 	BuildSinglePartitionedSnapshot(snapshotLabels map[string]string) (Snapshot, error)
@@ -737,10 +750,11 @@ func (b *builder) GetMeshes() discovery_mesh_gloo_solo_io_v1_sets.MeshSet {
 	return b.meshes
 }
 
-func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
+func (b *builder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
 		labelKey,
+		gvk,
 
 		b.destinations,
 		b.workloads,
