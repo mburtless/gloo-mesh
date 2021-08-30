@@ -18,7 +18,7 @@ IMAGE_REPO := $(IMAGE_REGISTRY)/$(IMAGE_LEAF_NAME)
 ### REPLACE with product name
 PRODUCT_SCOPE := gloo-mesh
 DOCS_VERSION := latest
-SOLO_HUGO_THEME := 41587dc9dc719bd22cedd9803994f756e25f571f
+SOLO_HUGO_THEME := v0.0.1
 
 #----------------------------------------------------------------------------------
 # Docs
@@ -49,6 +49,28 @@ site-release: site-common generated-docs
 .PHONY: serve-site
 serve-site: site-test
 	HUGO_PARAMS_Version=$(VERSION) hugo --config docs.toml --themesDir themes server -D
+
+# Used only for serve-site-local. This creates an intermediate file that is used for the
+# lifespan of running `hugo server` locally
+.INTERMEDIATE: content/search-index.json
+content/search-index.json:
+	sed -i'.original' -e 's/<no value>//' "site/index.json"
+	cat site/index.json | node search/generate-search-index.js > content/search-index.json
+
+# Use this target to build and serve the site locally
+.PHONY: serve-site-local
+serve-site-local: site-test prepare-local content/search-index.json
+	HUGO_PARAMS_Version=$(VERSION) hugo --debug --config docs.toml --themesDir themes server -DEF
+
+# If building the site locally, the CodeVersion line in data/Solo.yaml need to be commented out
+# and DocsVersion needs to be an empty string
+# Be sure to uncomment the CodeVersion line and set DocsVersion to /gloo-mesh/latest before push to GH.
+.PHONY: prepare-local
+prepare-local:
+	sed -i'.original' -e "s/^DocsVersion:.*/DocsVersion: ''/g" "data/Solo.yaml"
+	sed -i'.original' -e 's/^CodeVersion:/#CodeVersion:/' "data/Solo.yaml"
+	rm -rf data/Solo.yaml.original
+
 
 .PHONY: clean
 clean:
