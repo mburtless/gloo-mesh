@@ -1,3 +1,4 @@
+//go:build tools
 // +build tools
 
 // these import statements ensure that `go mod tidy` does not remove repos needed in Makefile targets

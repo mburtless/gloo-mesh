@@ -1,6 +1,6 @@
 
 ---
-title: "v1.1.1"
+title: "v1.1.2"
 description: Reference for Helm values. 
 weight: 2
 ---

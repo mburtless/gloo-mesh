@@ -22,10 +22,10 @@ You can pass a variable on the command line to download a specific version of `m
 1.  Go the Gloo Mesh releases GitHub page and find the release version that you want to install.
     {{< tabs >}}
     {{< tab name="Enterprise">}}
-    [https://github.com/solo-io/gloo-mesh-enterprise/releases](https://github.com/solo-io/gloo-mesh-enterprise/releases)
+    <a href="https://github.com/solo-io/gloo-mesh-enterprise/releases" target="_blank">https://github.com/solo-io/gloo-mesh-enterprise/releases</a>
     {{< /tab >}}
     {{< tab name="Open Source">}}
-    [https://github.com/solo-io/gloo-mesh/releases](https://github.com/solo-io/gloo-mesh/releases)
+    <a href="https://github.com/solo-io/gloo-mesh/releases" target="_blank">https://github.com/solo-io/gloo-mesh/releases</a>
     {{< /tab >}}
     {{< /tabs >}}
 2.  Export the release version as a variable in your command line.
