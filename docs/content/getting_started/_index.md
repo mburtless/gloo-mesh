@@ -9,21 +9,11 @@ Welcome to Gloo Mesh, the open-source, multi-cluster, multi-mesh management plan
 
 ## Getting `meshctl`
 
-Gloo Mesh has a CLI tool called `meshctl` that helps bootstrap Gloo Mesh, register clusters, describe configured resources, and more. Get the latest `meshctl` from the [releases page on solo-io/gloo-mesh](https://github.com/solo-io/gloo-mesh/releases).
-
-You can also quickly install like this:
+Install the latest version of `meshctl`. Make sure to add `meshctl` to your PATH (see [Windows](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/), [macOS](https://osxdaily.com/2014/08/14/add-new-path-to-path-command-line/), or [Linux](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/) for specific instructions). For more information, see [`meshctl` CLI]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}).
 
 ```shell
 curl -sL https://run.solo.io/meshctl/install | sh
 ```
-
-Once you've downloaded the correct binary for your architecture, run the following to make sure it's working correctly:
-
-```shell
-meshctl version
-```
-
-You can add `meshctl` to your PATH ([Windows](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/) [Mac](https://osxdaily.com/2014/08/14/add-new-path-to-path-command-line/) [Linux](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/)) for global access on the command line.
 
 ## Deploying Gloo Mesh
 

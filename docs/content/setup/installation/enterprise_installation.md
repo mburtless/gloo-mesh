@@ -17,12 +17,11 @@ A conceptual overview of the Gloo Mesh Enterprise architecture can be found [her
 
 ## Installing with `meshctl`
 
-`meshctl` is a CLI tool that helps bootstrap Gloo Mesh Enterprise, register clusters, describe configured resources, and more. Get the latest `meshctl` from the [releases page on solo-io/gloo-mesh](https://github.com/solo-io/gloo-mesh/releases).
-
-You can also quickly install like this:
+Install the latest version of `meshctl`. Make sure to add `meshctl` to your PATH (see [Windows](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/), [macOS](https://osxdaily.com/2014/08/14/add-new-path-to-path-command-line/), or [Linux](https://linuxize.com/post/how-to-add-directory-to-path-in-linux/) for specific instructions). For more information, see [`meshctl` CLI]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}).
 
 ```shell
 curl -sL https://run.solo.io/meshctl/install | sh
+```
 ```
 
 Installing Gloo Mesh Enterprise with `meshctl` is a simple process. You will use the command `meshctl install enterprise` and supply the license key, as well as any chart values you want to update, and arguments pointing to the cluster where Gloo Mesh Enterprise will be installed. For our example, we are going to install Gloo Mesh Enterprise on the cluster currently in context. First, let's set a variable for the license key.

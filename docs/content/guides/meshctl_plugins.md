@@ -8,16 +8,16 @@ weight: 120
 Gloo Mesh Enterprise is required for this feature.
 {{% /notice %}}
 
-In this guide we will walk you through how to get up and running with meshctl plugins. Meshctl plugins extend the core features of meshctl for advanced Gloo Mesh Enterprise use cases such as building and deploying [Wasm filters]({{% versioned_link_path fromRoot="/guides/wasm_extension" %}}) to Istio workloads and fetching access logs from services in your mesh. To utilize these plugins, we will follow these steps:
+In this guide we will walk you through how to get up and running with `meshctl` plugins. The `meshctl` plugins extend the core features of `meshctl` for advanced Gloo Mesh Enterprise use cases such as building and deploying [Wasm filters]({{% versioned_link_path fromRoot="/guides/wasm_extension" %}}) to Istio workloads and fetching access logs from services in your mesh. To utilize these plugins, we will follow these steps:
 
-1. Initialize the meshctl plugin manager
+1. Initialize the `meshctl` plugin manager
 1. Search for available plugins
-1. Install the meshctl-wasm plugin
-1. Upgrade and uninstall the meshctl-wasm plugin (optional)
+1. Install the `meshctl-wasm` plugin
+1. Upgrade and uninstall the `meshctl-wasm` plugin (optional)
 
 ## Before you begin
 
-All you need to get started is meshctl 1.0.0 or greater. If you haven't already, you can install or upgrade meshctl with the following:
+All you need to get started is `meshctl` 1.0.0 or greater. If you haven't already, you can [install or upgrade `meshctl`]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}) with the following:
 
 ```shell
 curl -sL http://run.solo.io/meshctl/install | sh -

@@ -15,7 +15,7 @@ In order to identify a cluster as being managed by Gloo Mesh Enterprise, we have
 
 ### Register with `meshctl`
 
-We can use the CLI tool `meshctl` to register our remote cluster. The command we use will be `meshctl cluster register enterprise`. This is specific to Gloo Mesh **Enterprise**, and different in nature than the `meshctl cluster register community` command.
+We can use the CLI tool [`meshctl`]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}) to register our remote cluster. The command we use will be `meshctl cluster register enterprise`. This is specific to Gloo Mesh **Enterprise**, and different in nature than the `meshctl cluster register community` command.
 
 To register our remote cluster, there are a few key pieces of information we need:
 

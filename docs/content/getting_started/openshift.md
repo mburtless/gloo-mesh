@@ -17,7 +17,7 @@ covering installation and workload management.
 Before we get started, ensure that you have the following tools installed:
 
 - [oc](https://docs.openshift.com/container-platform/4.7/cli_reference/openshift_cli/getting-started-cli.html) - Command line utility for OpenShift. This contains most of `kubectl`'s funtionality, plus additional OpenShift capabilities.
-- [meshctl]({{% versioned_link_path fromRoot="/getting_started" %}}) - Command line utility for Gloo Mesh
+- [meshctl]({{< versioned_link_path fromRoot="/setup/installation/meshctl_cli_install/" >}}) - Command line utility for Gloo Mesh
 - [istioctl](https://istio.io/latest/docs/setup/getting-started/#download) - Command line utility for Istio. This document assumes you are using istioctl v1.8.
 
 Provision three OpenShift clusters with contexts stored in the following environment variables:
