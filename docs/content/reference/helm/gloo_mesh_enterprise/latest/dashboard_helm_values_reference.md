@@ -7,6 +7,8 @@ weight: 2
 
 |Option|Type|Default Value|Description|
 |------|----|-----------|-------------|
+|global|struct|{"insecure":false}|global chart values which can be set from parent charts|
+|global.insecure|bool|false|Set to true to enable insecure communication between Gloo Mesh components|
 |licenseKey|string| |Gloo Mesh Enterprise license key|
 |networkingAdminAddress|string|enterprise-networking-admin.gloo-mesh.svc.cluster.local:11100|Enterprise networking admin service address|
 |relayClientAuthority|string|enterprise-networking.gloo-mesh|SNI name used to connect to relay forwarding server|

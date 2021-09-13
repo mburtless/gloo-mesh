@@ -15,7 +15,7 @@ latestVersion=$(cat version.json | jq -r ."latest")
 firebaseJson=$(cat <<EOF
 {
   "hosting": {
-    "site": "gloo-mesh",
+    "site": "gloo-mesh-open-source",
     "public": "public",
     "ignore": [
       "firebase.json",
@@ -25,11 +25,11 @@ firebaseJson=$(cat <<EOF
     "rewrites": [
       {
         "source": "/",
-        "destination": "/gloo-mesh/latest/index.html"
+        "destination": "/gloo-mesh-open-source/latest/index.html"
       },
       {
-        "source": "/gloo-mesh",
-        "destination": "/gloo-mesh/latest/index.html"
+        "source": "/gloo-mesh-open-source",
+        "destination": "/gloo-mesh-open-source/latest/index.html"
       }
     ]
   }
@@ -53,8 +53,8 @@ function generateHugoVersionsYaml() {
   local yamlFile=$repoDir/docs/data/Solo.yaml
   {
     echo "LatestVersion: $latestVersion"
-    # /gloo-mesh prefix is needed because the site is hosted under a domain name with suffix /gloo-mesh
-    echo "DocsVersion: /gloo-mesh/$1"
+    # /gloo-mesh prefix is needed because the site is hosted under a domain name with suffix /gloo-mesh-source
+    echo "DocsVersion: /gloo-mesh-open-source/$1"
     echo "CodeVersion: $1"
     echo "DocsVersions:"
     for hugoVersion in "${versions[@]}"; do
@@ -74,8 +74,8 @@ if [ ! -z ${PREVIEW_DOCS} ]; then
   cat site-latest/index.json | node $workingDir/search/generate-search-index.js > site-latest/search-index.json
 
   # Copy over versioned static site to firebase content folder.
-  mkdir -p "$docsSiteDir/public/gloo-mesh/$version"
-  cp -a site-latest/. "$docsSiteDir/public/gloo-mesh/$version/"
+  mkdir -p "$docsSiteDir/public/gloo-mesh-open-source/$version"
+  cp -a site-latest/. "$docsSiteDir/public/gloo-mesh-open-source/$version/"
 
   # If we are on the latest version, then copy over `404.html` so firebase uses that.
   # https://firebase.google.com/docs/hosting/full-config#404
@@ -122,8 +122,8 @@ else
     cat site-latest/index.json | node $workingDir/search/generate-search-index.js > site-latest/search-index.json
 
     # Copy over versioned static site to firebase content folder.
-    mkdir -p "$docsSiteDir/public/gloo-mesh/$version"
-    cp -a site-latest/. "$docsSiteDir/public/gloo-mesh/$version/"
+    mkdir -p "$docsSiteDir/public/gloo-mesh-open-source/$version"
+    cp -a site-latest/. "$docsSiteDir/public/gloo-mesh-open-source/$version/"
 
     # If we are on the latest version, then copy over `404.html` so firebase uses that.
     # https://firebase.google.com/docs/hosting/full-config#404
@@ -131,6 +131,7 @@ else
 
     # Discard git changes and vendor_any for subsequent checkouts
     cd "$repoDir"
+    rm -rf site-latest
     git reset --hard
     rm -fr vendor_any
   done

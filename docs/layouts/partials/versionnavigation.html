@@ -1,4 +1,4 @@
-{{ $currentVersion := (strings.TrimPrefix "/gloo-mesh/" $.Site.Data.Solo.DocsVersion) }}
+{{ $currentVersion := (strings.TrimPrefix "/gloo-mesh-open-source/" $.Site.Data.Solo.DocsVersion) }}
 {{ if and (ne "main" $currentVersion) (ne "latest" $currentVersion) }}
   <div style="margin-right:5em;"><mark>You are viewing a previous version of Gloo Mesh. Select latest from the drop-down menu. </mark></div>
 {{ end }}
@@ -9,7 +9,7 @@
   {{ if eq $versionNum $.Site.Data.Solo.LatestVersion }}
       {{ $version = "latest" }}
   {{ end }}
-  <option value="/gloo-mesh/{{ $version }}{{ $.RelPermalink}}" {{if eq $currentVersion $version }} selected{{end}}>
+  <option value="/gloo-mesh-open-source/{{ $version }}{{ $.RelPermalink}}" {{if eq $currentVersion $version }} selected{{end}}>
       {{ $versionNum }}
       {{ if eq $versionNum $.Site.Data.Solo.LatestVersion }}
         (latest)
