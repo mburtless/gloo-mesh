@@ -1,7 +1,7 @@
 ---
 title: Mesh Discovery
 menuTitle: Mesh Discovery
-weight: 20
+weight: 10
 ---
 
 Gloo Mesh can automatically discover service mesh installations on registered clusters using control plane and sidecar discovery, as well as workloads and services exposed through the service mesh.

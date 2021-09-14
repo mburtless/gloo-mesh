@@ -1,6 +1,6 @@
 ---
 title: Open Source Attribution
-weight: 7
+weight: 6
 description: Open Source Attribution and Licenses
 ---
 **3rd Party open source software which is provided by solo.io in connection with Gloo Mesh**

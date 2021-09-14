@@ -5,7 +5,6 @@ description: Guides for operating Gloo Mesh
 weight: 50
 ---
 
-In this set of guides, we explore known usage patterns and suggestions for operating Gloo Mesh.
-
+Manage your Gloo Mesh Open Source setup.
 
 {{% children description="true" %}}

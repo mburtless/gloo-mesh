@@ -9,7 +9,7 @@ There are several guides available. To follow the guides included in this sectio
 
 To become familiar with Gloo Mesh, we recommend following the guides in the order that they appear here, starting from the top and going down.
 
-* [Installing Multi-cluster Istio]({{% versioned_link_path fromRoot="/guides/installing_istio" %}})
+* [Install multicluster Istio]({{% versioned_link_path fromRoot="/guides/installing_istio" %}})
 * [Intro to Discovery]({{% versioned_link_path fromRoot="/guides/discovery_intro" %}})
 * [Intro to Access Control]({{% versioned_link_path fromRoot="/guides/access_control_intro" %}})
 * [Multicluster Communication]({{% versioned_link_path fromRoot="/guides/multicluster_communication" %}})

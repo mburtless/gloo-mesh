@@ -19,14 +19,14 @@ A service mesh provides powerful service-to-service communication capabilities l
 * Scaling needs
 * Geographic needs
 
-Managing a service mesh deployment that is consistent and secure across multiple clusters is tedious and error prone at best. Gloo Mesh provides a single unified pane of glass driven by a declarative API (CRDs in Kubernetes) that orchestrates and simplifies the operation of a multi-cluster service mesh including the following concerns:
+Managing a service mesh deployment that is consistent and secure across multiple clusters is tedious and error prone at best. Gloo Mesh provides a single unified pane of glass driven by a declarative API (CRDs in Kubernetes) that orchestrates and simplifies the operation of a multicluster service mesh including the following concerns:
 
 * Unifying/federating trust domains
 * Achieving a single pane of glass for operational observability
-* Multi-cluster routing
+* Multicluster routing
 * Access policy 
 
-### A multi-cluster management plane
+### A multicluster management plane
 
 Gloo Mesh consists of a set of components that run on a single cluster, often referred to as your *management plane cluster*. The management plane components are stateless and rely exclusively on declarative CRDs.  Each service mesh installation that spans a deployment footprint often has its own control plane. You can think of Gloo Mesh as a management plane for multiple control planes.
 

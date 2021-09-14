@@ -1,7 +1,7 @@
 ---
 title: Federated Trust and Identity
 menuTitle: Federated Trust and Identity
-weight: 25
+weight: 30
 ---
 
 Gloo Mesh can help unify the root identity between multiple service mesh installations so any intermediates are signed by the same Root CA and end-to-end mTLS between clusters and destinations can be established correctly.

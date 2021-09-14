@@ -1,10 +1,10 @@
 ---
 title: "Reference"
 menuTitle: Reference
-description: Reference docs for the Gloo Mesh API, and CLI
+description: Reference docs for the Gloo Mesh API and CLI
 weight: 200
 ---
 
-This section includes reference documentation for the Gloo Mesh  API, and the Gloo Mesh  CLI (`meshctl`).
+Review reference documentation for Gloo Mesh Open Source.
 
 {{% children description="true" %}}

@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Removes all enterprise-related information from the doc set so that is it OSS only
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/1196

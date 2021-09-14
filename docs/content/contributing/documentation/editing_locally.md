@@ -49,7 +49,7 @@ After a few moments the fork will complete and you will be taken to the page wit
 
 Run `git clone https://github.com/your-account/gloo-mesh.git` substituting `your-account` for your actual account on GitHub. You can also get the correct `.git` link by clicking on the **Clone or download** button on your fork of the Gloo Mesh repository.
 
-Now move into the root of the Gloo Mesh repository and run `TAGGED_VERSION=nonempty make download-Gloo Meshe-changelog -B` to download the latest Gloo Mesh Enterprise changelogs, which are used to generate the changelog in the site.
+Now move into the root of the Gloo Mesh repository and run `TAGGED_VERSION=nonempty make download-Gloo Meshe-changelog -B` to download the latest Gloo Mesh changelogs, which are used to generate the changelog in the site.
 
 You now have the repository cloned on your local filesystem, including the `docs` folder that contains all of the documentation for Gloo Mesh
 

@@ -9,7 +9,7 @@ In this document, we'll take a look at some of the core concepts that underpin G
 
 ## Virtual Meshes
 
-To enable multi-cluster configuration, users will group multiple meshes together into an object called a [`VirtualMesh`]({{% versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.virtual_mesh/" %}}). The virtual mesh exposes configuration to facilitate cross-cluster communications.
+To enable multicluster configuration, users will group multiple meshes together into an object called a [`VirtualMesh`]({{% versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.virtual_mesh/" %}}). The virtual mesh exposes configuration to facilitate cross-cluster communications.
 
 For a virtual mesh to be considered valid, Gloo Mesh will first try to establish trust based on the [trust model](https://spiffe.io/spiffe/concepts/#trust-domain) defined by the user -- is there complete shared trust and a common root and identity? Or is there limited trust between clusters and traffic is gated by egress and ingress gateways? Gloo Mesh ships with an agent that helps facilitate cross-cluster certificate signing requests safely, to minimize the operational burden around managing certificates. 
 
@@ -23,11 +23,11 @@ A [`TrafficPolicy`]({{% versioned_link_path fromRoot="/reference/api/github.com.
 
 An [`AccessPolicy`]({{% versioned_link_path fromRoot="/reference/api/github.com.solo-io.gloo-mesh.api.networking.v1.access_policy/" %}}) also applies between sources (this time representing identities) and destinations, and is used to finely control which services are allowed to communicate. On the virtual mesh, a user can specify a global policy to restrict access, and require users to specify access policies in order to enable communication to services.
 
-With traffic and access policies, Gloo Mesh gives users a powerful language to dictate how services should communicate, even within complex multi-cluster, multi-mesh applications. 
+With traffic and access policies, Gloo Mesh gives users a powerful language to dictate how services should communicate, even within complex multicluster, multimesh applications. 
 
 ## CLI Tooling
 
-Gloo Mesh is tackling really hard problems related to multi-cluster networking and configuration, so to speed up your learning it comes with a command line tool called [`meshctl`]({{% versioned_link_path fromRoot="/reference/cli/meshctl/" %}}). This tool provides interactive commands to make it easier to author your first virtual mesh, register a cluster, or create a traffic or access policy. Once you’ve authored a config, it also has a `describe` command to help understand how your workloads and services are affected by your policies. 
+Gloo Mesh is tackling really hard problems related to multicluster networking and configuration, so to speed up your learning it comes with a command line tool called [`meshctl`]({{% versioned_link_path fromRoot="/reference/cli/meshctl/" %}}). This tool provides interactive commands to make it easier to author your first virtual mesh, register a cluster, or create a traffic or access policy. Once you’ve authored a config, it also has a `describe` command to help understand how your workloads and services are affected by your policies. 
 
 ## Next Steps
 

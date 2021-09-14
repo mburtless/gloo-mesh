@@ -5,7 +5,11 @@ description: Understanding Gloo Mesh Architecture
 weight: 20
 ---
 
-This document details the architecture of Gloo Mesh using the *standard* deployment model. The deployment model informs how Gloo Mesh is deployed and operated. Gloo Mesh Enterprise provides an [alternative *relay* model]({{% versioned_link_path fromRoot="/concepts/relay/" %}}) which differs from the standard deployment model by adopting a distributed pull architecture.
+This document details the architecture of Gloo Mesh Open Source and how it is deployed and operated.
+
+{{< notice note >}}
+The architectures for Gloo Mesh Open Source and Gloo Mesh Enterprise vary in several important aspects. For more information, see the [Gloo Mesh Enterprise architecture documentation](https://docs.solo.io/gloo-mesh-enterprise/latest/concepts/relay/).
+{{< /notice >}}
 
 ## Components
 
@@ -27,7 +31,7 @@ Finally, `DestinationTranslator`  looks for services exposing the workloads of a
 
 ![Gloo Mesh Architecture]({{% versioned_link_path fromRoot="/img/concepts-gloomesh-discovery.png" %}})
 
-At this point, the management plane has a complete view of the meshes, workloads, and destinations across your multi-cluster, multi-mesh environment. 
+At this point, the management plane has a complete view of the meshes, workloads, and destinations across your multicluster, multimesh environment. 
 
 ##### Mesh Networking
 

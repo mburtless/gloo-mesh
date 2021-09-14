@@ -1,7 +1,7 @@
 ---
 title: Troubleshooting
 menuTitle: Troubleshooting
-weight: 10
+weight: 20
 description: Understanding how to troubleshoot Gloo Mesh with tips on logging, FAQ, and understanding how things work
 ---
 
