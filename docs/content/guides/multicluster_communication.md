@@ -1,6 +1,6 @@
 ---
-title: Multi-cluster Traffic
-menuTitle: Multi-cluster Traffic
+title: Multicluster traffic
+description: Establish traffic policies across multiple service meshes
 weight: 50
 ---
 

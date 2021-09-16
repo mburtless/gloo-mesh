@@ -1,7 +1,7 @@
 ---
-title: "Set up Gloo Mesh"
+title: Setting up Gloo Mesh Open Source
 menuTitle: Setup
-description: Set up Gloo Mesh
+description: Set up Gloo Mesh Open Source
 weight: 30
 ---
 

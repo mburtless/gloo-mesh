@@ -1,8 +1,8 @@
 ---
-title: "Registered ClusterRole Definition"
+title: "Registered ClusterRole definition"
 menuTitle: Registered ClusterRole
 description: ClusterRole created when registering a cluster with Gloo Mesh.
-weight: 2
+weight: 4
 ---
 
 The following YAML shows the ClusterRole created on a target cluster when it is registered with Gloo Mesh.

@@ -1,5 +1,6 @@
 ---
-title: "Prepare clusters"
+title: Prepare clusters
+menuTitle: Prepare clusters
 description: Use existing clusters or deploy Kind clusters for a Gloo Mesh setup
 weight: 20
 ---

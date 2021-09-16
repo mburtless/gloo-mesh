@@ -1,6 +1,7 @@
 ---
-title: "Install Gloo Mesh"
-description: Install the Gloo Mesh management components
+title: Install Gloo Mesh
+menuTitle: Install Gloo Mesh
+description: Install the Gloo Mesh management components into a cluster
 weight: 30
 ---
 

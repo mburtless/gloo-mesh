@@ -1,6 +1,7 @@
 ---
-title: "Register clusters"
-description: Register clusters to be managed by Gloo Mesh
+title: Register clusters
+menuTitle: Register clusters
+description: Register one or more clusters to be managed by Gloo Mesh
 weight: 50
 ---
 

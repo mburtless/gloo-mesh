@@ -1,5 +1,6 @@
 ---
-title: "Install multicluster Istio"
+title: Install multicluster Istio
+menuTitle: Install multicluster Istio
 description: Install Istio in multiple clusters in your Gloo Mesh setup
 weight: 40
 ---

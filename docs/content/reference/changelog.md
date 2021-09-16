@@ -1,7 +1,6 @@
-
 ---
 title: Gloo Mesh Open Source changelog
-weight: 7
+weight: 6
 description: Changelog entries for Gloo Mesh Open Source
 ---
 

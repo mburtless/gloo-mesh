@@ -1,7 +1,7 @@
 ---
 title: "Reference"
 menuTitle: Reference
-description: Reference docs for the Gloo Mesh API and CLI
+description: Reference for the Gloo Mesh API, meshctl CLI, and Helm charts
 weight: 200
 ---
 

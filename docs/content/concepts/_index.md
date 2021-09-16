@@ -1,7 +1,7 @@
 ---
 title: "Concepts"
 menuTitle: Concepts
-description: Understanding Gloo Mesh Concepts
+description: Understanding Gloo Mesh concepts
 weight: 20
 ---
 

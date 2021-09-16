@@ -1,5 +1,5 @@
 ---
-title: "Guides Overview"
+title: "Guides overview"
 menuTitle: Guides
 description: Guides for getting started using Gloo Mesh
 weight: 40
@@ -7,9 +7,7 @@ weight: 40
 
 There are several guides available. To follow the guides included in this section, you will need at least two Kubernetes clusters with Gloo Mesh installed on one. You can easily set up two such clusters [using Kind](#using-kind) as detailed below. Some of the guides also make use of the Bookinfo sample application. You can install the application by following the steps in the [Bookinfo deployment section](#bookinfo-deployment).
 
-To become familiar with Gloo Mesh, we recommend following the guides in the order that they appear here, starting from the top and going down.
-
-* [Install multicluster Istio]({{% versioned_link_path fromRoot="/guides/installing_istio" %}})
+To become familiar with Gloo Mesh, we recommend following the guides in the order that they appear here:
 * [Intro to Discovery]({{% versioned_link_path fromRoot="/guides/discovery_intro" %}})
 * [Intro to Access Control]({{% versioned_link_path fromRoot="/guides/access_control_intro" %}})
 * [Multicluster Communication]({{% versioned_link_path fromRoot="/guides/multicluster_communication" %}})

@@ -1,6 +1,6 @@
 ---
 title: Upgrading Gloo Mesh
-weight: 30
+weight: 20
 description: Upgrade the version of Gloo Mesh in your management and remote clusters
 ---
 

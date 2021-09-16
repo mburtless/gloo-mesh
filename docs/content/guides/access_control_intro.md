@@ -1,6 +1,6 @@
 ---
-title: Access Control
-menuTitle: Access Control
+title: Access control
+description: Establish access policies across multiple service meshes
 weight: 40
 ---
 

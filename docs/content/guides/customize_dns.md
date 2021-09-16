@@ -1,8 +1,7 @@
 ---
 title: Istio DNS for global routing
-menuTitle: Istio DNS for global routing
+description: Configure Istio DNS for resolvable routing between clusters
 weight: 70
-description: Understanding how to configure Istio DNS for resolvable routing between clusters
 ---
 
 At the moment, when Gloo Mesh creates [ServiceEntry](https://istio.io/docs/reference/config/networking/service-entry/) resources for Istio to enable cross-cluster routing and service discovery, these entries and the hostnames they use are not directly routable. 

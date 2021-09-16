@@ -1,6 +1,5 @@
 ---
-title: Example Document
-menuTitle: Example Document
+title: Example document
 weight: 30
 description: An example document to use when creating new documents
 ---

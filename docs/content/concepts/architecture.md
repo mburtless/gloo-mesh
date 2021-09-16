@@ -1,7 +1,7 @@
 ---
-title: "Gloo Mesh Architecture"
+title: "Gloo Mesh architecture"
 menuTitle: Architecture
-description: Understanding Gloo Mesh Architecture
+description: Understand the Gloo Mesh Open Source architecture
 weight: 20
 ---
 

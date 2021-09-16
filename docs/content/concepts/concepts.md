@@ -1,7 +1,6 @@
 ---
-title: "Core Concepts"
-menuTitle: Core Concepts
-description: Understanding Gloo Mesh Core Concepts
+title: "Core concepts"
+description: Understand core concepts of Gloo Mesh
 weight: 10
 ---
 

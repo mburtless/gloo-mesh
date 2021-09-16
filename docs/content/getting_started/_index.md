@@ -1,6 +1,6 @@
 ---
-title: "Getting Started"
-menuTitle: Getting Started
+title: Getting started with Gloo Mesh Open Source
+menuTitle: Getting started
 description: Get started with Gloo Mesh Open Source
 weight: 10
 ---

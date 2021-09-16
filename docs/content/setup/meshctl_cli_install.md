@@ -1,7 +1,8 @@
 ---
-title: "meshctl CLI"
+title: Install the meshctl CLI
+menuTitle: meshctl CLI
 description: Install the meshctl CLI
-weight: 10
+weight: 20
 ---
 
 Use the Gloo Mesh command line interface (CLI) tool, `meshctl`, to set up Gloo Mesh, register clusters, describe your Gloo Mesh resources, and more.
@@ -43,7 +44,7 @@ You can pass a variable on the command line to download a specific version of `m
     ```
 
 {{% notice tip %}}
-On macOS, you might see the following warning: `“meshctl” cannot be opened because it is from an unidentified developer.` In the Finder app, navigate to the `~/.gloo-mesh/binmeshctl` executable file, right-click the file, click **Open**, and confirm that you want toopen the file. For more information, try searching the warning and following a guide such as[this blog](https://www.howtogeek.com/205393gatekeeper-101-why-your-mac-only-allows-apple-approved-software-by-default/).
+On macOS, you might see the following warning: `“meshctl” cannot be opened because it is from an unidentified developer.` In the Finder app, navigate to the `~/.gloo-mesh/binmeshctl` executable file, right-click the file, click **Open**, and confirm that you want toopen the file. For more information, try searching the warning and following a guide such as [this blog](https://www.howtogeek.com/205393gatekeeper-101-why-your-mac-only-allows-apple-approved-software-by-default/).
 {{% /notice %}}
 
 Good job! You now have the version of `meshctl` that you want installed. Next, [install Gloo Mesh]({{< versioned_link_path fromRoot="/getting_started/#deploying-gloo-mesh" >}}) in your clusters.

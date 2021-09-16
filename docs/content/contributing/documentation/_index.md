@@ -2,7 +2,7 @@
 title: Contributing to the Gloo Mesh Documentation
 menuTitle: Documentation
 weight: 20
-description: Read this guide to help make Gloo Mesh docs the best they can be!
+description: Contribute to the Gloo Mesh Open Source documentation
 ---
 
 Hi! So you'd like to help us out with the Gloo Mesh documentation. That is awesome! Before you get started, we have a couple things to mention about contributing standards and process. We'd like to make this easy as possible, so if you have a tiny edit to make, check out the [Quickstart](#quickstart) section of the guide. Otherwise, here are the ways you can get involved:

@@ -1,7 +1,7 @@
 ---
-title: Open Source Attribution
+title: Open source attribution
 weight: 6
-description: Open Source Attribution and Licenses
+description: Open source attribution and licenses
 ---
 **3rd Party open source software which is provided by solo.io in connection with Gloo Mesh**
 {{< readfile file="static/content/osa_provided.txt" markdown="true" >}}

@@ -1,6 +1,6 @@
 ---
-title: Configuring a Traffic Policy
-menuTitle: Traffic Policy
+title: Traffic policies
+menuTitle: Configure and manage traffic policies across multiple clusters
 weight: 20
 ---
 

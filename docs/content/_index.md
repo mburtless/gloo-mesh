@@ -1,11 +1,15 @@
 ---
 weight: 99
-title: Gloo Mesh
+title: Gloo Mesh Open Source
 ---
+
+# Gloo Mesh Open Source
+
+Welcome to Gloo Mesh, the open-source, multicluster, multimesh management plane. Gloo Mesh simplifies service mesh operations and lets you manage service meshes across multiple clusters from a centralized management plane.
 
 ## What is Gloo Mesh?
 
-Gloo Mesh is a Kubernetes-native **management plane** that enables configuration 
+Gloo Mesh is a Kubernetes-native multicluster service mesh and management plane that enables configuration 
 and operational management of multiple heterogeneous service meshes across multiple 
 clusters through a unified API. The Gloo Mesh API integrates with the leading 
 service meshes and abstracts away differences between their disparate APIs, allowing 

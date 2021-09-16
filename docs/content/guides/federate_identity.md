@@ -1,6 +1,6 @@
 ---
-title: Federated Trust and Identity
-menuTitle: Federated Trust and Identity
+title: Federated trust and identity
+description: Unify the root identity between multiple service meshes
 weight: 30
 ---
 

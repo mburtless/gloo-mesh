@@ -1,7 +1,7 @@
 ---
-title: Developers
+title: Contributing to the Gloo Mesh code
 menuTitle: Developers
-description: Ways to contribute to Gloo Mesh.
+description: Contribute code to the Gloo Mesh Open Source project
 weight: 10
 ---
 

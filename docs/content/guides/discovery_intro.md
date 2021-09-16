@@ -1,6 +1,6 @@
 ---
-title: Mesh Discovery
-menuTitle: Mesh Discovery
+title: Mesh discovery
+description: Enable automatic discovery of service meshes in remote clusters
 weight: 10
 ---
 

@@ -1,7 +1,7 @@
 ---
-title: "Uninstall Gloo Mesh"
+title: Uninstalling Gloo Mesh
 description: Deregister clusters and uninstall the Gloo Mesh management components
-weight: 40
+weight: 30
 ---
 
 If you no longer need your Gloo Mesh environment, you can uninstall Gloo Mesh from your management and remote clusters.

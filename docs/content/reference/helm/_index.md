@@ -1,7 +1,7 @@
 
 ---
-title: "Helm Values Reference"
-description: Reference for Helm values. 
+title: "Helm values reference"
+description: Reference for Helm values.
 weight: 2
 ---
 

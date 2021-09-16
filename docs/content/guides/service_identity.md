@@ -1,7 +1,6 @@
 ---
-title: "Multicluster Service Identity"
-menuTitle: Multicluster Service Identity
-description: Guidance on using Gloo Mesh to apply consistent policies to services across clusters.
+title: "Multicluster service identity"
+description: Apply consistent policies to services across clusters
 weight: 60
 ---
 

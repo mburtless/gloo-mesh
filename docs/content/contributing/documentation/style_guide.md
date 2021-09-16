@@ -1,6 +1,5 @@
 ---
-title: Style Guide
-menuTitle: Style Guide
+title: Style guide
 weight: 20
 description: Standards and guidance for Gloo Mesh documentation
 ---

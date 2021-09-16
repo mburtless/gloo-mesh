@@ -28,7 +28,7 @@ var (
 	helmValuesIndex = `
 ---
 title: "%s"
-description: Reference for Helm values. 
+description: Reference for Helm values.
 weight: 2
 ---
 
@@ -46,7 +46,7 @@ func copyHelmValuesDocsForAllCharts(client *github.Client, rootDir string) error
 	os.MkdirAll(helmDocsDir, 0755)
 
 	// create root index
-	if err := createFileIfNotExists(helmDocsDir+"/"+"_index.md", fmt.Sprintf(helmValuesIndex, "Helm Values Reference")); err != nil {
+	if err := createFileIfNotExists(helmDocsDir+"/"+"_index.md", fmt.Sprintf(helmValuesIndex, "Helm values reference")); err != nil {
 		return eris.Errorf("error creating Helm values index file: %v", err)
 	}
 

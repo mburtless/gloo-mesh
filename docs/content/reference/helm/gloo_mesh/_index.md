@@ -1,7 +1,7 @@
 
 ---
 title: "Gloo Mesh"
-description: Reference for Helm values. 
+description: Reference for Helm values.
 weight: 2
 ---
 

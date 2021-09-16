@@ -1,9 +1,9 @@
 
 ---
-title: "API Reference"
+title: "API reference"
 description: |
   This section contains the API Specification for the CRDs used by Gloo Mesh.
-weight: 2
+weight: 1
 ---
 
 These docs describe Gloo Mesh CRDs.

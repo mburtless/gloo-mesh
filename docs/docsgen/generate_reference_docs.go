@@ -31,7 +31,7 @@ var (
 	moduleRoot = util.GetModuleRoot()
 	cliIndex   = `
 ---
-title: "Command-Line Reference"
+title: "CLI reference"
 description: | 
   Detailed descriptions and options for working with the Gloo Mesh CLI. 
 weight: 2
