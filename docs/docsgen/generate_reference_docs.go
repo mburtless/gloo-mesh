@@ -43,7 +43,7 @@ This section contains generated reference documentation for the Gloo Mesh CLI, m
 title: "Changelog"
 description: | 
   Section containing Changelogs for Gloo Mesh
-weight: 6
+weight: 2
 ---
 Included in the sections below are Changelog for both Gloo Mesh OSS and Gloo Mesh Enterprise.
 {{% children description="true" %}}
