@@ -26,6 +26,10 @@ Managing a service mesh deployment that is consistent and secure across multiple
 * Multicluster routing
 * Access policy 
 
+{{% notice tip %}}
+{{< readfile file="static/content/try_gme" markdown="true">}}
+{{% /notice %}}
+
 ### A multicluster management plane
 
 Gloo Mesh consists of a set of components that run on a single cluster, often referred to as your *management plane cluster*. The management plane components are stateless and rely exclusively on declarative CRDs.  Each service mesh installation that spans a deployment footprint often has its own control plane. You can think of Gloo Mesh as a management plane for multiple control planes.

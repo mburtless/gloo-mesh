@@ -118,6 +118,10 @@ Check out the following guides to explore more of Gloo Mesh's capabilities in yo
 * [Traffic policies]({{% versioned_link_path fromRoot="/guides/traffic_policy/" %}}): Configure traffic policies, including properties such as timeouts, retries, CORS, and header manipulation, for services that are associated with a service mesh installation.
 * [Federated trust and identity]({{% versioned_link_path fromRoot="/guides/federate_identity/" %}}): Unify the root identity between multiple service mesh installations so that any intermediates are signed by the same root certificate authority and end-to-end mTLS between clusters and destinations can be established.
 
+{{% notice tip %}}
+{{< readfile file="static/content/try_gme" markdown="true">}}
+{{% /notice %}}
+
 To set up and manage the configuration of Gloo Mesh on your existing clusters, follow the steps in the [Setup documentation]({{% versioned_link_path fromRoot="/setup/" %}}).
 
 {{% notice tip %}}

@@ -8,7 +8,7 @@ weight: 2
 Review the following information about supported release versions for Gloo Mesh Open Source, including dependencies on other open source projects like Istio.
 
 {{% notice tip %}}
-Want to try Gloo Mesh in production? Try [Gloo Mesh Enterprise](https://docs.solo.io/gloo-mesh-enterprise/), which includes a quarterly release cadence, additional features and mesh capabilities such as Gloo Mesh Gateway, enterprise support, and hardened versions of Istio for CVE and security patching.
+{{< readfile file="static/content/try_gme" markdown="true">}}
 {{% /notice %}}
 
 ## Supported versions

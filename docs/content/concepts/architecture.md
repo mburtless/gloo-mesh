@@ -7,9 +7,9 @@ weight: 20
 
 This document details the architecture of Gloo Mesh Open Source and how it is deployed and operated.
 
-{{< notice note >}}
-The architectures for Gloo Mesh Open Source and Gloo Mesh Enterprise vary in several important aspects. For more information, see the [Gloo Mesh Enterprise architecture documentation](https://docs.solo.io/gloo-mesh-enterprise/latest/concepts/relay/).
-{{< /notice >}}
+{{% notice tip %}}
+{{< readfile file="static/content/try_gme" markdown="true">}} Note that the architectures for Gloo Mesh Open Source and Gloo Mesh Enterprise vary in several important aspects.
+{{% /notice %}}
 
 ## Components
 
