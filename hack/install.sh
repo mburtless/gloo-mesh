@@ -5,16 +5,16 @@ set -eu
 if [ -x "$(command -v python3)" ]; then
   alias any_python='python3'
 elif [ -x "$(command -v python)" ]; then
-  alias any_python='python'    
+  alias any_python='python'
 elif [ -x "$(command -v python2)" ]; then
-  alias any_python='python2'    
+  alias any_python='python2'
 else
   echo Python 2 or 3 is required to install meshctl
   exit 1
 fi
 
 if [ -z "${GLOO_MESH_VERSION:-}" ]; then
-  GLOO_MESH_VERSIONS=$(curl -sH"Accept: application/vnd.github.v3+json" https://api.github.com/repos/solo-io/gloo-mesh/releases | any_python -c "import sys; from distutils.version import StrictVersion, LooseVersion; from json import loads as l; releases = l(sys.stdin.read()); releases = [release['tag_name'] for release in releases];  filtered_releases = list(filter(lambda release_string: len(release_string) > 0 and StrictVersion.version_re.match(release_string[1:]) != None, releases)); filtered_releases.sort(key=LooseVersion, reverse=True); print('\n'.join(filtered_releases))")
+  GLOO_MESH_VERSIONS=$(curl -s https://storage.googleapis.com/storage/v1/b/meshctl/o | any_python -c "import sys; from distutils.version import StrictVersion, LooseVersion; from json import loads as l; obj = l(sys.stdin.read()); items = obj['items'];  all_releases = [release['name'].split('/')[0] for release in items]; releases = []; [releases.append(n) for n in all_releases if n not in releases]; filtered_releases = list(filter(lambda release_string: len(release_string) > 0 and StrictVersion.version_re.match(release_string[1:]) != None, releases)); filtered_releases.sort(key=LooseVersion, reverse=True); print('\n'.join(filtered_releases))")
 else
   GLOO_MESH_VERSIONS="${GLOO_MESH_VERSION}"
 fi
@@ -29,7 +29,7 @@ for gloo_mesh_version in $GLOO_MESH_VERSIONS; do
 
 tmp=$(mktemp -d /tmp/gloo_mesh.XXXXXX)
 filename="meshctl-${OS}-amd64"
-url="https://github.com/solo-io/gloo-mesh/releases/download/${gloo_mesh_version}/${filename}"
+url="https://storage.googleapis.com/meshctl/${gloo_mesh_version}/${filename}"
 
 if curl -f ${url} >/dev/null 2>&1; then
   echo "Attempting to download meshctl version ${gloo_mesh_version}"
