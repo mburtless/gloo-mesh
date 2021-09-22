@@ -49,6 +49,7 @@ menushortcutsnewtab = false # set true to open shortcuts links to a new tab/wind
 enableGitInfo = true
 logoPath="/img/logo.png"
 version="dev"
+banner = true # set this to true and create a docs/layout/banner.html partial to display a banner on each doc page. 
 
 [[menu.shortcuts]]
 name = "<i class='fa fa-github'></i> Github Repo"

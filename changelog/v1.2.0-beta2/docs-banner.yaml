@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Adds a banner on each page to indicate to users that this doc set is for Gloo Mesh Open Source only, and link to the Gloo Mesh Enterprise docs.
+    issueLink: https://github.com/solo-io/doctopus/issues/24
