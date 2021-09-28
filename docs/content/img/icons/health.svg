@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg624"
+   sodipodi:docname="health.svg"
+   inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview626"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.63250561"
+     inkscape:cx="397.62493"
+     inkscape:cy="561.25984"
+     inkscape:window-width="1536"
+     inkscape:window-height="932"
+     inkscape:window-x="0"
+     inkscape:window-y="28"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs621" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       fill="#54b7e3"
+       d="m 59.832422,196.62592 c -3.304418,0 -5.987505,-2.6334 -5.987505,-5.87663 0,-3.24323 2.683087,-5.87662 5.987505,-5.87662 3.27619,0 5.959276,2.63339 5.959276,5.87662 0,3.24323 -2.683086,5.87663 -5.959276,5.87663 z m 0,-11.30973 c -3.078477,0 -5.563857,2.43935 -5.563857,5.4331 0,2.99376 2.48538,5.43311 5.563857,5.43311 3.050249,0 5.535628,-2.43935 5.535628,-5.43311 0,-2.99375 -2.485379,-5.4331 -5.535628,-5.4331 z"
+       fill-rule="evenodd"
+       id="path165"
+       style="stroke-width:0.264583" />
+    <path
+       fill="#54b7e3"
+       d="m 61.188007,193.99439 h -2.739401 v -1.88506 h -1.91503 v -2.72007 h 1.91503 v -1.88508 h 2.739401 v 1.88508 h 1.927709 v 2.72007 h -1.927709 z m -2.282823,-0.4428 h 1.838939 v -1.88507 h 1.915031 v -1.83446 h -1.915031 v -1.88507 h -1.838939 v 1.88507 h -1.927725 v 1.83446 h 1.927725 z"
+       fill-rule="evenodd"
+       id="path167"
+       style="stroke-width:0.264583" />
+  </g>
+</svg>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1715"
+   inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
+   sodipodi:docname="insecure.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1717"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.63250561"
+     inkscape:cx="397.62493"
+     inkscape:cy="561.25984"
+     inkscape:window-width="1536"
+     inkscape:window-height="932"
+     inkscape:window-x="0"
+     inkscape:window-y="28"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1712" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       fill="#54b7e3"
+       d="m 85.701717,148.99263 v 0 c 0,-0.47136 0.391544,-0.85347 0.874537,-0.85347 v 0 c 0.23194,0 0.454383,0.0899 0.618389,0.24998 0.164008,0.16005 0.256146,0.37714 0.256146,0.60349 v 0 c 0,0.47135 -0.391542,0.85346 -0.874535,0.85346 v 0 c -0.482993,0 -0.874537,-0.38211 -0.874537,-0.85346 z"
+       fill-rule="evenodd"
+       id="path1680"
+       style="stroke-width:0.264583" />
+    <path
+       fill="#54b7e3"
+       d="m 84.199486,145.78704 c 0,-3.22057 0,-3.22057 0,-3.22057 0,-1.27662 1.062512,-2.35014 2.390655,-2.35014 1.298628,0 2.390656,1.07352 2.390656,2.35014 0,0.23212 0,0.23212 0,0.23212 0.442714,0 0.442714,0 0.442714,0 0,-0.23212 0,-0.23212 0,-0.23212 0,-1.53775 -1.269115,-2.78535 -2.83337,-2.78535 -1.564256,0 -2.833371,1.2476 -2.833371,2.78535 0,3.22057 0,3.22057 0,3.22057 -1.74134,0 -1.74134,0 -1.74134,0 0,6.41213 0,6.41213 0,6.41213 9.149422,0 9.149422,0 9.149422,0 0,-6.41213 0,-6.41213 0,-6.41213 z m 6.522652,5.97691 c -8.263995,0 -8.263995,0 -8.263995,0 0,-5.54169 0,-5.54169 0,-5.54169 1.298627,0 1.298627,0 1.298627,0 0.442716,0 0.442716,0 0.442716,0 6.522651,0 6.522651,0 6.522651,0 z"
+       fill-rule="evenodd"
+       id="path1682"
+       style="stroke-width:0.264583" />
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 ---
-title: Install multicluster Istio
-menuTitle: Install multicluster Istio
+title: Install Istio
+menuTitle: Install Istio
 description: Install Istio in multiple clusters in your Gloo Mesh setup
 weight: 40
 ---
@@ -21,7 +21,7 @@ Install Istio for use with Gloo Mesh in a multicluster setting. These instructio
 
 In the following `IstioOperator` manifests for a multicluster Istio setup, a NodePort is used to expose the Istio ingress gateway. If you must deploy Istio on different cluster setup, update your gateway settings accordingly. 
 
-1. If you follow the deployment pattern in which the management cluster also runs a service mesh, install Istio in the cluster that runs the Gloo Mesh management components. The Gloo Mesh documentation guides follow this deployment pattern to run the Gloo Mesh management components alongside an Istio service mesh in the same cluster.
+1. If you follow the deployment pattern in which the management cluster also runs a service mesh, start by installing Istio in the cluster that runs the Gloo Mesh management components. The Gloo Mesh documentation guides follow this deployment pattern to run the Gloo Mesh management components alongside an Istio service mesh in the same cluster.
    ```shell
    cat << EOF | istioctl manifest install -y --context $MGMT_CONTEXT -f -
    apiVersion: install.istio.io/v1alpha1
