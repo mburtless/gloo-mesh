@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="11.18583mm"
+   height="11.76589mm"
+   viewBox="0 0 11.18583 11.76589"
    version="1.1"
    id="svg624"
    sodipodi:docname="connection.svg"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="-66.402573"
+     inkscape:cy="113.83298"
+     inkscape:window-width="953"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-122.4099,-118.35508)">
     <path
        fill="#54b7e3"
        d="m 125.60585,123.70667 -0.22828,-0.37954 5.02222,-2.69478 0.20291,0.36689 z"

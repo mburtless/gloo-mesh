@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="12.071619mm"
+   height="11.707801mm"
+   viewBox="0 0 12.071619 11.707801"
    version="1.1"
    id="svg1164"
    inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
-   sodipodi:docname="settings.svg"
+   sodipodi:docname="settings-gear.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="135.17667"
+     inkscape:cy="230.82799"
+     inkscape:window-width="950"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-69.259941,-87.429217)">
     <path
        fill="#54b7e3"
        d="m 75.295796,96.491177 c -1.809912,0 -3.290748,-1.429547 -3.290748,-3.191553 0,-1.755351 1.480836,-3.191544 3.290748,-3.191544 1.816769,0 3.29075,1.436193 3.29075,3.191544 0,1.762004 -1.473981,3.191553 -3.29075,3.191553 z m 0,-6.077247 c -1.63852,0 -2.975383,1.296573 -2.975383,2.885694 0,1.595777 1.336863,2.885692 2.975383,2.885692 1.645377,0 2.982243,-1.289915 2.982243,-2.885692 0,-1.589121 -1.336866,-2.885694 -2.982243,-2.885694 z"

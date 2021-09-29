@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="11.972136mm"
+   height="11.72883mm"
+   viewBox="0 0 11.972136 11.72883"
    version="1.1"
    id="svg624"
    sodipodi:docname="blocked-connection.svg"
@@ -24,12 +24,12 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
+     inkscape:cx="168.37795"
+     inkscape:cy="124.90008"
      inkscape:window-width="1536"
-     inkscape:window-height="932"
+     inkscape:window-height="822"
      inkscape:window-x="0"
-     inkscape:window-y="28"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
   <defs
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-60.525196,-115.44544)">
     <path
        fill="#54b7e3"
        d="m 66.536635,127.17337 c -2.906945,0 -2.906945,0 -2.906945,0 -1.693355,0 -3.104494,-1.35874 -3.104494,-3.05022 0,-1.66376 1.411139,-3.0225 3.104494,-3.0225 0.423344,0 0.423344,0 0.423344,0 0,0.41594 0,0.41594 0,0.41594 -0.423344,0 -0.423344,0 -0.423344,0 -1.467578,0 -2.652938,1.19236 -2.652938,2.60656 0,1.44192 1.18536,2.63428 2.652938,2.63428 2.906945,0 2.906945,0 2.906945,0 z"

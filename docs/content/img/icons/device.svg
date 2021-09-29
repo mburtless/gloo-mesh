@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="14.391727mm"
+   height="10.866041mm"
+   viewBox="0 0 14.391727 10.866041"
    version="1.1"
    id="svg926"
    inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="273.51536"
+     inkscape:cy="303.55462"
+     inkscape:window-width="953"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-32.543576,-68.189515)">
     <path
        fill="#54b7e3"
        d="m 39.985098,75.905588 c -0.167206,0 -0.303437,0.124537 -0.303437,0.271717 0,0.152842 0.136231,0.277378 0.303437,0.277378 0.16719,0 0.303438,-0.124536 0.303438,-0.277378 0,-0.14718 -0.136248,-0.271717 -0.303438,-0.271717 z m 0,0.345308 c -0.04334,0 -0.0805,-0.02831 -0.0805,-0.07359 0,-0.03962 0.03716,-0.06793 0.0805,-0.06793 0.04334,0 0.0805,0.02831 0.0805,0.06793 0,0.04529 -0.03716,0.07359 -0.0805,0.07359 z"

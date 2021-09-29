@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="11.946781mm"
+   height="11.75325mm"
+   viewBox="0 0 11.946781 11.75325"
    version="1.1"
    id="svg624"
    sodipodi:docname="health.svg"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="193.67417"
+     inkscape:cy="-137.54819"
+     inkscape:window-width="950"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-53.844917,-184.87267)">
     <path
        fill="#54b7e3"
        d="m 59.832422,196.62592 c -3.304418,0 -5.987505,-2.6334 -5.987505,-5.87663 0,-3.24323 2.683087,-5.87662 5.987505,-5.87662 3.27619,0 5.959276,2.63339 5.959276,5.87662 0,3.24323 -2.683086,5.87663 -5.959276,5.87663 z m 0,-11.30973 c -3.078477,0 -5.563857,2.43935 -5.563857,5.4331 0,2.99376 2.48538,5.43311 5.563857,5.43311 3.050249,0 5.535628,-2.43935 5.535628,-5.43311 0,-2.99375 -2.485379,-5.4331 -5.535628,-5.4331 z"

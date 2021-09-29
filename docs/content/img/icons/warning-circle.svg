@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="13.3038mm"
+   height="13.068991mm"
+   viewBox="0 0 13.3038 13.068991"
    version="1.1"
    id="svg624"
    sodipodi:docname="warning-circle.svg"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="94.070312"
+     inkscape:cy="203.95076"
+     inkscape:window-width="950"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-80.356551,-94.696489)">
     <path
        fill="#54b7e3"
        d="m 86.994333,107.76548 c -3.643723,0 -6.637782,-2.94122 -6.637782,-6.52063 0,-3.607149 2.994059,-6.548361 6.637782,-6.548361 3.671956,0 6.666018,2.941212 6.666018,6.548361 0,3.57941 -2.994062,6.52063 -6.666018,6.52063 z m 0,-12.625033 c -3.41775,0 -6.185847,2.719237 -6.185847,6.104403 0,3.35744 2.768097,6.07667 6.185847,6.07667 3.445994,0 6.214083,-2.71923 6.214083,-6.07667 0,-3.385166 -2.768089,-6.104403 -6.214083,-6.104403 z"

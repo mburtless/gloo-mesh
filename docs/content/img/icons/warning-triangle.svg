@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="11.509549mm"
+   height="10.29832mm"
+   viewBox="0 0 11.509549 10.29832"
    version="1.1"
    id="svg624"
    sodipodi:docname="warning-triangle.svg"
@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.63250561"
-     inkscape:cx="397.62493"
-     inkscape:cy="561.25984"
-     inkscape:window-width="1536"
+     inkscape:cx="22.924698"
+     inkscape:cy="-91.698791"
+     inkscape:window-width="950"
      inkscape:window-height="932"
      inkscape:window-x="0"
      inkscape:window-y="28"
@@ -37,7 +37,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-99.240999,-172.63253)">
     <path
        fill="#54b7e3"
        d="m 104.76749,176.12434 h 0.45776 v 2.9981 h -0.45776 z"
