@@ -1,7 +1,7 @@
 ---
 title: "Core concepts"
 description: Understand core concepts of Gloo Mesh
-weight: 10
+weight: 20
 ---
 
 In this document, we'll take a look at some of the core concepts that underpin Gloo Mesh. These concepts, like *Virtual Meshes* and *Access Policies*, are critical in understanding how Gloo Mesh can manage multiple service meshes and act as a unified control plane.

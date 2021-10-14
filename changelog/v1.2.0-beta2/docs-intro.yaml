@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Revises the Gloo Mesh Open Source introductory material, adds an about page, and explains to use Gloo Mesh Open Source primarily for demo purposes.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/1482
