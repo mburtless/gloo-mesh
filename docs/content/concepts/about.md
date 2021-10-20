@@ -37,7 +37,7 @@ Looking for a full list of features compared against what's available in open so
 {{% /notice %}}
 
 | Benefit | Community Istio | Gloo Mesh Open Source | Gloo Mesh Enterprise |
-| ------- | -------------------- | --------------------- | --------------- |
+| ------- | :-------------: | :-------------------: | :------------------: |
 | Upstream-first approach to feature development | ✅ | ✅ | ✅ | 
 | Installation, upgrade, and management across clusters and service meshes | ❌ | ✅ | ✅ |
 | Security features like self-cert signing, federated trust, and multi-tenancy | ❌ | ✅ | ✅ |

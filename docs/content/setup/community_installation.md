@@ -31,11 +31,11 @@ Use `meshctl` or Helm to install the Gloo Mesh management components into a clus
 
 Install Gloo Mesh in the management cluster by using `meshctl`, Kubernetes resources, or Helm.
 
-### Using `meshctl`
+### Using meshctl
 
 Use the Gloo Mesh command line tool to install the management components.
 ```shell
-meshctl install community --kubecontext $MGMT_CONTEXT
+meshctl install community --kubecontext $MGMT_CONTEXT --version {{< readfile file="static/content/gmoss_latest_version.txt" markdown="true">}}
 ```
 
 Example output:
@@ -44,12 +44,12 @@ Installing Helm chart
 Finished installing chart 'gloo-mesh' as release gloo-mesh:gloo-mesh
 ```
 
-### Using `kubectl apply`
+### Using kubectl apply
 
 To directly use the Kubernetes resources for installation, you can use the `--dry-run` flag in the `meshctl install` command to output YAML resource files. Then, you can use the files in automation or apply the files directly to yhe management cluster by using `kubectl apply`.
 
 ```shell
-meshctl install community --dry-run
+meshctl install community --dry-run --version {{< readfile file="static/content/gmoss_latest_version.txt" markdown="true">}}
 ```
 
 {{% notice note %}}
