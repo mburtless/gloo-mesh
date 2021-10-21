@@ -13,15 +13,16 @@ Review the following information about supported release versions for Gloo Mesh 
 
 ## Supported versions
 
-The following versions of Gloo Mesh Open Source are supported with the compatible open source projects versions of Istio and Kubernetes. Later versions of the open source projects that are released after Gloo Mesh Open Source might also work, but are not tested as part of the Gloo Mesh Open Source release. 
+{{< readfile file="static/content/gmoss_about.txt" markdown="true">}}
+
+As such, Gloo Mesh Open Source supports only one **latest** version, with development subject to change on the **main** branch. Further, Gloo Mesh Open Source is compatible only with certain versions of the Istio and Kubernetes open source projects. Later versions of the open source projects that are released after Gloo Mesh Open Source might also work, but are not tested as part of the Gloo Mesh Open Source release. 
 
 | Gloo Mesh Open Source | Istio`*` | Kubernetes`*` |
 | -------------------- | --------- | ------------- |
-| 1.1 | 1.7 - 1.10 | 1.16 - 1.21 |
-| 1.0 | 1.7 - 1.10 | 1.16 - 1.21 |
+| 1.1 | 1.10 | 1.18 - 1.21 |
 
 {{% notice note %}}
-`*` **Istio and Kubernetes**: Supported Kubernetes versions are based on the version of Istio that is installed. For example, you cannot use Gloo Mesh Open Source with Istio 1.9 on a Kubernetes 1.22 cluster, because Istio 1.9 does not support Kubernetes 1.22. To review Istio support of Kubernetes versions, see the [Istio documentation](https://istio.io/latest/docs/releases/supported-releases/#support-status-of-istio-releases).
+`*` **Istio and Kubernetes**: Supported Kubernetes versions are based on the version of Istio that is installed. For example, you cannot use Gloo Mesh Open Source with Istio 1.10 on a Kubernetes 1.22 cluster, because Istio 1.10 does not support Kubernetes 1.22. To review Istio support of Kubernetes versions, see the [Istio documentation](https://istio.io/latest/docs/releases/supported-releases/#support-status-of-istio-releases).
 
 **OpenShift and Kubernetes**: The Istio and Kubernetes versions also determines which version of OpenShift you can run. For example, if you have Istio 1.11 you can run OpenShift 4.8, which uses Kubernetes 1.21. To review OpenShift Kubernetes support, see the [OpenShift changelog documentation for the version you want to use](https://docs.openshift.com/container-platform/4.8/release_notes/ocp-4-8-release-notes.html).
 {{% /notice %}}

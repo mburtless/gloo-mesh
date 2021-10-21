@@ -28,9 +28,9 @@ With Gloo Mesh, you get an extensible, open-source set of API tools to connect a
 
 ### Use Gloo Mesh Open Source for demonstration purposes
 
-Install Gloo Mesh Open Source to try out the Gloo Mesh APIs so that you get familiar with the [simplified set of custom resources]({{< versioned_link_path fromRoot="/concepts/concepts/" >}}) like VirtualMesh, TrafficPolicy, and AccessPolicy. You can use Gloo Mesh Open Source to create a demo or proof of concept (POC) as one step along your enterprise journey to service mesh management. 
+{{< readfile file="static/content/gmoss_about.txt" markdown="true">}}
 
-In the following table, review the benefits using Gloo Mesh Open Source.
+In the following table, review the benefits of using Gloo Mesh Open Source.
 
 {{% notice tip %}}
 Looking for a full list of features compared against what's available in open source? See the [Feature comparison](https://www.solo.io/products/gloo-mesh/) on the product website.
@@ -41,8 +41,9 @@ Looking for a full list of features compared against what's available in open so
 | Upstream-first approach to feature development | ✅ | ✅ | ✅ | 
 | Installation, upgrade, and management across clusters and service meshes | ❌ | ✅ | ✅ |
 | Security features like self-cert signing, federated trust, and multi-tenancy | ❌ | ✅ | ✅ |
-| Reliable priority failover routing and dyanmic scaling | ❌ | ✅ | ✅ |
-| Global service discovery and observability across service meshes | ❌ | ✅ | ✅ |
+| Global service discovery across service meshes | ❌ | ✅ | ✅ |
+| Reliable multicluster routing with virtual destinations and locality failover | ❌ | ❌ | ✅ |
+| Dynamic scaling and global observability | ❌ | ❌ | ✅ |
 | End-to-end Istio support and CVE security patching for `n-4` versions | ❌ | ❌ | ✅  |
 | Specialty builds for distroless and FIPS compliance | ❌ | ❌ | ✅  |
 | 24x7 production support and one-hour Severity 1 SLA | ❌ | ❌ | ✅  |

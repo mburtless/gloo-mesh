@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Removes more advanced installation and configuration options such as for Helm from the open source docs. Also, clarifies the supported version policy for open source.
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/1614

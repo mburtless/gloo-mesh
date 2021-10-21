@@ -1,0 +1,1 @@
+Gloo Mesh Open Source is available for you to try out the Gloo Mesh APIs so that you get familiar with the simplified set of custom resources such as VirtualMesh, TrafficPolicy, and AccessPolicy. You can use Gloo Mesh Open Source to create a demo or proof of concept (POC) as one step along your enterprise journey to service mesh management. 

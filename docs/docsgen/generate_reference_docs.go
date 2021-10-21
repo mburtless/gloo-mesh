@@ -103,11 +103,6 @@ func Execute(opts Options) error {
 		return eris.Errorf("error initializing Github client: %v", err)
 	}
 
-	// fetch Helm values docs from Gloo Mesh Enterprise
-	if err = copyHelmValuesDocsForAllCharts(client, rootDir); err != nil {
-		return err
-	}
-
 	// generate changelog documentation
 	if err := generateChangelog(client, rootDir, opts.Changelog); err != nil {
 		return err

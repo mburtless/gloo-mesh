@@ -5,7 +5,7 @@ description: Install the Gloo Mesh management components into a cluster
 weight: 30
 ---
 
-Use `meshctl` or Helm to install the Gloo Mesh management components into a cluster. The control plane components can be installed in a dedicated management cluster, or in a cluster that runs a service mesh.
+Use `meshctl` to install the Gloo Mesh management components into a cluster. The control plane components can be installed in a dedicated management cluster, or in a cluster that runs a service mesh.
 
 **Dedicated management cluster**: Install Gloo Mesh in a dedicated cluster that does not run a service mesh. This cluster serves only as the management cluster in your setup, and is not a registered cluster. This deployment pattern is recommended for production-level setups, as shown in this diagram
 
@@ -55,59 +55,6 @@ meshctl install community --dry-run --version {{< readfile file="static/content/
 {{% notice note %}}
 The `--dry-run` flag outputs the entire YAML for the resources, but does not properly order resources. For example, race conditions can occur between Custom Resource Definitions (CRDs) that are registered and any Custom Resources (CRs) that are created. If this error occurs, you can simply re-apply the resources by using `kubectl apply`.
 {{% /notice %}}
-
-### Using Helm
-
-Use [Helm version 3](https://helm.sh/docs/intro/install/) to install the Gloo Mesh Open Source Helm charts.
-
-1. Locally add and update the Gloo Mesh Helm repository.
-   ```shell
-   helm repo add gloo-mesh https://storage.googleapis.com/gloo-mesh/gloo-mesh
-   helm repo update
-   ```
-
-2. Optional: List the Helm chart information and values.
-   ```shell
-   helm show all gloo-mesh/gloo-mesh
-   ```
-
-3. Install Gloo Mesh into the `gloo-mesh` namespace of the management cluster.
-   ```shell
-   helm install gloo-mesh gloo-mesh/gloo-mesh --namespace gloo-mesh --create-namespace
-   ```
-
-#### Helm chart customization
-
-{{% notice note %}} This feature is available only for Gloo Mesh Open Source version v1.1.0-beta12 or later.{{% /notice %}}
-
-If you need to tailor the installation manifests to specific requirements, you can customize the Helm release by passing in a Helm value file. You can specify a `deploymentOverrides` field for the `discovery` sub-component, and a `serviceOverrides` field for the `networking` sub-component. The values of these fields are merged with the default deployment and service fields via a [Helm library chart function](https://github.com/helm/charts/blob/master/incubator/common/templates/_util.tpl).
-
-1. Create a `values.yaml` file, and specify your deployment or service override values. For example, the following `values.yaml` file adds a custom label to the discovery pod and replaces the service account used by the networking pod.
-   ```yaml
-   discovery:
-     deploymentOverrides:
-       spec:
-         template:
-           metadata:
-             annotations:
-               test: new-annotation
-   networking:
-     serviceOverrides:
-       spec:
-         template:
-           spec:
-             serviceAccountName: other-service-account
-   ```
-
-2. Create a template to see the Helm release that uses your custom override values.
-   ```shell
-   helm template gloo-mesh https://storage.googleapis.com/gloo-mesh/gloo-mesh/gloo-mesh-$GLOO_MESH_VERSION.tgz --namespace gloo-mesh --values values.yaml
-   ```
-
-3. Install the Helm release with your custom override values.
-   ```shell
-   helm install gloo-mesh gloo-mesh/gloo-mesh --namespace gloo-mesh --create-namespace --values values.yaml
-   ```
 
 ## Verify installation
 
