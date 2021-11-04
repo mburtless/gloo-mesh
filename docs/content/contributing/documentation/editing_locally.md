@@ -76,6 +76,17 @@ Press Ctrl+C to stop
 
 In a browser, navigate to http://localhost:1313 and make sure that the site loads properly. If the site loads, you are ready to start editing docs and viewing the changes in real-time.
 
+If the site loads unstyled text, open the `gloo-mesh/docs/data/Solo.yaml` file locally and comment out the `DocsVersion` and `CodeVersion` lines, such as in the following example.
+
+```yaml
+# Uncomment DocsVersion and CodeVersion for local testing.
+# DocsVersion: /gloo-mesh-open-source/latest
+# CodeVersion: latest
+DocsVersions:
+  - "latest"
+LatestVersion: "latest"
+```
+
 ---
 
 ## Make changes and submit them
