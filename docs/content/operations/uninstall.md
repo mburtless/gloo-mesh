@@ -65,9 +65,9 @@ Uninstall the Gloo Mesh management componets from the management cluster.
    If you [installed GlooMesh with Kubernetes resources directly]({{< versioned_link_path fromRoot="/setup/community_installation/#installing-with-kubectl-apply" >}}), you can uninstall the management components by running `meshctl install community --dry-run | kubectl delete -f -`.
    {{% /notice %}}
 
-2. Delete the Custom Resource Definitions (CRDs) that were installed on the remote cluster during registration.
+2. Delete the Custom Resource Definitions (CRDs) that were installed on the management cluster.
    ```shell script
-   for crd in $(kubectl get crd --context $REMOTE_CONTEXT | grep mesh.gloo | awk '{print $1}'); do kubectl --context $REMOTE_CONTEXT delete crd $crd; done
+   for crd in $(kubectl get crd --context $MGMT_CONTEXT | grep mesh.gloo | awk '{print $1}'); do kubectl --context $MGMT_CONTEXT delete crd $crd; done
    ```
 
 3. Delete the `gloo-mesh` namespace.
