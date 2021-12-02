@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"sort"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -32,7 +34,6 @@ var MissingRequiredLabelError = func(labelKey string, gvk schema.GroupVersionKin
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "",
 		Version: "v1",
@@ -88,13 +89,12 @@ func NewSnapshot(
 func NewLabelPartitionedSnapshot(
 	name,
 	labelKey string, // the key by which to partition the resources
-	gvk schema.GroupVersionKind,
 
 	secrets v1_sets.SecretSet,
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
-	partitionedSecrets, err := partitionSecretsByLabel(labelKey, gvk, secrets)
+	partitionedSecrets, err := partitionSecretsByLabel(labelKey, secrets)
 	if err != nil {
 		return nil, err
 	}
@@ -184,16 +184,21 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 	}
 }
 
-func partitionSecretsByLabel(labelKey string, gvk schema.GroupVersionKind, set v1_sets.SecretSet) ([]LabeledSecretSet, error) {
+func partitionSecretsByLabel(labelKey string, set v1_sets.SecretSet) ([]LabeledSecretSet, error) {
 	setsByLabel := map[string]v1_sets.SecretSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "",
+			Version: "v1",
+			Kind:    "Secret",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -237,7 +242,11 @@ func (s snapshot) MarshalJSON() ([]byte, error) {
 
 	secretSet := v1_sets.NewSecretSet()
 	for _, set := range s.secrets {
-		secretSet = secretSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			secretSet.Insert(obj.(*v1.Secret))
+		}
 	}
 	snapshotMap["secrets"] = secretSet.List()
 
@@ -346,7 +355,7 @@ type Builder interface {
 	GetSecrets() v1_sets.SecretSet
 
 	// build the collected outputs into a label-partitioned snapshot
-	BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error)
+	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
 
 	// build the collected outputs into a snapshot with a single partition
 	BuildSinglePartitionedSnapshot(snapshotLabels map[string]string) (Snapshot, error)
@@ -384,11 +393,10 @@ func (b *builder) GetSecrets() v1_sets.SecretSet {
 	return b.secrets
 }
 
-func (b *builder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error) {
+func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
 		labelKey,
-		gvk,
 
 		b.secrets,
 		b.clusters...,

@@ -1,0 +1,17 @@
+Name:               details-bookinfo-mgmt-cluster
+Namespace:          gloo-mesh
+CreationTimestamp:  Tue, 31 Aug 2021 21:00:36 +0000
+Labels:             cluster.discovery.mesh.gloo.solo.io=mgmt.cluster
+                    cluster.multicluster.solo.io=
+                    owner.discovery.mesh.gloo.solo.io=gloo-mesh-mgmt-cluster
+Annotations:        <none>
+Kube Service:
+ External Addresses:  <none>
+ IP Addresses:
+   10.244.0.7
+Traffic Policies:  <none>
+Access Policies:
+ gloo-mesh.details
+ gloo-mesh.details-admin
+Mesh:        gloo-mesh.istiod-istio-system-mgmt-cluster
+Local FQDN:  details.bookinfo.svc.cluster.local

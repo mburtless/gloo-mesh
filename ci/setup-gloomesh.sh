@@ -47,17 +47,17 @@ verbose: true
 disallowIntersectingConfig: true
 EOF
 
-go run "${PROJECT_ROOT}/cmd/meshctl/main.go" install community \
-  --kubecontext kind-"${cluster}" \
-  --chart-file "${gloomeshChart}" \
+go run "${PROJECT_ROOT}/cmd/meshctl/main.go" install \
+  --context kind-"${cluster}" \
+  --chart "${gloomeshChart}" \
   --namespace gloo-mesh \
   --register \
   --cluster-name "${cluster}" \
   --verbose  \
   --api-server-address "${apiServerAddress}" \
-  --cert-agent-chart-file "${agentChart}" \
-  --agent-crds-chart-file "${agentCrdsChart}" \
-  --chart-values-file helm-values-overrides.yaml
+  --agent-chart "${agentChart}" \
+  --agent-crds-chart "${agentCrdsChart}" \
+  --values helm-values-overrides.yaml
 
 
 ${K} -n gloo-mesh rollout status deployment networking

@@ -6,16 +6,27 @@ package v1alpha1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the IstioInstallation.Spec
 func (in *IstioInstallationSpec) DeepCopyInto(out *IstioInstallationSpec) {
-	p := proto.Clone(in).(*IstioInstallationSpec)
+	var p *IstioInstallationSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*IstioInstallationSpec)
+	} else {
+		p = proto.Clone(in).(*IstioInstallationSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the IstioInstallation.Status
 func (in *IstioInstallationStatus) DeepCopyInto(out *IstioInstallationStatus) {
-	p := proto.Clone(in).(*IstioInstallationStatus)
+	var p *IstioInstallationStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*IstioInstallationStatus)
+	} else {
+		p = proto.Clone(in).(*IstioInstallationStatus)
+	}
 	*out = *p
 }

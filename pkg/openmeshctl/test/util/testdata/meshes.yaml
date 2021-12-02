@@ -1,0 +1,93 @@
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: MeshList
+items:
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Mesh
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"istiod","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"pilot","istio.io/rev":"default","operator.istio.io/component":"Pilot","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istiod","namespace":"istio-system"},"spec":{"selector":{"matchLabels":{"istio":"pilot"}},"strategy":{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":"25%"}},"template":{"metadata":{"annotations":{"prometheus.io/port":"15014","prometheus.io/scrape":"true","sidecar.istio.io/inject":"false"},"labels":{"app":"istiod","install.operator.istio.io/owning-resource":"unknown","istio":"pilot","istio.io/rev":"default","operator.istio.io/component":"Pilot","sidecar.istio.io/inject":"false"}},"spec":{"containers":[{"args":["discovery","--monitoringAddr=:15014","--log_output_level=default:info","--domain","cluster.local","--keepaliveMaxServerConnectionAge","30m"],"env":[{"name":"REVISION","value":"default"},{"name":"JWT_POLICY","value":"first-party-jwt"},{"name":"PILOT_CERT_PROVIDER","value":"istiod"},{"name":"POD_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.name"}}},{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.namespace"}}},{"name":"SERVICE_ACCOUNT","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"spec.serviceAccountName"}}},{"name":"KUBECONFIG","value":"/var/run/secrets/remote/config"},{"name":"PILOT_TRACE_SAMPLING","value":"1"},{"name":"PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND","value":"true"},{"name":"PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND","value":"true"},{"name":"ISTIOD_ADDR","value":"istiod.istio-system.svc:15012"},{"name":"PILOT_ENABLE_ANALYSIS","value":"false"},{"name":"CLUSTER_ID","value":"mgmt.cluster"}],"image":"docker.io/istio/pilot:1.10.4","name":"discovery","ports":[{"containerPort":8080,"protocol":"TCP"},{"containerPort":15010,"protocol":"TCP"},{"containerPort":15017,"protocol":"TCP"}],"readinessProbe":{"httpGet":{"path":"/ready","port":8080},"initialDelaySeconds":1,"periodSeconds":3,"timeoutSeconds":5},"resources":{"requests":{"cpu":"500m","memory":"2048Mi"}},"securityContext":{"capabilities":{"drop":["ALL"]},"runAsGroup":1337,"runAsNonRoot":true,"runAsUser":1337},"volumeMounts":[{"mountPath":"/var/run/secrets/istio-dns","name":"local-certs"},{"mountPath":"/etc/cacerts","name":"cacerts","readOnly":true},{"mountPath":"/var/run/secrets/remote","name":"istio-kubeconfig","readOnly":true}]}],"securityContext":{"fsGroup":1337},"serviceAccountName":"istiod-service-account","volumes":[{"emptyDir":{"medium":"Memory"},"name":"local-certs"},{"name":"cacerts","secret":{"optional":true,"secretName":"cacerts"}},{"name":"istio-kubeconfig","secret":{"optional":true,"secretName":"istio-kubeconfig"}}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 2
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+      relay.solo.io: mgmt.cluster
+    name: istiod-istio-system-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494631"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/meshes/istiod-istio-system-mgmt-cluster
+    uid: eb9a3a73-103e-48e9-a0fd-b77d6e828834
+  spec:
+    agentInfo:
+      agentNamespace: gloo-mesh
+    istio:
+      ingressGateways:
+      - externalAddress: 172.18.0.3
+        externalTlsPort: 32001
+        ip: 172.18.0.3
+        name: istio-ingressgateway
+        namespace: istio-system
+        tlsContainerPort: 15443
+        workloadLabels:
+          app: istio-ingressgateway
+          istio: ingressgateway
+      installation:
+        cluster: mgmt.cluster
+        namespace: istio-system
+        podLabels:
+          istio: pilot
+        region: us-east-1
+        version: 1.10.4
+      istiodServiceAccount: istiod-service-account
+      smartDnsProxyingEnabled: true
+      trustDomain: cluster.local
+  status:
+    observedGeneration: 2
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Mesh
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"istiod","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"pilot","istio.io/rev":"default","operator.istio.io/component":"Pilot","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istiod","namespace":"istio-system"},"spec":{"selector":{"matchLabels":{"istio":"pilot"}},"strategy":{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":"25%"}},"template":{"metadata":{"annotations":{"prometheus.io/port":"15014","prometheus.io/scrape":"true","sidecar.istio.io/inject":"false"},"labels":{"app":"istiod","install.operator.istio.io/owning-resource":"unknown","istio":"pilot","istio.io/rev":"default","operator.istio.io/component":"Pilot","sidecar.istio.io/inject":"false"}},"spec":{"containers":[{"args":["discovery","--monitoringAddr=:15014","--log_output_level=default:info","--domain","cluster.local","--keepaliveMaxServerConnectionAge","30m"],"env":[{"name":"REVISION","value":"default"},{"name":"JWT_POLICY","value":"first-party-jwt"},{"name":"PILOT_CERT_PROVIDER","value":"istiod"},{"name":"POD_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.name"}}},{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.namespace"}}},{"name":"SERVICE_ACCOUNT","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"spec.serviceAccountName"}}},{"name":"KUBECONFIG","value":"/var/run/secrets/remote/config"},{"name":"PILOT_TRACE_SAMPLING","value":"1"},{"name":"PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND","value":"true"},{"name":"PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND","value":"true"},{"name":"ISTIOD_ADDR","value":"istiod.istio-system.svc:15012"},{"name":"PILOT_ENABLE_ANALYSIS","value":"false"},{"name":"CLUSTER_ID","value":"remote.cluster"}],"image":"docker.io/istio/pilot:1.10.4","name":"discovery","ports":[{"containerPort":8080,"protocol":"TCP"},{"containerPort":15010,"protocol":"TCP"},{"containerPort":15017,"protocol":"TCP"}],"readinessProbe":{"httpGet":{"path":"/ready","port":8080},"initialDelaySeconds":1,"periodSeconds":3,"timeoutSeconds":5},"resources":{"requests":{"cpu":"500m","memory":"2048Mi"}},"securityContext":{"capabilities":{"drop":["ALL"]},"runAsGroup":1337,"runAsNonRoot":true,"runAsUser":1337},"volumeMounts":[{"mountPath":"/var/run/secrets/istio-dns","name":"local-certs"},{"mountPath":"/etc/cacerts","name":"cacerts","readOnly":true},{"mountPath":"/var/run/secrets/remote","name":"istio-kubeconfig","readOnly":true}]}],"securityContext":{"fsGroup":1337},"serviceAccountName":"istiod-service-account","volumes":[{"emptyDir":{"medium":"Memory"},"name":"local-certs"},{"name":"cacerts","secret":{"optional":true,"secretName":"cacerts"}},{"name":"istio-kubeconfig","secret":{"optional":true,"secretName":"istio-kubeconfig"}}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+      relay.solo.io: mgmt.cluster
+    name: istiod-istio-system-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494632"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/meshes/istiod-istio-system-remote-cluster
+    uid: 16dce1ab-ab89-4a95-8249-f28be83b9e9d
+  spec:
+    agentInfo:
+      agentNamespace: gloo-mesh
+    istio:
+      ingressGateways:
+      - externalAddress: 172.18.0.3
+        externalTlsPort: 32000
+        ip: 172.18.0.3
+        name: istio-ingressgateway
+        namespace: istio-system
+        tlsContainerPort: 15443
+        workloadLabels:
+          app: istio-ingressgateway
+          istio: ingressgateway
+      installation:
+        cluster: remote.cluster
+        namespace: istio-system
+        podLabels:
+          istio: pilot
+        region: us-east-1
+        version: 1.10.4
+      istiodServiceAccount: istiod-service-account
+      smartDnsProxyingEnabled: true
+      trustDomain: cluster.local
+  status:
+    observedGeneration: 1

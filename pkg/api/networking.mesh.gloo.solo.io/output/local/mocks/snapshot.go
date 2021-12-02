@@ -238,18 +238,18 @@ func (mr *MockBuilderMockRecorder) AddSecrets(secrets ...interface{}) *gomock.Ca
 }
 
 // BuildLabelPartitionedSnapshot mocks base method.
-func (m *MockBuilder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (local.Snapshot, error) {
+func (m *MockBuilder) BuildLabelPartitionedSnapshot(labelKey string) (local.Snapshot, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BuildLabelPartitionedSnapshot", labelKey, gvk)
+	ret := m.ctrl.Call(m, "BuildLabelPartitionedSnapshot", labelKey)
 	ret0, _ := ret[0].(local.Snapshot)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BuildLabelPartitionedSnapshot indicates an expected call of BuildLabelPartitionedSnapshot.
-func (mr *MockBuilderMockRecorder) BuildLabelPartitionedSnapshot(labelKey, gvk interface{}) *gomock.Call {
+func (mr *MockBuilderMockRecorder) BuildLabelPartitionedSnapshot(labelKey interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildLabelPartitionedSnapshot", reflect.TypeOf((*MockBuilder)(nil).BuildLabelPartitionedSnapshot), labelKey, gvk)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BuildLabelPartitionedSnapshot", reflect.TypeOf((*MockBuilder)(nil).BuildLabelPartitionedSnapshot), labelKey)
 }
 
 // BuildSinglePartitionedSnapshot mocks base method.

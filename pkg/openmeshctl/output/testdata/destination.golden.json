@@ -1,0 +1,77 @@
+{
+    "kind": "Destination",
+    "apiVersion": "discovery.mesh.gloo.solo.io/v1",
+    "metadata": {
+        "name": "details-bookinfo-mgmt-cluster",
+        "namespace": "gloo-mesh",
+        "selfLink": "/apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/details-bookinfo-mgmt-cluster",
+        "uid": "22c54906-92e0-453e-a261-7f8e3a34a9b2",
+        "resourceVersion": "2494594",
+        "generation": 5,
+        "creationTimestamp": "2021-08-31T21:00:36Z",
+        "labels": {
+            "cluster.discovery.mesh.gloo.solo.io": "mgmt.cluster",
+            "cluster.multicluster.solo.io": "",
+            "owner.discovery.mesh.gloo.solo.io": "gloo-mesh-mgmt-cluster"
+        },
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"details\",\"service\":\"details\"},\"name\":\"details\",\"namespace\":\"bookinfo\"},\"spec\":{\"ports\":[{\"name\":\"http\",\"port\":9080}],\"selector\":{\"app\":\"details\"}}}\n"
+        }
+    },
+    "spec": {
+        "kubeService": {
+            "ref": {
+                "name": "details",
+                "namespace": "bookinfo",
+                "clusterName": "mgmt.cluster"
+            },
+            "workloadSelectorLabels": {
+                "app": "details"
+            },
+            "labels": {
+                "app": "details",
+                "service": "details"
+            },
+            "ports": [
+                {
+                    "port": 9080,
+                    "name": "http",
+                    "protocol": "TCP",
+                    "targetPortNumber": 9080
+                }
+            ],
+            "region": "us-east-1",
+            "endpointSubsets": [
+                {
+                    "endpoints": [
+                        {
+                            "ipAddress": "10.244.0.7",
+                            "labels": {
+                                "app": "details",
+                                "version": "v1"
+                            },
+                            "subLocality": {
+                                "zone": "us-east-1c"
+                            }
+                        }
+                    ],
+                    "ports": [
+                        {
+                            "port": 9080,
+                            "name": "http",
+                            "protocol": "TCP"
+                        }
+                    ]
+                }
+            ]
+        },
+        "mesh": {
+            "name": "istiod-istio-system-mgmt-cluster",
+            "namespace": "gloo-mesh"
+        }
+    },
+    "status": {
+        "observedGeneration": 5,
+        "localFqdn": "details.bookinfo.svc.cluster.local"
+    }
+}

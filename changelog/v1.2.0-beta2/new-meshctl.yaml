@@ -1,0 +1,19 @@
+changelog:
+  - type: NEW_FEATURE
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/1030
+    description: Adds a new meshctl command focused on a community experience.
+  - type: DEPENDENCY_BUMP
+    dependencyOwner: solo-io
+    dependencyRepo: skv2
+    dependencyTag: v0.21.4
+    description: Update skv2 to version 0.21.4
+  - type: DEPENDENCY_BUMP
+    dependencyOwner: solo-io
+    dependencyRepo: external-apis
+    dependencyTag: v0.1.10
+    description: Update external-apis to version 0.1.10
+  - type: DEPENDENCY_BUMP
+    dependencyOwner: k8s.io
+    dependencyRepo: api
+    dependencyTag: v0.22.2
+    description: Update k8s.io/api to version 0.22.2

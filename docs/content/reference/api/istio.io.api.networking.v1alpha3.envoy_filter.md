@@ -52,6 +52,7 @@
 | ----- | ---- | ----- | ----------- |
 | workloadSelector | [istio.networking.v1alpha3.WorkloadSelector]({{< versioned_link_path fromRoot="/reference/api/istio.io.api.networking.v1alpha3.sidecar#istio.networking.v1alpha3.WorkloadSelector" >}}) |  | Criteria used to select the specific set of pods/VMs on which this patch configuration should be applied. If omitted, the set of patches in this configuration will be applied to all workload instances in the same namespace.  If omitted, the `EnvoyFilter` patches will be applied to all workloads in the same namespace. If the `EnvoyFilter` is present in the config root namespace, it will be applied to all applicable workloads in any namespace. |
   | configPatches | [][istio.networking.v1alpha3.EnvoyFilter.EnvoyConfigObjectPatch]({{< versioned_link_path fromRoot="/reference/api/istio.io.api.networking.v1alpha3.envoy_filter#istio.networking.v1alpha3.EnvoyFilter.EnvoyConfigObjectPatch" >}}) | repeated | One or more patches with match conditions. |
+  | priority | int32 |  | Priority defines the order in which patch sets are applied within a context. When one patch depends on another patch, the order of patch application is significant. The API provides two primary ways to order patches. Patch sets in the root namespace are applied before the patch sets in the workload namespace. Patches within a patch set are processed in the order that they appear in the `configPatches` list.<br>The default value for priority is 0 and the range is [ min-int32, max-int32 ]. A patch set with a negative priority is processed before the default. A patch set with a positive priority is processed after the default.<br>It is recommended to start with priority values that are multiples of 10 to leave room for further insertion.<br>Patch sets are sorted in the following ascending key order: priority, creation time, fully qualified resource name. |
   
 
 
@@ -66,8 +67,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| portNumber | uint32 |  | The service port for which this cluster was generated.  If omitted, applies to clusters for any port. |
-  | service | string |  | The fully qualified service name for this cluster. If omitted, applies to clusters for any service. For services defined through service entries, the service name is same as the hosts defined in the service entry. |
+| portNumber | uint32 |  | The service port for which this cluster was generated.  If omitted, applies to clusters for any port. **Note:** for inbound cluster, it is the service target port. |
+  | service | string |  | The fully qualified service name for this cluster. If omitted, applies to clusters for any service. For services defined through service entries, the service name is same as the hosts defined in the service entry. **Note:** for inbound cluster, this is ignored. |
   | subset | string |  | The subset associated with the service. If omitted, applies to clusters for any subset of a service. |
   | name | string |  | The exact name of the cluster to match. To match a specific cluster by name, such as the internally generated `Passthrough` cluster, leave all fields in clusterMatch empty, except the name. |
   
@@ -300,6 +301,7 @@
 | HTTP_ROUTE | 7 | Applies the patch to a route object inside the matched virtual host in a route configuration. |
 | CLUSTER | 8 | Applies the patch to a cluster in a CDS output. Also used to add new clusters. |
 | EXTENSION_CONFIG | 9 | Applies the patch to or adds an extension config in ECDS output. Note that ECDS is only supported by HTTP filters. |
+| BOOTSTRAP | 10 | Applies the patch to bootstrap configuration. |
 
 
 

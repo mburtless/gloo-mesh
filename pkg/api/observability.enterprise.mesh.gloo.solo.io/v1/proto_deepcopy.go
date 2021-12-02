@@ -6,16 +6,27 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the AccessLogRecord.Spec
 func (in *AccessLogRecordSpec) DeepCopyInto(out *AccessLogRecordSpec) {
-	p := proto.Clone(in).(*AccessLogRecordSpec)
+	var p *AccessLogRecordSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*AccessLogRecordSpec)
+	} else {
+		p = proto.Clone(in).(*AccessLogRecordSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the AccessLogRecord.Status
 func (in *AccessLogRecordStatus) DeepCopyInto(out *AccessLogRecordStatus) {
-	p := proto.Clone(in).(*AccessLogRecordStatus)
+	var p *AccessLogRecordStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*AccessLogRecordStatus)
+	} else {
+		p = proto.Clone(in).(*AccessLogRecordStatus)
+	}
 	*out = *p
 }

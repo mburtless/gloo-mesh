@@ -50,7 +50,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var recorder = reconciliation.NewRecorder(
@@ -182,7 +181,7 @@ func Start(
 			remoteReconcileOpts.Predicates,
 			skv2predicate.SimplePredicate{
 				Filter: skv2predicate.SimpleEventFilterFunc(
-					func(obj metav1.Object) bool {
+					func(obj client.Object) bool {
 						return true
 					},
 				),
@@ -332,7 +331,7 @@ func (r *networkingReconciler) reconcile(obj ezkube.ResourceId) (bool, error) {
 }
 
 // returns true if the passed object is a secret which is ignored by gloo mesh
-func (r *networkingReconciler) isIgnoredSecret(obj metav1.Object) bool {
+func (r *networkingReconciler) isIgnoredSecret(obj client.Object) bool {
 	secret, ok := obj.(*corev1.Secret)
 	if !ok {
 		return false
@@ -417,7 +416,7 @@ func (r *networkingReconciler) syncSettings(ctx *context.Context, in input.Local
 
 // returns true if the passed object is a configmap which is of a type that is ignored by GlooMesh
 // this is necessary because Istio-controlled configmaps update very frequently
-func isIgnoredConfigMap(obj metav1.Object) bool {
+func isIgnoredConfigMap(obj client.Object) bool {
 	_, ok := obj.(*corev1.ConfigMap)
 	if !ok {
 		return false

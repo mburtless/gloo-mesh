@@ -28,6 +28,8 @@ import (
 	"context"
 	"encoding/json"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/resource"
 	"github.com/solo-io/skv2/pkg/verifier"
@@ -64,7 +66,6 @@ import (
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var RemoteSnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "certificates.mesh.gloo.solo.io",
 		Version: "v1",
@@ -75,13 +76,11 @@ var RemoteSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "PodBounceDirective",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "xds.agent.enterprise.mesh.gloo.solo.io",
 		Version: "v1beta1",
 		Kind:    "XdsConfig",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "networking.istio.io",
 		Version: "v1alpha3",
@@ -112,13 +111,11 @@ var RemoteSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1alpha3",
 		Kind:    "Sidecar",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "security.istio.io",
 		Version: "v1beta1",
 		Kind:    "AuthorizationPolicy",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "ratelimit.solo.io",
 		Version: "v1alpha1",
@@ -406,51 +403,51 @@ func NewRemoteSnapshotFromGeneric(
 	)
 }
 
-func (s snapshotRemote) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
+func (s *snapshotRemote) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
 	return s.issuedCertificates
 }
 
-func (s snapshotRemote) PodBounceDirectives() certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet {
+func (s *snapshotRemote) PodBounceDirectives() certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet {
 	return s.podBounceDirectives
 }
 
-func (s snapshotRemote) XdsConfigs() xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.XdsConfigSet {
+func (s *snapshotRemote) XdsConfigs() xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.XdsConfigSet {
 	return s.xdsConfigs
 }
 
-func (s snapshotRemote) DestinationRules() networking_istio_io_v1alpha3_sets.DestinationRuleSet {
+func (s *snapshotRemote) DestinationRules() networking_istio_io_v1alpha3_sets.DestinationRuleSet {
 	return s.destinationRules
 }
 
-func (s snapshotRemote) EnvoyFilters() networking_istio_io_v1alpha3_sets.EnvoyFilterSet {
+func (s *snapshotRemote) EnvoyFilters() networking_istio_io_v1alpha3_sets.EnvoyFilterSet {
 	return s.envoyFilters
 }
 
-func (s snapshotRemote) Gateways() networking_istio_io_v1alpha3_sets.GatewaySet {
+func (s *snapshotRemote) Gateways() networking_istio_io_v1alpha3_sets.GatewaySet {
 	return s.gateways
 }
 
-func (s snapshotRemote) ServiceEntries() networking_istio_io_v1alpha3_sets.ServiceEntrySet {
+func (s *snapshotRemote) ServiceEntries() networking_istio_io_v1alpha3_sets.ServiceEntrySet {
 	return s.serviceEntries
 }
 
-func (s snapshotRemote) VirtualServices() networking_istio_io_v1alpha3_sets.VirtualServiceSet {
+func (s *snapshotRemote) VirtualServices() networking_istio_io_v1alpha3_sets.VirtualServiceSet {
 	return s.virtualServices
 }
 
-func (s snapshotRemote) Sidecars() networking_istio_io_v1alpha3_sets.SidecarSet {
+func (s *snapshotRemote) Sidecars() networking_istio_io_v1alpha3_sets.SidecarSet {
 	return s.sidecars
 }
 
-func (s snapshotRemote) AuthorizationPolicies() security_istio_io_v1beta1_sets.AuthorizationPolicySet {
+func (s *snapshotRemote) AuthorizationPolicies() security_istio_io_v1beta1_sets.AuthorizationPolicySet {
 	return s.authorizationPolicies
 }
 
-func (s snapshotRemote) RateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet {
+func (s *snapshotRemote) RateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet {
 	return s.rateLimitConfigs
 }
 
-func (s snapshotRemote) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts RemoteSyncStatusOptions) error {
+func (s *snapshotRemote) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts RemoteSyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -506,7 +503,7 @@ func (s snapshotRemote) SyncStatusesMultiCluster(ctx context.Context, mcClient m
 	return errs
 }
 
-func (s snapshotRemote) SyncStatuses(ctx context.Context, c client.Client, opts RemoteSyncStatusOptions) error {
+func (s *snapshotRemote) SyncStatuses(ctx context.Context, c client.Client, opts RemoteSyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -542,24 +539,94 @@ func (s snapshotRemote) SyncStatuses(ctx context.Context, c client.Client, opts 
 	return errs
 }
 
-func (s snapshotRemote) MarshalJSON() ([]byte, error) {
+func (s *snapshotRemote) MarshalJSON() ([]byte, error) {
 	snapshotMap := map[string]interface{}{"name": s.name}
 
-	snapshotMap["issuedCertificates"] = s.issuedCertificates.List()
-	snapshotMap["podBounceDirectives"] = s.podBounceDirectives.List()
-	snapshotMap["xdsConfigs"] = s.xdsConfigs.List()
-	snapshotMap["destinationRules"] = s.destinationRules.List()
-	snapshotMap["envoyFilters"] = s.envoyFilters.List()
-	snapshotMap["gateways"] = s.gateways.List()
-	snapshotMap["serviceEntries"] = s.serviceEntries.List()
-	snapshotMap["virtualServices"] = s.virtualServices.List()
-	snapshotMap["sidecars"] = s.sidecars.List()
-	snapshotMap["authorizationPolicies"] = s.authorizationPolicies.List()
-	snapshotMap["rateLimitConfigs"] = s.rateLimitConfigs.List()
+	issuedCertificateSet := certificates_mesh_gloo_solo_io_v1_sets.NewIssuedCertificateSet()
+	for _, obj := range s.issuedCertificates.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		issuedCertificateSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.IssuedCertificate))
+	}
+	snapshotMap["issuedCertificates"] = issuedCertificateSet.List()
+	podBounceDirectiveSet := certificates_mesh_gloo_solo_io_v1_sets.NewPodBounceDirectiveSet()
+	for _, obj := range s.podBounceDirectives.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		podBounceDirectiveSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.PodBounceDirective))
+	}
+	snapshotMap["podBounceDirectives"] = podBounceDirectiveSet.List()
+
+	xdsConfigSet := xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewXdsConfigSet()
+	for _, obj := range s.xdsConfigs.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		xdsConfigSet.Insert(obj.(*xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_types.XdsConfig))
+	}
+	snapshotMap["xdsConfigs"] = xdsConfigSet.List()
+
+	destinationRuleSet := networking_istio_io_v1alpha3_sets.NewDestinationRuleSet()
+	for _, obj := range s.destinationRules.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		destinationRuleSet.Insert(obj.(*networking_istio_io_v1alpha3_types.DestinationRule))
+	}
+	snapshotMap["destinationRules"] = destinationRuleSet.List()
+	envoyFilterSet := networking_istio_io_v1alpha3_sets.NewEnvoyFilterSet()
+	for _, obj := range s.envoyFilters.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		envoyFilterSet.Insert(obj.(*networking_istio_io_v1alpha3_types.EnvoyFilter))
+	}
+	snapshotMap["envoyFilters"] = envoyFilterSet.List()
+	gatewaySet := networking_istio_io_v1alpha3_sets.NewGatewaySet()
+	for _, obj := range s.gateways.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		gatewaySet.Insert(obj.(*networking_istio_io_v1alpha3_types.Gateway))
+	}
+	snapshotMap["gateways"] = gatewaySet.List()
+	serviceEntrySet := networking_istio_io_v1alpha3_sets.NewServiceEntrySet()
+	for _, obj := range s.serviceEntries.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		serviceEntrySet.Insert(obj.(*networking_istio_io_v1alpha3_types.ServiceEntry))
+	}
+	snapshotMap["serviceEntries"] = serviceEntrySet.List()
+	virtualServiceSet := networking_istio_io_v1alpha3_sets.NewVirtualServiceSet()
+	for _, obj := range s.virtualServices.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		virtualServiceSet.Insert(obj.(*networking_istio_io_v1alpha3_types.VirtualService))
+	}
+	snapshotMap["virtualServices"] = virtualServiceSet.List()
+	sidecarSet := networking_istio_io_v1alpha3_sets.NewSidecarSet()
+	for _, obj := range s.sidecars.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		sidecarSet.Insert(obj.(*networking_istio_io_v1alpha3_types.Sidecar))
+	}
+	snapshotMap["sidecars"] = sidecarSet.List()
+
+	authorizationPolicySet := security_istio_io_v1beta1_sets.NewAuthorizationPolicySet()
+	for _, obj := range s.authorizationPolicies.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		authorizationPolicySet.Insert(obj.(*security_istio_io_v1beta1_types.AuthorizationPolicy))
+	}
+	snapshotMap["authorizationPolicies"] = authorizationPolicySet.List()
+
+	rateLimitConfigSet := ratelimit_solo_io_v1alpha1_sets.NewRateLimitConfigSet()
+	for _, obj := range s.rateLimitConfigs.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		rateLimitConfigSet.Insert(obj.(*ratelimit_solo_io_v1alpha1_types.RateLimitConfig))
+	}
+	snapshotMap["rateLimitConfigs"] = rateLimitConfigSet.List()
 	return json.Marshal(snapshotMap)
 }
 
-func (s snapshotRemote) Clone() RemoteSnapshot {
+func (s *snapshotRemote) Clone() RemoteSnapshot {
 	return &snapshotRemote{
 		name: s.name,
 
@@ -577,7 +644,7 @@ func (s snapshotRemote) Clone() RemoteSnapshot {
 	}
 }
 
-func (s snapshotRemote) Generic() resource.ClusterSnapshot {
+func (s *snapshotRemote) Generic() resource.ClusterSnapshot {
 	clusterSnapshots := resource.ClusterSnapshot{}
 	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
 		clusterSnapshots.Insert(cluster, gvk, obj)
@@ -587,7 +654,7 @@ func (s snapshotRemote) Generic() resource.ClusterSnapshot {
 }
 
 // convert this snapshot to its generic form
-func (s snapshotRemote) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+func (s *snapshotRemote) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
 
 	for _, obj := range s.issuedCertificates.List() {
 		cluster := obj.GetClusterName()

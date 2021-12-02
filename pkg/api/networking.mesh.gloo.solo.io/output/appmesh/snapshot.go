@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"sort"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -32,7 +34,6 @@ var MissingRequiredLabelError = func(labelKey string, gvk schema.GroupVersionKin
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "appmesh.k8s.aws",
 		Version: "v1beta2",
@@ -108,7 +109,6 @@ func NewSnapshot(
 func NewLabelPartitionedSnapshot(
 	name,
 	labelKey string, // the key by which to partition the resources
-	gvk schema.GroupVersionKind,
 
 	virtualServices appmesh_k8s_aws_v1beta2_sets.VirtualServiceSet,
 	virtualNodes appmesh_k8s_aws_v1beta2_sets.VirtualNodeSet,
@@ -116,15 +116,15 @@ func NewLabelPartitionedSnapshot(
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
-	partitionedVirtualServices, err := partitionVirtualServicesByLabel(labelKey, gvk, virtualServices)
+	partitionedVirtualServices, err := partitionVirtualServicesByLabel(labelKey, virtualServices)
 	if err != nil {
 		return nil, err
 	}
-	partitionedVirtualNodes, err := partitionVirtualNodesByLabel(labelKey, gvk, virtualNodes)
+	partitionedVirtualNodes, err := partitionVirtualNodesByLabel(labelKey, virtualNodes)
 	if err != nil {
 		return nil, err
 	}
-	partitionedVirtualRouters, err := partitionVirtualRoutersByLabel(labelKey, gvk, virtualRouters)
+	partitionedVirtualRouters, err := partitionVirtualRoutersByLabel(labelKey, virtualRouters)
 	if err != nil {
 		return nil, err
 	}
@@ -262,16 +262,21 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 	}
 }
 
-func partitionVirtualServicesByLabel(labelKey string, gvk schema.GroupVersionKind, set appmesh_k8s_aws_v1beta2_sets.VirtualServiceSet) ([]LabeledVirtualServiceSet, error) {
+func partitionVirtualServicesByLabel(labelKey string, set appmesh_k8s_aws_v1beta2_sets.VirtualServiceSet) ([]LabeledVirtualServiceSet, error) {
 	setsByLabel := map[string]appmesh_k8s_aws_v1beta2_sets.VirtualServiceSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "appmesh.k8s.aws",
+			Version: "v1beta2",
+			Kind:    "VirtualService",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -306,16 +311,21 @@ func partitionVirtualServicesByLabel(labelKey string, gvk schema.GroupVersionKin
 	return partitionedVirtualServices, nil
 }
 
-func partitionVirtualNodesByLabel(labelKey string, gvk schema.GroupVersionKind, set appmesh_k8s_aws_v1beta2_sets.VirtualNodeSet) ([]LabeledVirtualNodeSet, error) {
+func partitionVirtualNodesByLabel(labelKey string, set appmesh_k8s_aws_v1beta2_sets.VirtualNodeSet) ([]LabeledVirtualNodeSet, error) {
 	setsByLabel := map[string]appmesh_k8s_aws_v1beta2_sets.VirtualNodeSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "appmesh.k8s.aws",
+			Version: "v1beta2",
+			Kind:    "VirtualNode",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -350,16 +360,21 @@ func partitionVirtualNodesByLabel(labelKey string, gvk schema.GroupVersionKind, 
 	return partitionedVirtualNodes, nil
 }
 
-func partitionVirtualRoutersByLabel(labelKey string, gvk schema.GroupVersionKind, set appmesh_k8s_aws_v1beta2_sets.VirtualRouterSet) ([]LabeledVirtualRouterSet, error) {
+func partitionVirtualRoutersByLabel(labelKey string, set appmesh_k8s_aws_v1beta2_sets.VirtualRouterSet) ([]LabeledVirtualRouterSet, error) {
 	setsByLabel := map[string]appmesh_k8s_aws_v1beta2_sets.VirtualRouterSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "appmesh.k8s.aws",
+			Version: "v1beta2",
+			Kind:    "VirtualRouter",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -411,17 +426,29 @@ func (s snapshot) MarshalJSON() ([]byte, error) {
 
 	virtualServiceSet := appmesh_k8s_aws_v1beta2_sets.NewVirtualServiceSet()
 	for _, set := range s.virtualServices {
-		virtualServiceSet = virtualServiceSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			virtualServiceSet.Insert(obj.(*appmesh_k8s_aws_v1beta2.VirtualService))
+		}
 	}
 	snapshotMap["virtualServices"] = virtualServiceSet.List()
 	virtualNodeSet := appmesh_k8s_aws_v1beta2_sets.NewVirtualNodeSet()
 	for _, set := range s.virtualNodes {
-		virtualNodeSet = virtualNodeSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			virtualNodeSet.Insert(obj.(*appmesh_k8s_aws_v1beta2.VirtualNode))
+		}
 	}
 	snapshotMap["virtualNodes"] = virtualNodeSet.List()
 	virtualRouterSet := appmesh_k8s_aws_v1beta2_sets.NewVirtualRouterSet()
 	for _, set := range s.virtualRouters {
-		virtualRouterSet = virtualRouterSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			virtualRouterSet.Insert(obj.(*appmesh_k8s_aws_v1beta2.VirtualRouter))
+		}
 	}
 	snapshotMap["virtualRouters"] = virtualRouterSet.List()
 
@@ -690,7 +717,7 @@ type Builder interface {
 	GetVirtualRouters() appmesh_k8s_aws_v1beta2_sets.VirtualRouterSet
 
 	// build the collected outputs into a label-partitioned snapshot
-	BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error)
+	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
 
 	// build the collected outputs into a snapshot with a single partition
 	BuildSinglePartitionedSnapshot(snapshotLabels map[string]string) (Snapshot, error)
@@ -750,11 +777,10 @@ func (b *builder) GetVirtualRouters() appmesh_k8s_aws_v1beta2_sets.VirtualRouter
 	return b.virtualRouters
 }
 
-func (b *builder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error) {
+func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
 		labelKey,
-		gvk,
 
 		b.virtualServices,
 		b.virtualNodes,

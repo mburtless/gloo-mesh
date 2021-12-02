@@ -1,0 +1,496 @@
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: WorkloadList
+items:
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"details","version":"v1"},"name":"details-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"details","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"details","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-details-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"details","ports":[{"containerPort":9080}]}],"serviceAccountName":"bookinfo-details"}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: details-v1-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494607"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/details-v1-bookinfo-mgmt-cluster-deployment
+    uid: 8316d062-b43a-4450-bbef-716d7728939e
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: details-v1
+        namespace: bookinfo
+      podLabels:
+        app: details
+        version: v1
+      serviceAccountName: bookinfo-details
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"details","version":"v1"},"name":"details-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"details","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"details","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-details-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"details","ports":[{"containerPort":9080}]}],"serviceAccountName":"bookinfo-details"}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: details-v1-bookinfo-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494608"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/details-v1-bookinfo-remote-cluster-deployment
+    uid: b1c093ef-91cd-400c-ab23-a1dd4f1f4306
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: details-v1
+        namespace: bookinfo
+      podLabels:
+        app: details
+        version: v1
+      serviceAccountName: bookinfo-details
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"istio-ingressgateway","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istio-ingressgateway","namespace":"istio-system"},"spec":{"selector":{"matchLabels":{"app":"istio-ingressgateway","istio":"ingressgateway"}},"strategy":{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":"25%"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/stats/prometheus","prometheus.io/port":"15020","prometheus.io/scrape":"true","sidecar.istio.io/inject":"false"},"labels":{"app":"istio-ingressgateway","chart":"gateways","heritage":"Tiller","install.operator.istio.io/owning-resource":"unknown","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","release":"istio","service.istio.io/canonical-name":"istio-ingressgateway","service.istio.io/canonical-revision":"latest","sidecar.istio.io/inject":"false"}},"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["amd64"]}]},"weight":2},{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["ppc64le"]}]},"weight":2},{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["s390x"]}]},"weight":2}],"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["amd64","ppc64le","s390x"]}]}]}}},"containers":[{"args":["proxy","router","--domain","$(POD_NAMESPACE).svc.cluster.local","--proxyLogLevel=warning","--proxyComponentLogLevel=misc:error","--log_output_level=default:info","--serviceCluster","istio-ingressgateway"],"env":[{"name":"JWT_POLICY","value":"first-party-jwt"},{"name":"PILOT_CERT_PROVIDER","value":"istiod"},{"name":"CA_ADDR","value":"istiod.istio-system.svc:15012"},{"name":"NODE_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"spec.nodeName"}}},{"name":"POD_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.name"}}},{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.namespace"}}},{"name":"INSTANCE_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.podIP"}}},{"name":"HOST_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.hostIP"}}},{"name":"SERVICE_ACCOUNT","valueFrom":{"fieldRef":{"fieldPath":"spec.serviceAccountName"}}},{"name":"CANONICAL_SERVICE","valueFrom":{"fieldRef":{"fieldPath":"metadata.labels['service.istio.io/canonical-name']"}}},{"name":"CANONICAL_REVISION","valueFrom":{"fieldRef":{"fieldPath":"metadata.labels['service.istio.io/canonical-revision']"}}},{"name":"ISTIO_META_WORKLOAD_NAME","value":"istio-ingressgateway"},{"name":"ISTIO_META_OWNER","value":"kubernetes://apis/apps/v1/namespaces/istio-system/deployments/istio-ingressgateway"},{"name":"ISTIO_META_MESH_ID","value":"cluster.local"},{"name":"TRUST_DOMAIN","value":"cluster.local"},{"name":"ISTIO_META_UNPRIVILEGED_POD","value":"true"},{"name":"ISTIO_META_ROUTER_MODE","value":"sni-dnat"},{"name":"GLOO_MESH_CLUSTER_NAME","value":"mgmt.cluster"},{"name":"ISTIO_META_DNS_CAPTURE","value":"true"},{"name":"ISTIO_META_CLUSTER_ID","value":"mgmt.cluster"}],"image":"docker.io/istio/proxyv2:1.10.4","name":"istio-proxy","ports":[{"containerPort":8080,"protocol":"TCP"},{"containerPort":8443,"protocol":"TCP"},{"containerPort":15443,"protocol":"TCP"},{"containerPort":15090,"name":"http-envoy-prom","protocol":"TCP"}],"readinessProbe":{"failureThreshold":30,"httpGet":{"path":"/healthz/ready","port":15021,"scheme":"HTTP"},"initialDelaySeconds":1,"periodSeconds":2,"successThreshold":1,"timeoutSeconds":1},"resources":{"limits":{"cpu":"2000m","memory":"1024Mi"},"requests":{"cpu":"100m","memory":"128Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true},"volumeMounts":[{"mountPath":"/etc/istio/proxy","name":"istio-envoy"},{"mountPath":"/etc/istio/config","name":"config-volume"},{"mountPath":"/var/run/secrets/istio","name":"istiod-ca-cert"},{"mountPath":"/var/lib/istio/data","name":"istio-data"},{"mountPath":"/etc/istio/pod","name":"podinfo"},{"mountPath":"/etc/istio/ingressgateway-certs","name":"ingressgateway-certs","readOnly":true},{"mountPath":"/etc/istio/ingressgateway-ca-certs","name":"ingressgateway-ca-certs","readOnly":true}]}],"securityContext":{"fsGroup":1337,"runAsGroup":1337,"runAsNonRoot":true,"runAsUser":1337},"serviceAccountName":"istio-ingressgateway-service-account","volumes":[{"configMap":{"name":"istio-ca-root-cert"},"name":"istiod-ca-cert"},{"downwardAPI":{"items":[{"fieldRef":{"fieldPath":"metadata.labels"},"path":"labels"},{"fieldRef":{"fieldPath":"metadata.annotations"},"path":"annotations"},{"path":"cpu-limit","resourceFieldRef":{"containerName":"istio-proxy","divisor":"1m","resource":"limits.cpu"}},{"path":"cpu-request","resourceFieldRef":{"containerName":"istio-proxy","divisor":"1m","resource":"requests.cpu"}}]},"name":"podinfo"},{"emptyDir":{},"name":"istio-envoy"},{"emptyDir":{},"name":"istio-data"},{"configMap":{"name":"istio","optional":true},"name":"config-volume"},{"name":"ingressgateway-certs","secret":{"optional":true,"secretName":"istio-ingressgateway-certs"}},{"name":"ingressgateway-ca-certs","secret":{"optional":true,"secretName":"istio-ingressgateway-ca-certs"}}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: istio-ingressgateway-istio-system-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494610"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/istio-ingressgateway-istio-system-mgmt-cluster-deployment
+    uid: c56263f9-a933-4481-9ee4-a632696faf2c
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: istio-ingressgateway
+        namespace: istio-system
+      podLabels:
+        app: istio-ingressgateway
+        chart: gateways
+        heritage: Tiller
+        install.operator.istio.io/owning-resource: unknown
+        istio: ingressgateway
+        istio.io/rev: default
+        operator.istio.io/component: IngressGateways
+        release: istio
+        service.istio.io/canonical-name: istio-ingressgateway
+        service.istio.io/canonical-revision: latest
+        sidecar.istio.io/inject: "false"
+      serviceAccountName: istio-ingressgateway-service-account
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"istio-ingressgateway","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istio-ingressgateway","namespace":"istio-system"},"spec":{"selector":{"matchLabels":{"app":"istio-ingressgateway","istio":"ingressgateway"}},"strategy":{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":"25%"}},"template":{"metadata":{"annotations":{"prometheus.io/path":"/stats/prometheus","prometheus.io/port":"15020","prometheus.io/scrape":"true","sidecar.istio.io/inject":"false"},"labels":{"app":"istio-ingressgateway","chart":"gateways","heritage":"Tiller","install.operator.istio.io/owning-resource":"unknown","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","release":"istio","service.istio.io/canonical-name":"istio-ingressgateway","service.istio.io/canonical-revision":"latest","sidecar.istio.io/inject":"false"}},"spec":{"affinity":{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["amd64"]}]},"weight":2},{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["ppc64le"]}]},"weight":2},{"preference":{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["s390x"]}]},"weight":2}],"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/arch","operator":"In","values":["amd64","ppc64le","s390x"]}]}]}}},"containers":[{"args":["proxy","router","--domain","$(POD_NAMESPACE).svc.cluster.local","--proxyLogLevel=warning","--proxyComponentLogLevel=misc:error","--log_output_level=default:info","--serviceCluster","istio-ingressgateway"],"env":[{"name":"JWT_POLICY","value":"first-party-jwt"},{"name":"PILOT_CERT_PROVIDER","value":"istiod"},{"name":"CA_ADDR","value":"istiod.istio-system.svc:15012"},{"name":"NODE_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"spec.nodeName"}}},{"name":"POD_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.name"}}},{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.namespace"}}},{"name":"INSTANCE_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.podIP"}}},{"name":"HOST_IP","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"status.hostIP"}}},{"name":"SERVICE_ACCOUNT","valueFrom":{"fieldRef":{"fieldPath":"spec.serviceAccountName"}}},{"name":"CANONICAL_SERVICE","valueFrom":{"fieldRef":{"fieldPath":"metadata.labels['service.istio.io/canonical-name']"}}},{"name":"CANONICAL_REVISION","valueFrom":{"fieldRef":{"fieldPath":"metadata.labels['service.istio.io/canonical-revision']"}}},{"name":"ISTIO_META_WORKLOAD_NAME","value":"istio-ingressgateway"},{"name":"ISTIO_META_OWNER","value":"kubernetes://apis/apps/v1/namespaces/istio-system/deployments/istio-ingressgateway"},{"name":"ISTIO_META_MESH_ID","value":"cluster.local"},{"name":"TRUST_DOMAIN","value":"cluster.local"},{"name":"ISTIO_META_UNPRIVILEGED_POD","value":"true"},{"name":"ISTIO_META_ROUTER_MODE","value":"sni-dnat"},{"name":"GLOO_MESH_CLUSTER_NAME","value":"remote.cluster"},{"name":"ISTIO_META_DNS_CAPTURE","value":"true"},{"name":"ISTIO_META_CLUSTER_ID","value":"remote.cluster"}],"image":"docker.io/istio/proxyv2:1.10.4","name":"istio-proxy","ports":[{"containerPort":8080,"protocol":"TCP"},{"containerPort":8443,"protocol":"TCP"},{"containerPort":15443,"protocol":"TCP"},{"containerPort":15090,"name":"http-envoy-prom","protocol":"TCP"}],"readinessProbe":{"failureThreshold":30,"httpGet":{"path":"/healthz/ready","port":15021,"scheme":"HTTP"},"initialDelaySeconds":1,"periodSeconds":2,"successThreshold":1,"timeoutSeconds":1},"resources":{"limits":{"cpu":"2000m","memory":"1024Mi"},"requests":{"cpu":"100m","memory":"128Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true},"volumeMounts":[{"mountPath":"/etc/istio/proxy","name":"istio-envoy"},{"mountPath":"/etc/istio/config","name":"config-volume"},{"mountPath":"/var/run/secrets/istio","name":"istiod-ca-cert"},{"mountPath":"/var/lib/istio/data","name":"istio-data"},{"mountPath":"/etc/istio/pod","name":"podinfo"},{"mountPath":"/etc/istio/ingressgateway-certs","name":"ingressgateway-certs","readOnly":true},{"mountPath":"/etc/istio/ingressgateway-ca-certs","name":"ingressgateway-ca-certs","readOnly":true}]}],"securityContext":{"fsGroup":1337,"runAsGroup":1337,"runAsNonRoot":true,"runAsUser":1337},"serviceAccountName":"istio-ingressgateway-service-account","volumes":[{"configMap":{"name":"istio-ca-root-cert"},"name":"istiod-ca-cert"},{"downwardAPI":{"items":[{"fieldRef":{"fieldPath":"metadata.labels"},"path":"labels"},{"fieldRef":{"fieldPath":"metadata.annotations"},"path":"annotations"},{"path":"cpu-limit","resourceFieldRef":{"containerName":"istio-proxy","divisor":"1m","resource":"limits.cpu"}},{"path":"cpu-request","resourceFieldRef":{"containerName":"istio-proxy","divisor":"1m","resource":"requests.cpu"}}]},"name":"podinfo"},{"emptyDir":{},"name":"istio-envoy"},{"emptyDir":{},"name":"istio-data"},{"configMap":{"name":"istio","optional":true},"name":"config-volume"},{"name":"ingressgateway-certs","secret":{"optional":true,"secretName":"istio-ingressgateway-certs"}},{"name":"ingressgateway-ca-certs","secret":{"optional":true,"secretName":"istio-ingressgateway-ca-certs"}}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: istio-ingressgateway-istio-system-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494612"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/istio-ingressgateway-istio-system-remote-cluster-deployment
+    uid: a5d4ab41-89c2-4b03-81ec-58fb2fb9e2b9
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: istio-ingressgateway
+        namespace: istio-system
+      podLabels:
+        app: istio-ingressgateway
+        chart: gateways
+        heritage: Tiller
+        install.operator.istio.io/owning-resource: unknown
+        istio: ingressgateway
+        istio.io/rev: default
+        operator.istio.io/component: IngressGateways
+        release: istio
+        service.istio.io/canonical-name: istio-ingressgateway
+        service.istio.io/canonical-revision: latest
+        sidecar.istio.io/inject: "false"
+      serviceAccountName: istio-ingressgateway-service-account
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"productpage","version":"v1"},"name":"productpage-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"productpage","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"productpage","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-productpage-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"productpage","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"}]},{"command":["sleep","10h"],"image":"curlimages/curl@sha256:aa45e9d93122a3cfdf8d7de272e2798ea63733eeee6d06bd2ee4f2f8c4027d7c","name":"curl"}],"serviceAccountName":"bookinfo-productpage","volumes":[{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: productpage-v1-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494615"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/productpage-v1-bookinfo-mgmt-cluster-deployment
+    uid: e4de453b-1a25-413a-bc9d-20115e7aa491
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: productpage-v1
+        namespace: bookinfo
+      podLabels:
+        app: productpage
+        version: v1
+      serviceAccountName: bookinfo-productpage
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"productpage","version":"v1"},"name":"productpage-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"productpage","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"productpage","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-productpage-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"productpage","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"}]},{"command":["sleep","10h"],"image":"curlimages/curl@sha256:aa45e9d93122a3cfdf8d7de272e2798ea63733eeee6d06bd2ee4f2f8c4027d7c","name":"curl"}],"serviceAccountName":"bookinfo-productpage","volumes":[{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: productpage-v1-bookinfo-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494616"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/productpage-v1-bookinfo-remote-cluster-deployment
+    uid: 14f0dc54-8346-4588-9fb0-88833ada1bf2
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: productpage-v1
+        namespace: bookinfo
+      podLabels:
+        app: productpage
+        version: v1
+      serviceAccountName: bookinfo-productpage
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"ratings","version":"v1"},"name":"ratings-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"ratings","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"ratings","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-ratings-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"ratings","ports":[{"containerPort":9080}]}],"serviceAccountName":"bookinfo-ratings"}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: ratings-v1-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494619"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/ratings-v1-bookinfo-mgmt-cluster-deployment
+    uid: 480da09d-a527-4f4f-9521-603e04080711
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: ratings-v1
+        namespace: bookinfo
+      podLabels:
+        app: ratings
+        version: v1
+      serviceAccountName: bookinfo-ratings
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"ratings","version":"v1"},"name":"ratings-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"ratings","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"ratings","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-ratings-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"ratings","ports":[{"containerPort":9080}]}],"serviceAccountName":"bookinfo-ratings"}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: ratings-v1-bookinfo-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494620"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/ratings-v1-bookinfo-remote-cluster-deployment
+    uid: ebdf377c-859d-4b8d-bcf3-ef119fb87886
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: ratings-v1
+        namespace: bookinfo
+      podLabels:
+        app: ratings
+        version: v1
+      serviceAccountName: bookinfo-ratings
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v1"},"name":"reviews-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v1"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: reviews-v1-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494623"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v1-bookinfo-mgmt-cluster-deployment
+    uid: 1985b9af-0d0d-4028-bf7a-6b6a514bd91c
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: reviews-v1
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v1
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v1"},"name":"reviews-v1","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v1"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v1"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v1:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: reviews-v1-bookinfo-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494624"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v1-bookinfo-remote-cluster-deployment
+    uid: 2c3a2f55-6521-40f2-a914-e217f719f0b6
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: reviews-v1
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v1
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v2"},"name":"reviews-v2","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v2"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v2"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v2:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: reviews-v2-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494626"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v2-bookinfo-mgmt-cluster-deployment
+    uid: abfd4543-68c6-4479-aab1-08290c8a4a5e
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: reviews-v2
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v2
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v2"},"name":"reviews-v2","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v2"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v2"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v2:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: reviews-v2-bookinfo-remote-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494627"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v2-bookinfo-remote-cluster-deployment
+    uid: d03cd8ee-c1d9-43e9-a067-4bb1a73bca0a
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: reviews-v2
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v2
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v3"},"name":"reviews-v3","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v3"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v3"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v3:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: reviews-v3-bookinfo-mgmt-cluster-deployment
+    namespace: gloo-mesh
+    resourceVersion: "2494629"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v3-bookinfo-mgmt-cluster-deployment
+    uid: 1c9fda7c-3ccf-44aa-b34b-f6d8462c4861
+  spec:
+    kubernetes:
+      controller:
+        clusterName: mgmt.cluster
+        name: reviews-v3
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v3
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Workload
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v3"},"name":"reviews-v3","namespace":"bookinfo"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v3"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/proxyCPU":"25m","sidecar.istio.io/proxyMemory":"32Mi"},"labels":{"app":"reviews","version":"v3"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v3:1.15.0","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494630"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/workloads/reviews-v3-bookinfo-remote-cluster-deployment
+    uid: a8eefff2-69b1-49fd-8c92-d66510ab4ef1
+  spec:
+    kubernetes:
+      controller:
+        clusterName: remote.cluster
+        name: reviews-v3
+        namespace: bookinfo
+      podLabels:
+        app: reviews
+        version: v3
+      serviceAccountName: bookinfo-reviews
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    observedGeneration: 1
+    serviceDependencies: {}

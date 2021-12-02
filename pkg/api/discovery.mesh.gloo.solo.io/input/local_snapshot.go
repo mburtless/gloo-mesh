@@ -18,6 +18,8 @@ import (
 	"context"
 	"encoding/json"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/resource"
 	"github.com/solo-io/skv2/pkg/verifier"
@@ -38,7 +40,6 @@ import (
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SettingsSnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "settings.mesh.gloo.solo.io",
 		Version: "v1",
@@ -122,11 +123,11 @@ func NewSettingsSnapshotFromGeneric(
 	)
 }
 
-func (s snapshotSettings) Settings() settings_mesh_gloo_solo_io_v1_sets.SettingsSet {
+func (s *snapshotSettings) Settings() settings_mesh_gloo_solo_io_v1_sets.SettingsSet {
 	return s.settings
 }
 
-func (s snapshotSettings) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts SettingsSyncStatusOptions) error {
+func (s *snapshotSettings) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts SettingsSyncStatusOptions) error {
 	var errs error
 
 	if opts.Settings {
@@ -144,7 +145,7 @@ func (s snapshotSettings) SyncStatusesMultiCluster(ctx context.Context, mcClient
 	return errs
 }
 
-func (s snapshotSettings) SyncStatuses(ctx context.Context, c client.Client, opts SettingsSyncStatusOptions) error {
+func (s *snapshotSettings) SyncStatuses(ctx context.Context, c client.Client, opts SettingsSyncStatusOptions) error {
 	var errs error
 
 	if opts.Settings {
@@ -157,14 +158,20 @@ func (s snapshotSettings) SyncStatuses(ctx context.Context, c client.Client, opt
 	return errs
 }
 
-func (s snapshotSettings) MarshalJSON() ([]byte, error) {
+func (s *snapshotSettings) MarshalJSON() ([]byte, error) {
 	snapshotMap := map[string]interface{}{"name": s.name}
 
-	snapshotMap["settings"] = s.settings.List()
+	settingsSet := settings_mesh_gloo_solo_io_v1_sets.NewSettingsSet()
+	for _, obj := range s.settings.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		settingsSet.Insert(obj.(*settings_mesh_gloo_solo_io_v1_types.Settings))
+	}
+	snapshotMap["settings"] = settingsSet.List()
 	return json.Marshal(snapshotMap)
 }
 
-func (s snapshotSettings) Clone() SettingsSnapshot {
+func (s *snapshotSettings) Clone() SettingsSnapshot {
 	return &snapshotSettings{
 		name: s.name,
 
@@ -172,7 +179,7 @@ func (s snapshotSettings) Clone() SettingsSnapshot {
 	}
 }
 
-func (s snapshotSettings) Generic() resource.ClusterSnapshot {
+func (s *snapshotSettings) Generic() resource.ClusterSnapshot {
 	clusterSnapshots := resource.ClusterSnapshot{}
 	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
 		clusterSnapshots.Insert(cluster, gvk, obj)
@@ -182,7 +189,7 @@ func (s snapshotSettings) Generic() resource.ClusterSnapshot {
 }
 
 // convert this snapshot to its generic form
-func (s snapshotSettings) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+func (s *snapshotSettings) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
 
 	for _, obj := range s.settings.List() {
 		cluster := obj.GetClusterName()

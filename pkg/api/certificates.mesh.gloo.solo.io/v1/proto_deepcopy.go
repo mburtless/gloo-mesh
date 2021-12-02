@@ -6,40 +6,71 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the IssuedCertificate.Spec
 func (in *IssuedCertificateSpec) DeepCopyInto(out *IssuedCertificateSpec) {
-	p := proto.Clone(in).(*IssuedCertificateSpec)
+	var p *IssuedCertificateSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*IssuedCertificateSpec)
+	} else {
+		p = proto.Clone(in).(*IssuedCertificateSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the IssuedCertificate.Status
 func (in *IssuedCertificateStatus) DeepCopyInto(out *IssuedCertificateStatus) {
-	p := proto.Clone(in).(*IssuedCertificateStatus)
+	var p *IssuedCertificateStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*IssuedCertificateStatus)
+	} else {
+		p = proto.Clone(in).(*IssuedCertificateStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the CertificateRequest.Spec
 func (in *CertificateRequestSpec) DeepCopyInto(out *CertificateRequestSpec) {
-	p := proto.Clone(in).(*CertificateRequestSpec)
+	var p *CertificateRequestSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*CertificateRequestSpec)
+	} else {
+		p = proto.Clone(in).(*CertificateRequestSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the CertificateRequest.Status
 func (in *CertificateRequestStatus) DeepCopyInto(out *CertificateRequestStatus) {
-	p := proto.Clone(in).(*CertificateRequestStatus)
+	var p *CertificateRequestStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*CertificateRequestStatus)
+	} else {
+		p = proto.Clone(in).(*CertificateRequestStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the PodBounceDirective.Spec
 func (in *PodBounceDirectiveSpec) DeepCopyInto(out *PodBounceDirectiveSpec) {
-	p := proto.Clone(in).(*PodBounceDirectiveSpec)
+	var p *PodBounceDirectiveSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*PodBounceDirectiveSpec)
+	} else {
+		p = proto.Clone(in).(*PodBounceDirectiveSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the PodBounceDirective.Status
 func (in *PodBounceDirectiveStatus) DeepCopyInto(out *PodBounceDirectiveStatus) {
-	p := proto.Clone(in).(*PodBounceDirectiveStatus)
+	var p *PodBounceDirectiveStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*PodBounceDirectiveStatus)
+	} else {
+		p = proto.Clone(in).(*PodBounceDirectiveStatus)
+	}
 	*out = *p
 }

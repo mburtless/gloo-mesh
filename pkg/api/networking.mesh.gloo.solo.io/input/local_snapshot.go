@@ -36,6 +36,8 @@ import (
 	"context"
 	"encoding/json"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/resource"
 	"github.com/solo-io/skv2/pkg/verifier"
@@ -80,7 +82,6 @@ import (
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var LocalSnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "networking.enterprise.mesh.gloo.solo.io",
 		Version: "v1beta1",
@@ -126,7 +127,6 @@ var LocalSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1beta1",
 		Kind:    "CertificateVerification",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "networking.mesh.gloo.solo.io",
 		Version: "v1",
@@ -142,13 +142,11 @@ var LocalSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "VirtualMesh",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "settings.mesh.gloo.solo.io",
 		Version: "v1",
 		Kind:    "Settings",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "discovery.mesh.gloo.solo.io",
 		Version: "v1",
@@ -164,19 +162,16 @@ var LocalSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "Mesh",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "observability.enterprise.mesh.gloo.solo.io",
 		Version: "v1",
 		Kind:    "AccessLogRecord",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "",
 		Version: "v1",
 		Kind:    "Secret",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "multicluster.solo.io",
 		Version: "v1alpha1",
@@ -620,83 +615,83 @@ func NewLocalSnapshotFromGeneric(
 	)
 }
 
-func (s snapshotLocal) WasmDeployments() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.WasmDeploymentSet {
+func (s *snapshotLocal) WasmDeployments() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.WasmDeploymentSet {
 	return s.wasmDeployments
 }
 
-func (s snapshotLocal) RateLimitClientConfigs() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RateLimitClientConfigSet {
+func (s *snapshotLocal) RateLimitClientConfigs() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RateLimitClientConfigSet {
 	return s.rateLimitClientConfigs
 }
 
-func (s snapshotLocal) RateLimitServerConfigs() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RateLimitServerConfigSet {
+func (s *snapshotLocal) RateLimitServerConfigs() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RateLimitServerConfigSet {
 	return s.rateLimitServerConfigs
 }
 
-func (s snapshotLocal) VirtualDestinations() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualDestinationSet {
+func (s *snapshotLocal) VirtualDestinations() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualDestinationSet {
 	return s.virtualDestinations
 }
 
-func (s snapshotLocal) VirtualGateways() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualGatewaySet {
+func (s *snapshotLocal) VirtualGateways() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualGatewaySet {
 	return s.virtualGateways
 }
 
-func (s snapshotLocal) VirtualHosts() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualHostSet {
+func (s *snapshotLocal) VirtualHosts() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.VirtualHostSet {
 	return s.virtualHosts
 }
 
-func (s snapshotLocal) RouteTables() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet {
+func (s *snapshotLocal) RouteTables() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.RouteTableSet {
 	return s.routeTables
 }
 
-func (s snapshotLocal) ServiceDependencies() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet {
+func (s *snapshotLocal) ServiceDependencies() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.ServiceDependencySet {
 	return s.serviceDependencies
 }
 
-func (s snapshotLocal) CertificateVerifications() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet {
+func (s *snapshotLocal) CertificateVerifications() networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.CertificateVerificationSet {
 	return s.certificateVerifications
 }
 
-func (s snapshotLocal) TrafficPolicies() networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet {
+func (s *snapshotLocal) TrafficPolicies() networking_mesh_gloo_solo_io_v1_sets.TrafficPolicySet {
 	return s.trafficPolicies
 }
 
-func (s snapshotLocal) AccessPolicies() networking_mesh_gloo_solo_io_v1_sets.AccessPolicySet {
+func (s *snapshotLocal) AccessPolicies() networking_mesh_gloo_solo_io_v1_sets.AccessPolicySet {
 	return s.accessPolicies
 }
 
-func (s snapshotLocal) VirtualMeshes() networking_mesh_gloo_solo_io_v1_sets.VirtualMeshSet {
+func (s *snapshotLocal) VirtualMeshes() networking_mesh_gloo_solo_io_v1_sets.VirtualMeshSet {
 	return s.virtualMeshes
 }
 
-func (s snapshotLocal) Settings() settings_mesh_gloo_solo_io_v1_sets.SettingsSet {
+func (s *snapshotLocal) Settings() settings_mesh_gloo_solo_io_v1_sets.SettingsSet {
 	return s.settings
 }
 
-func (s snapshotLocal) Destinations() discovery_mesh_gloo_solo_io_v1_sets.DestinationSet {
+func (s *snapshotLocal) Destinations() discovery_mesh_gloo_solo_io_v1_sets.DestinationSet {
 	return s.destinations
 }
 
-func (s snapshotLocal) Workloads() discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet {
+func (s *snapshotLocal) Workloads() discovery_mesh_gloo_solo_io_v1_sets.WorkloadSet {
 	return s.workloads
 }
 
-func (s snapshotLocal) Meshes() discovery_mesh_gloo_solo_io_v1_sets.MeshSet {
+func (s *snapshotLocal) Meshes() discovery_mesh_gloo_solo_io_v1_sets.MeshSet {
 	return s.meshes
 }
 
-func (s snapshotLocal) AccessLogRecords() observability_enterprise_mesh_gloo_solo_io_v1_sets.AccessLogRecordSet {
+func (s *snapshotLocal) AccessLogRecords() observability_enterprise_mesh_gloo_solo_io_v1_sets.AccessLogRecordSet {
 	return s.accessLogRecords
 }
 
-func (s snapshotLocal) Secrets() v1_sets.SecretSet {
+func (s *snapshotLocal) Secrets() v1_sets.SecretSet {
 	return s.secrets
 }
 
-func (s snapshotLocal) KubernetesClusters() multicluster_solo_io_v1alpha1_sets.KubernetesClusterSet {
+func (s *snapshotLocal) KubernetesClusters() multicluster_solo_io_v1alpha1_sets.KubernetesClusterSet {
 	return s.kubernetesClusters
 }
 
-func (s snapshotLocal) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts LocalSyncStatusOptions) error {
+func (s *snapshotLocal) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts LocalSyncStatusOptions) error {
 	var errs error
 
 	if opts.WasmDeployment {
@@ -923,7 +918,7 @@ func (s snapshotLocal) SyncStatusesMultiCluster(ctx context.Context, mcClient mu
 	return errs
 }
 
-func (s snapshotLocal) SyncStatuses(ctx context.Context, c client.Client, opts LocalSyncStatusOptions) error {
+func (s *snapshotLocal) SyncStatuses(ctx context.Context, c client.Client, opts LocalSyncStatusOptions) error {
 	var errs error
 
 	if opts.WasmDeployment {
@@ -1060,32 +1055,152 @@ func (s snapshotLocal) SyncStatuses(ctx context.Context, c client.Client, opts L
 	return errs
 }
 
-func (s snapshotLocal) MarshalJSON() ([]byte, error) {
+func (s *snapshotLocal) MarshalJSON() ([]byte, error) {
 	snapshotMap := map[string]interface{}{"name": s.name}
 
-	snapshotMap["wasmDeployments"] = s.wasmDeployments.List()
-	snapshotMap["rateLimitClientConfigs"] = s.rateLimitClientConfigs.List()
-	snapshotMap["rateLimitServerConfigs"] = s.rateLimitServerConfigs.List()
-	snapshotMap["virtualDestinations"] = s.virtualDestinations.List()
-	snapshotMap["virtualGateways"] = s.virtualGateways.List()
-	snapshotMap["virtualHosts"] = s.virtualHosts.List()
-	snapshotMap["routeTables"] = s.routeTables.List()
-	snapshotMap["serviceDependencies"] = s.serviceDependencies.List()
-	snapshotMap["certificateVerifications"] = s.certificateVerifications.List()
-	snapshotMap["trafficPolicies"] = s.trafficPolicies.List()
-	snapshotMap["accessPolicies"] = s.accessPolicies.List()
-	snapshotMap["virtualMeshes"] = s.virtualMeshes.List()
-	snapshotMap["settings"] = s.settings.List()
-	snapshotMap["destinations"] = s.destinations.List()
-	snapshotMap["workloads"] = s.workloads.List()
-	snapshotMap["meshes"] = s.meshes.List()
-	snapshotMap["accessLogRecords"] = s.accessLogRecords.List()
-	snapshotMap["secrets"] = s.secrets.List()
-	snapshotMap["kubernetesClusters"] = s.kubernetesClusters.List()
+	wasmDeploymentSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewWasmDeploymentSet()
+	for _, obj := range s.wasmDeployments.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		wasmDeploymentSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.WasmDeployment))
+	}
+	snapshotMap["wasmDeployments"] = wasmDeploymentSet.List()
+	rateLimitClientConfigSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRateLimitClientConfigSet()
+	for _, obj := range s.rateLimitClientConfigs.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		rateLimitClientConfigSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.RateLimitClientConfig))
+	}
+	snapshotMap["rateLimitClientConfigs"] = rateLimitClientConfigSet.List()
+	rateLimitServerConfigSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRateLimitServerConfigSet()
+	for _, obj := range s.rateLimitServerConfigs.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		rateLimitServerConfigSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.RateLimitServerConfig))
+	}
+	snapshotMap["rateLimitServerConfigs"] = rateLimitServerConfigSet.List()
+	virtualDestinationSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualDestinationSet()
+	for _, obj := range s.virtualDestinations.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		virtualDestinationSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.VirtualDestination))
+	}
+	snapshotMap["virtualDestinations"] = virtualDestinationSet.List()
+	virtualGatewaySet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualGatewaySet()
+	for _, obj := range s.virtualGateways.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		virtualGatewaySet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.VirtualGateway))
+	}
+	snapshotMap["virtualGateways"] = virtualGatewaySet.List()
+	virtualHostSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewVirtualHostSet()
+	for _, obj := range s.virtualHosts.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		virtualHostSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.VirtualHost))
+	}
+	snapshotMap["virtualHosts"] = virtualHostSet.List()
+	routeTableSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewRouteTableSet()
+	for _, obj := range s.routeTables.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		routeTableSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.RouteTable))
+	}
+	snapshotMap["routeTables"] = routeTableSet.List()
+	serviceDependencySet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewServiceDependencySet()
+	for _, obj := range s.serviceDependencies.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		serviceDependencySet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.ServiceDependency))
+	}
+	snapshotMap["serviceDependencies"] = serviceDependencySet.List()
+	certificateVerificationSet := networking_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewCertificateVerificationSet()
+	for _, obj := range s.certificateVerifications.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		certificateVerificationSet.Insert(obj.(*networking_enterprise_mesh_gloo_solo_io_v1beta1_types.CertificateVerification))
+	}
+	snapshotMap["certificateVerifications"] = certificateVerificationSet.List()
+
+	trafficPolicySet := networking_mesh_gloo_solo_io_v1_sets.NewTrafficPolicySet()
+	for _, obj := range s.trafficPolicies.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		trafficPolicySet.Insert(obj.(*networking_mesh_gloo_solo_io_v1_types.TrafficPolicy))
+	}
+	snapshotMap["trafficPolicies"] = trafficPolicySet.List()
+	accessPolicySet := networking_mesh_gloo_solo_io_v1_sets.NewAccessPolicySet()
+	for _, obj := range s.accessPolicies.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		accessPolicySet.Insert(obj.(*networking_mesh_gloo_solo_io_v1_types.AccessPolicy))
+	}
+	snapshotMap["accessPolicies"] = accessPolicySet.List()
+	virtualMeshSet := networking_mesh_gloo_solo_io_v1_sets.NewVirtualMeshSet()
+	for _, obj := range s.virtualMeshes.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		virtualMeshSet.Insert(obj.(*networking_mesh_gloo_solo_io_v1_types.VirtualMesh))
+	}
+	snapshotMap["virtualMeshes"] = virtualMeshSet.List()
+
+	settingsSet := settings_mesh_gloo_solo_io_v1_sets.NewSettingsSet()
+	for _, obj := range s.settings.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		settingsSet.Insert(obj.(*settings_mesh_gloo_solo_io_v1_types.Settings))
+	}
+	snapshotMap["settings"] = settingsSet.List()
+
+	destinationSet := discovery_mesh_gloo_solo_io_v1_sets.NewDestinationSet()
+	for _, obj := range s.destinations.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		destinationSet.Insert(obj.(*discovery_mesh_gloo_solo_io_v1_types.Destination))
+	}
+	snapshotMap["destinations"] = destinationSet.List()
+	workloadSet := discovery_mesh_gloo_solo_io_v1_sets.NewWorkloadSet()
+	for _, obj := range s.workloads.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		workloadSet.Insert(obj.(*discovery_mesh_gloo_solo_io_v1_types.Workload))
+	}
+	snapshotMap["workloads"] = workloadSet.List()
+	meshSet := discovery_mesh_gloo_solo_io_v1_sets.NewMeshSet()
+	for _, obj := range s.meshes.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		meshSet.Insert(obj.(*discovery_mesh_gloo_solo_io_v1_types.Mesh))
+	}
+	snapshotMap["meshes"] = meshSet.List()
+
+	accessLogRecordSet := observability_enterprise_mesh_gloo_solo_io_v1_sets.NewAccessLogRecordSet()
+	for _, obj := range s.accessLogRecords.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		accessLogRecordSet.Insert(obj.(*observability_enterprise_mesh_gloo_solo_io_v1_types.AccessLogRecord))
+	}
+	snapshotMap["accessLogRecords"] = accessLogRecordSet.List()
+
+	secretSet := v1_sets.NewSecretSet()
+	for _, obj := range s.secrets.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		secretSet.Insert(obj.(*v1_types.Secret))
+	}
+	snapshotMap["secrets"] = secretSet.List()
+
+	kubernetesClusterSet := multicluster_solo_io_v1alpha1_sets.NewKubernetesClusterSet()
+	for _, obj := range s.kubernetesClusters.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		kubernetesClusterSet.Insert(obj.(*multicluster_solo_io_v1alpha1_types.KubernetesCluster))
+	}
+	snapshotMap["kubernetesClusters"] = kubernetesClusterSet.List()
 	return json.Marshal(snapshotMap)
 }
 
-func (s snapshotLocal) Clone() LocalSnapshot {
+func (s *snapshotLocal) Clone() LocalSnapshot {
 	return &snapshotLocal{
 		name: s.name,
 
@@ -1111,7 +1226,7 @@ func (s snapshotLocal) Clone() LocalSnapshot {
 	}
 }
 
-func (s snapshotLocal) Generic() resource.ClusterSnapshot {
+func (s *snapshotLocal) Generic() resource.ClusterSnapshot {
 	clusterSnapshots := resource.ClusterSnapshot{}
 	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
 		clusterSnapshots.Insert(cluster, gvk, obj)
@@ -1121,7 +1236,7 @@ func (s snapshotLocal) Generic() resource.ClusterSnapshot {
 }
 
 // convert this snapshot to its generic form
-func (s snapshotLocal) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+func (s *snapshotLocal) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
 
 	for _, obj := range s.wasmDeployments.List() {
 		cluster := obj.GetClusterName()

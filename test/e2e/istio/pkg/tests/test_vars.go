@@ -1,11 +1,9 @@
 package tests
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/solo-io/gloo-mesh/test/extensions"
@@ -30,28 +28,10 @@ var (
 	}
 
 	RemoteMesh = func() (*v1.ObjectRef, error) {
-		var meshName string
-		var out bytes.Buffer
-
-		cmd := exec.Command("bash", "-c", "istioctl version")
-		cmd.Stdout = &out
-		err := cmd.Run()
-		if err != nil {
-			return nil, err
-		}
-
-		outputString := out.String()
-		if strings.Contains(outputString, "1.7") {
-			// 1.7 is not installed with a revision since it is unsupported
-			meshName = "istiod-istio-system-remote-cluster"
-		} else {
+		return &v1.ObjectRef{
 			// The revision in this name comes from the revision that we specify when installing Istio
 			// to the remote cluster (see setup-kind.sh)
-			meshName = "istiod-rev-istio-system-remote-cluster"
-		}
-
-		return &v1.ObjectRef{
-			Name:      meshName,
+			Name:      "istiod-rev-istio-system-remote-cluster",
 			Namespace: "gloo-mesh",
 		}, nil
 	}

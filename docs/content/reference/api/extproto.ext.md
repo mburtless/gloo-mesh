@@ -25,6 +25,7 @@
   - [File-level Extensions](#ext.proto-extensions)
   - [File-level Extensions](#ext.proto-extensions)
   - [File-level Extensions](#ext.proto-extensions)
+  - [File-level Extensions](#ext.proto-extensions)
 
 
 
@@ -42,6 +43,7 @@
 | sensitive | bool | .google.protobuf.FieldOptions | 10073 |  |
 | skip_hashing | bool | .google.protobuf.FieldOptions | 10071 |  |
 | skip_merging | bool | .google.protobuf.FieldOptions | 10072 |  |
+| clone_all | bool | .google.protobuf.FileOptions | 10074 |  |
 | equal_all | bool | .google.protobuf.FileOptions | 10072 |  |
 | hash_all | bool | .google.protobuf.FileOptions | 10071 |  |
 | merge_all | bool | .google.protobuf.FileOptions | 10073 |  |

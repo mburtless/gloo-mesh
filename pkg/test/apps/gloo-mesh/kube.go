@@ -8,12 +8,12 @@ import (
 	"io/fs"
 	"time"
 
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/commands/install"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/commands/uninstall"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/enterprise"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/registration"
-	"github.com/solo-io/gloo-mesh/pkg/meshctl/utils"
+	"github.com/solo-io/gloo-mesh/pkg/openmeshctl/commands/install"
+	"github.com/solo-io/gloo-mesh/pkg/openmeshctl/commands/register"
+	"github.com/solo-io/gloo-mesh/pkg/openmeshctl/commands/uninstall"
+	"github.com/solo-io/gloo-mesh/pkg/openmeshctl/runtime"
 	gloo_context "github.com/solo-io/gloo-mesh/pkg/test/apps/context"
+	"github.com/spf13/pflag"
 	"istio.io/istio/pkg/test/framework/components/cluster"
 	"istio.io/istio/pkg/test/framework/resource"
 	"istio.io/istio/pkg/test/util/retry"
@@ -37,16 +37,15 @@ type glooMeshInstance struct {
 	ctx            resource.Context
 }
 type InstanceConfig struct {
-	managementPlane                   bool
-	controlPlaneKubeConfigPath        string
-	managementPlaneKubeConfigPath     string
-	version                           string
-	clusterDomain                     string
-	managementPlaneRelayServerAddress string
-	cluster                           cluster.Cluster
+	managementPlane               bool
+	controlPlaneKubeConfigPath    string
+	managementPlaneKubeConfigPath string
+	version                       string
+	clusterDomain                 string
+	cluster                       cluster.Cluster
 }
 
-func newInstance(ctx resource.Context, instanceConfig InstanceConfig, licenseKey string) (gloo_context.GlooMeshInstance, error) {
+func newInstance(ctx resource.Context, instanceConfig InstanceConfig) (gloo_context.GlooMeshInstance, error) {
 	var err error
 	i := &glooMeshInstance{
 		ctx: ctx,
@@ -55,121 +54,43 @@ func newInstance(ctx resource.Context, instanceConfig InstanceConfig, licenseKey
 	i.instanceConfig = instanceConfig
 	if i.instanceConfig.managementPlane {
 		// deploy enterprise version
-		if err := i.deployManagementPlane(licenseKey); err != nil {
+		if err := i.deployManagementPlane(); err != nil {
 			return nil, err
 		}
 	} else {
-		if err := i.deployControlPlane(licenseKey); err != nil {
+		if err := i.deployControlPlane(); err != nil {
 			return nil, err
 		}
 	}
 	return i, err
 }
 
-func (i *glooMeshInstance) deployManagementPlane(licenseKey string) error {
-	options := &install.Options{
-		GlobalFlags:     &utils.GlobalFlags{Verbose: true},
-		DryRun:          false,
-		KubeCfgPath:     i.instanceConfig.managementPlaneKubeConfigPath,
-		KubeContext:     "",
-		Namespace:       namespace,
-		ChartPath:       "",
-		ChartValuesFile: "",
-		Version:         i.instanceConfig.version,
-		ReleaseName:     fmt.Sprintf("%s-mp", i.instanceConfig.cluster.Name()),
-		AgentChartPath:  "",
-		AgentValuesPath: "",
-		Register:        false,
-		ClusterName:     "",
-		ClusterDomain:   "",
-	}
-
-	if licenseKey != "" {
-		if err := install.InstallEnterprise(context.Background(), install.EnterpriseOptions{
-			Options:            options,
-			LicenseKey:         licenseKey,
-			SkipUI:             false,
-			IncludeRBAC:        false,
-			RelayServerAddress: "",
-			SkipChecks:         true,
-		}); err != nil {
-			return err
-		}
-	} else {
-		if err := install.InstallCommunity(context.Background(), install.CommunityOptions{
-			Options:            options,
-			AgentCrdsChartPath: "",
-			ApiServerAddress:   "",
-		}); err != nil {
-			return err
-		}
+func (i *glooMeshInstance) deployManagementPlane() error {
+	flags := pflag.NewFlagSet("test-flags", pflag.PanicOnError)
+	ctx := install.NewContext(runtime.DefaultContext(flags))
+	ctx.AddToFlags(flags)
+	flags.Set("kubeconfig", i.instanceConfig.managementPlaneKubeConfigPath)
+	flags.Set("namespace", namespace)
+	flags.Set("version", i.instanceConfig.version)
+	flags.Set("release-name", fmt.Sprintf("%s-mp", i.instanceConfig.cluster.Name()))
+	if err := install.Install(ctx); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (i *glooMeshInstance) deployControlPlane(licenseKey string) error {
-
-	options := registration.Options{
-		KubeConfigPath:         i.instanceConfig.controlPlaneKubeConfigPath,
-		MgmtKubeConfigPath:     i.instanceConfig.managementPlaneKubeConfigPath,
-		MgmtContext:            "",
-		MgmtNamespace:          namespace,
-		RemoteContext:          "",
-		RemoteNamespace:        namespace,
-		Version:                i.instanceConfig.version,
-		AgentCrdsChartPath:     "",
-		AgentChartPathOverride: "",
-		AgentChartValuesPath:   "",
-		ApiServerAddress:       "",
-		ClusterName:            i.instanceConfig.cluster.Name(),
-		ClusterDomain:          "",
-		Verbose:                false,
-	}
-
-	if licenseKey != "" {
-		if err := enterprise.RegisterCluster(context.Background(), enterprise.RegistrationOptions{
-			Options:                   options,
-			AgentChartPathOverride:    "",
-			AgentChartValuesPath:      "",
-			RelayServerAddress:        i.instanceConfig.managementPlaneRelayServerAddress,
-			RelayServerInsecure:       false,
-			RootCASecretName:          "",
-			RootCASecretNamespace:     "",
-			ClientCertSecretName:      "",
-			ClientCertSecretNamespace: "",
-			TokenSecretName:           "",
-			TokenSecretNamespace:      "",
-			TokenSecretKey:            "",
-			ReleaseName:               fmt.Sprintf("%s-cp", i.instanceConfig.cluster.Name()),
-			SkipChecks:                true,
-		}); err != nil {
-			return err
-		}
-
-		// TODO this isnt needed but we should do some sort of sanity check that MP came up correctly
-		if err := i.waitForSecretsForNamespace([]string{
-			"rbac-webhook",
-			"relay-server-tls-secret",
-			"relay-tls-signing-secret",
-			"relay-identity-token-secret",
-			"relay-client-tls-secret",
-			"gloo-mesh-enterprise-license",
-			"relay-root-tls-secret",
-		}, namespace); err != nil {
-			return err
-		}
-	} else {
-
-		registrant, err := registration.NewRegistrant(options)
-		if err != nil {
-			return err
-		}
-
-		return registrant.RegisterCluster(context.Background())
-	}
-
-	return nil
+func (i *glooMeshInstance) deployControlPlane() error {
+	flags := pflag.NewFlagSet("test-flags", pflag.PanicOnError)
+	ctx := register.NewContext(runtime.DefaultContext(flags))
+	ctx.AddToFlags(flags)
+	flags.Set("kubeconfig", i.instanceConfig.managementPlaneKubeConfigPath)
+	flags.Set("namespace", namespace)
+	flags.Set("remote-kubeconfig", i.instanceConfig.controlPlaneKubeConfigPath)
+	flags.Set("remote-namespace", namespace)
+	flags.Set("version", i.instanceConfig.version)
+	flags.Set("agent-version", i.instanceConfig.version)
+	return register.Register(ctx, i.instanceConfig.cluster.Name(), "")
 }
 
 func (i *glooMeshInstance) ID() resource.ID {
@@ -204,53 +125,16 @@ func (i *glooMeshInstance) GetCluster() cluster.Cluster {
 
 // Close implements io.Closer.
 func (i *glooMeshInstance) Close() error {
-	if i.instanceConfig.managementPlane {
-		kubeConfig := i.instanceConfig.managementPlaneKubeConfigPath
-		releaseName := fmt.Sprintf("%s-mp", i.instanceConfig.cluster.Name())
-		if err := uninstall.Uninstall(context.Background(), &uninstall.Options{
-			Verbose:     true,
-			KubeCfgPath: kubeConfig,
-			KubeContext: "",
-			Namespace:   "gloo-mesh",
-			ReleaseName: releaseName,
-		}); err != nil {
-			log.Warn(err)
-		}
-	} else {
-		releaseName := fmt.Sprintf("%s-cp", i.instanceConfig.cluster.Name())
-		if err := enterprise.DeregisterCluster(context.Background(), enterprise.RegistrationOptions{
-			Options: registration.Options{
-				KubeConfigPath:         i.instanceConfig.controlPlaneKubeConfigPath,
-				MgmtKubeConfigPath:     i.instanceConfig.managementPlaneKubeConfigPath,
-				MgmtContext:            "",
-				MgmtNamespace:          namespace,
-				RemoteContext:          "",
-				RemoteNamespace:        namespace,
-				Version:                i.instanceConfig.version,
-				AgentCrdsChartPath:     "",
-				AgentChartPathOverride: "",
-				AgentChartValuesPath:   "",
-				ApiServerAddress:       "",
-				ClusterName:            i.instanceConfig.cluster.Name(),
-				ClusterDomain:          "",
-				Verbose:                false,
-			},
-			AgentChartPathOverride:    "",
-			AgentChartValuesPath:      "",
-			RelayServerAddress:        i.instanceConfig.managementPlaneRelayServerAddress,
-			RelayServerInsecure:       false,
-			RootCASecretName:          "",
-			RootCASecretNamespace:     "",
-			ClientCertSecretName:      "",
-			ClientCertSecretNamespace: "",
-			TokenSecretName:           "",
-			TokenSecretNamespace:      "",
-			TokenSecretKey:            "",
-			ReleaseName:               releaseName,
-		}); err != nil {
-			log.Warn(err)
-		}
+	flags := pflag.NewFlagSet("test-flags", pflag.PanicOnError)
+	ctx := uninstall.NewContext(runtime.DefaultContext(flags))
+	ctx.AddToFlags(flags)
+	flags.Set("kubeconfig", i.instanceConfig.managementPlaneKubeConfigPath)
+	flags.Set("namespace", namespace)
+	flags.Set("release-name", fmt.Sprintf("%s-mp", i.instanceConfig.cluster.Name()))
+	if err := uninstall.Uninstall(ctx); err != nil {
+		log.Warn(err)
 	}
+
 	// Delete CRDS in cluster
 	files, err := crdFiles.ReadDir("crds")
 	if err != nil {

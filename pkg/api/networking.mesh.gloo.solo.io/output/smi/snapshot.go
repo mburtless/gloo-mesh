@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"sort"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -38,19 +40,16 @@ var MissingRequiredLabelError = func(labelKey string, gvk schema.GroupVersionKin
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "split.smi-spec.io",
 		Version: "v1alpha2",
 		Kind:    "TrafficSplit",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "access.smi-spec.io",
 		Version: "v1alpha2",
 		Kind:    "TrafficTarget",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "specs.smi-spec.io",
 		Version: "v1alpha3",
@@ -116,7 +115,6 @@ func NewSnapshot(
 func NewLabelPartitionedSnapshot(
 	name,
 	labelKey string, // the key by which to partition the resources
-	gvk schema.GroupVersionKind,
 
 	trafficSplits split_smi_spec_io_v1alpha2_sets.TrafficSplitSet,
 
@@ -126,15 +124,15 @@ func NewLabelPartitionedSnapshot(
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
-	partitionedTrafficSplits, err := partitionTrafficSplitsByLabel(labelKey, gvk, trafficSplits)
+	partitionedTrafficSplits, err := partitionTrafficSplitsByLabel(labelKey, trafficSplits)
 	if err != nil {
 		return nil, err
 	}
-	partitionedTrafficTargets, err := partitionTrafficTargetsByLabel(labelKey, gvk, trafficTargets)
+	partitionedTrafficTargets, err := partitionTrafficTargetsByLabel(labelKey, trafficTargets)
 	if err != nil {
 		return nil, err
 	}
-	partitionedHTTPRouteGroups, err := partitionHTTPRouteGroupsByLabel(labelKey, gvk, hTTPRouteGroups)
+	partitionedHTTPRouteGroups, err := partitionHTTPRouteGroupsByLabel(labelKey, hTTPRouteGroups)
 	if err != nil {
 		return nil, err
 	}
@@ -276,16 +274,21 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 	}
 }
 
-func partitionTrafficSplitsByLabel(labelKey string, gvk schema.GroupVersionKind, set split_smi_spec_io_v1alpha2_sets.TrafficSplitSet) ([]LabeledTrafficSplitSet, error) {
+func partitionTrafficSplitsByLabel(labelKey string, set split_smi_spec_io_v1alpha2_sets.TrafficSplitSet) ([]LabeledTrafficSplitSet, error) {
 	setsByLabel := map[string]split_smi_spec_io_v1alpha2_sets.TrafficSplitSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "split.smi-spec.io",
+			Version: "v1alpha2",
+			Kind:    "TrafficSplit",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -320,16 +323,21 @@ func partitionTrafficSplitsByLabel(labelKey string, gvk schema.GroupVersionKind,
 	return partitionedTrafficSplits, nil
 }
 
-func partitionTrafficTargetsByLabel(labelKey string, gvk schema.GroupVersionKind, set access_smi_spec_io_v1alpha2_sets.TrafficTargetSet) ([]LabeledTrafficTargetSet, error) {
+func partitionTrafficTargetsByLabel(labelKey string, set access_smi_spec_io_v1alpha2_sets.TrafficTargetSet) ([]LabeledTrafficTargetSet, error) {
 	setsByLabel := map[string]access_smi_spec_io_v1alpha2_sets.TrafficTargetSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "access.smi-spec.io",
+			Version: "v1alpha2",
+			Kind:    "TrafficTarget",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -364,16 +372,21 @@ func partitionTrafficTargetsByLabel(labelKey string, gvk schema.GroupVersionKind
 	return partitionedTrafficTargets, nil
 }
 
-func partitionHTTPRouteGroupsByLabel(labelKey string, gvk schema.GroupVersionKind, set specs_smi_spec_io_v1alpha3_sets.HTTPRouteGroupSet) ([]LabeledHTTPRouteGroupSet, error) {
+func partitionHTTPRouteGroupsByLabel(labelKey string, set specs_smi_spec_io_v1alpha3_sets.HTTPRouteGroupSet) ([]LabeledHTTPRouteGroupSet, error) {
 	setsByLabel := map[string]specs_smi_spec_io_v1alpha3_sets.HTTPRouteGroupSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "specs.smi-spec.io",
+			Version: "v1alpha3",
+			Kind:    "HTTPRouteGroup",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -425,19 +438,31 @@ func (s snapshot) MarshalJSON() ([]byte, error) {
 
 	trafficSplitSet := split_smi_spec_io_v1alpha2_sets.NewTrafficSplitSet()
 	for _, set := range s.trafficSplits {
-		trafficSplitSet = trafficSplitSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			trafficSplitSet.Insert(obj.(*split_smi_spec_io_v1alpha2.TrafficSplit))
+		}
 	}
 	snapshotMap["trafficSplits"] = trafficSplitSet.List()
 
 	trafficTargetSet := access_smi_spec_io_v1alpha2_sets.NewTrafficTargetSet()
 	for _, set := range s.trafficTargets {
-		trafficTargetSet = trafficTargetSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			trafficTargetSet.Insert(obj.(*access_smi_spec_io_v1alpha2.TrafficTarget))
+		}
 	}
 	snapshotMap["trafficTargets"] = trafficTargetSet.List()
 
 	hTTPRouteGroupSet := specs_smi_spec_io_v1alpha3_sets.NewHTTPRouteGroupSet()
 	for _, set := range s.hTTPRouteGroups {
-		hTTPRouteGroupSet = hTTPRouteGroupSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			hTTPRouteGroupSet.Insert(obj.(*specs_smi_spec_io_v1alpha3.HTTPRouteGroup))
+		}
 	}
 	snapshotMap["hTTPRouteGroups"] = hTTPRouteGroupSet.List()
 
@@ -710,7 +735,7 @@ type Builder interface {
 	GetHTTPRouteGroups() specs_smi_spec_io_v1alpha3_sets.HTTPRouteGroupSet
 
 	// build the collected outputs into a label-partitioned snapshot
-	BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error)
+	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
 
 	// build the collected outputs into a snapshot with a single partition
 	BuildSinglePartitionedSnapshot(snapshotLabels map[string]string) (Snapshot, error)
@@ -772,11 +797,10 @@ func (b *builder) GetHTTPRouteGroups() specs_smi_spec_io_v1alpha3_sets.HTTPRoute
 	return b.hTTPRouteGroups
 }
 
-func (b *builder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error) {
+func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
 		labelKey,
-		gvk,
 
 		b.trafficSplits,
 

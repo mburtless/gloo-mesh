@@ -1,13 +1,10 @@
 package gloo_mesh
 
 import (
-	"fmt"
 	"os"
-	"time"
 
 	"github.com/solo-io/gloo-mesh/pkg/test/apps/context"
 	"istio.io/istio/pkg/test/framework/resource"
-	"istio.io/istio/pkg/test/util/retry"
 )
 
 type Config struct {
@@ -17,7 +14,7 @@ type Config struct {
 
 const glooMeshVersion = "1.1.0-beta13"
 
-func Deploy(deploymentCtx *context.DeploymentContext, cfg *Config, licenseKey string) resource.SetupFn {
+func Deploy(deploymentCtx *context.DeploymentContext, cfg *Config) resource.SetupFn {
 	return func(ctx resource.Context) error {
 		if deploymentCtx == nil {
 			*deploymentCtx = context.DeploymentContext{}
@@ -40,24 +37,11 @@ func Deploy(deploymentCtx *context.DeploymentContext, cfg *Config, licenseKey st
 			clusterDomain:                 "",
 			cluster:                       ctx.Clusters()[0],
 		}
-		mpInstance, err := newInstance(ctx, mpcfg, licenseKey)
+		mpInstance, err := newInstance(ctx, mpcfg)
 		if err != nil {
 			return err
 		}
 		deploymentCtx.Meshes = append(deploymentCtx.Meshes, mpInstance)
-
-		var relayAddress string
-		if licenseKey != "" {
-			if err := retry.UntilSuccess(func() error {
-				relayAddress, err = mpInstance.GetRelayServerAddress()
-				if err != nil {
-					return err
-				}
-				return nil
-			}, retry.Timeout(3*time.Minute), retry.Delay(15*time.Second)); err != nil {
-				return fmt.Errorf("failed to find relay server address %s", err.Error())
-			}
-		}
 
 		// install control planes
 		var index = 0
@@ -69,15 +53,14 @@ func Deploy(deploymentCtx *context.DeploymentContext, cfg *Config, licenseKey st
 			}
 
 			cpcfg := InstanceConfig{
-				managementPlane:                   false,
-				controlPlaneKubeConfigPath:        p,
-				managementPlaneKubeConfigPath:     cfg.ClusterKubeConfigs[ctx.Clusters()[0].Name()],
-				version:                           version,
-				cluster:                           ctx.Clusters()[index],
-				managementPlaneRelayServerAddress: relayAddress,
-				clusterDomain:                     "",
+				managementPlane:               false,
+				controlPlaneKubeConfigPath:    p,
+				managementPlaneKubeConfigPath: cfg.ClusterKubeConfigs[ctx.Clusters()[0].Name()],
+				version:                       version,
+				cluster:                       ctx.Clusters()[index],
+				clusterDomain:                 "",
 			}
-			i, err = newInstance(ctx, cpcfg, licenseKey)
+			i, err = newInstance(ctx, cpcfg)
 			if err != nil {
 				return err
 			}

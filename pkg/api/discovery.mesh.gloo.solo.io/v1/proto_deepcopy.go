@@ -6,40 +6,71 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the Destination.Spec
 func (in *DestinationSpec) DeepCopyInto(out *DestinationSpec) {
-	p := proto.Clone(in).(*DestinationSpec)
+	var p *DestinationSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*DestinationSpec)
+	} else {
+		p = proto.Clone(in).(*DestinationSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Destination.Status
 func (in *DestinationStatus) DeepCopyInto(out *DestinationStatus) {
-	p := proto.Clone(in).(*DestinationStatus)
+	var p *DestinationStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*DestinationStatus)
+	} else {
+		p = proto.Clone(in).(*DestinationStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Workload.Spec
 func (in *WorkloadSpec) DeepCopyInto(out *WorkloadSpec) {
-	p := proto.Clone(in).(*WorkloadSpec)
+	var p *WorkloadSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*WorkloadSpec)
+	} else {
+		p = proto.Clone(in).(*WorkloadSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Workload.Status
 func (in *WorkloadStatus) DeepCopyInto(out *WorkloadStatus) {
-	p := proto.Clone(in).(*WorkloadStatus)
+	var p *WorkloadStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*WorkloadStatus)
+	} else {
+		p = proto.Clone(in).(*WorkloadStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Mesh.Spec
 func (in *MeshSpec) DeepCopyInto(out *MeshSpec) {
-	p := proto.Clone(in).(*MeshSpec)
+	var p *MeshSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*MeshSpec)
+	} else {
+		p = proto.Clone(in).(*MeshSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Mesh.Status
 func (in *MeshStatus) DeepCopyInto(out *MeshStatus) {
-	p := proto.Clone(in).(*MeshStatus)
+	var p *MeshStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*MeshStatus)
+	} else {
+		p = proto.Clone(in).(*MeshStatus)
+	}
 	*out = *p
 }

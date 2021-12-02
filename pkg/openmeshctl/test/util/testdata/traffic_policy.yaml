@@ -1,0 +1,18 @@
+apiVersion: networking.mesh.gloo.solo.io/v1
+kind: TrafficPolicy
+metadata:
+  namespace: gloo-mesh
+  name: petstore
+spec:
+  destinationSelector:
+  - kubeServiceRefs:
+      services:
+      - clusterName: remote.cluster
+        name: petstore
+        namespace: default
+  policy:
+    requestTimeout: 100ms 
+    retries:
+      attempts: 5
+      perTryTimeout: 5ms
+

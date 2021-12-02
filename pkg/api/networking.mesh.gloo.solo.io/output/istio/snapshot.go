@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"sort"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/skv2/pkg/multicluster"
 	"github.com/solo-io/skv2/pkg/resource"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -44,7 +46,6 @@ var MissingRequiredLabelError = func(labelKey string, gvk schema.GroupVersionKin
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "certificates.mesh.gloo.solo.io",
 		Version: "v1",
@@ -55,13 +56,11 @@ var SnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "PodBounceDirective",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "xds.agent.enterprise.mesh.gloo.solo.io",
 		Version: "v1beta1",
 		Kind:    "XdsConfig",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "networking.istio.io",
 		Version: "v1alpha3",
@@ -92,13 +91,11 @@ var SnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1alpha3",
 		Kind:    "Sidecar",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "security.istio.io",
 		Version: "v1beta1",
 		Kind:    "AuthorizationPolicy",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "ratelimit.solo.io",
 		Version: "v1alpha1",
@@ -204,7 +201,6 @@ func NewSnapshot(
 func NewLabelPartitionedSnapshot(
 	name,
 	labelKey string, // the key by which to partition the resources
-	gvk schema.GroupVersionKind,
 
 	issuedCertificates certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet,
 	podBounceDirectives certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet,
@@ -224,47 +220,47 @@ func NewLabelPartitionedSnapshot(
 	clusters ...string, // the set of clusters to apply the snapshot to. only required for multicluster snapshots.
 ) (Snapshot, error) {
 
-	partitionedIssuedCertificates, err := partitionIssuedCertificatesByLabel(labelKey, gvk, issuedCertificates)
+	partitionedIssuedCertificates, err := partitionIssuedCertificatesByLabel(labelKey, issuedCertificates)
 	if err != nil {
 		return nil, err
 	}
-	partitionedPodBounceDirectives, err := partitionPodBounceDirectivesByLabel(labelKey, gvk, podBounceDirectives)
+	partitionedPodBounceDirectives, err := partitionPodBounceDirectivesByLabel(labelKey, podBounceDirectives)
 	if err != nil {
 		return nil, err
 	}
-	partitionedXdsConfigs, err := partitionXdsConfigsByLabel(labelKey, gvk, xdsConfigs)
+	partitionedXdsConfigs, err := partitionXdsConfigsByLabel(labelKey, xdsConfigs)
 	if err != nil {
 		return nil, err
 	}
-	partitionedDestinationRules, err := partitionDestinationRulesByLabel(labelKey, gvk, destinationRules)
+	partitionedDestinationRules, err := partitionDestinationRulesByLabel(labelKey, destinationRules)
 	if err != nil {
 		return nil, err
 	}
-	partitionedEnvoyFilters, err := partitionEnvoyFiltersByLabel(labelKey, gvk, envoyFilters)
+	partitionedEnvoyFilters, err := partitionEnvoyFiltersByLabel(labelKey, envoyFilters)
 	if err != nil {
 		return nil, err
 	}
-	partitionedGateways, err := partitionGatewaysByLabel(labelKey, gvk, gateways)
+	partitionedGateways, err := partitionGatewaysByLabel(labelKey, gateways)
 	if err != nil {
 		return nil, err
 	}
-	partitionedServiceEntries, err := partitionServiceEntriesByLabel(labelKey, gvk, serviceEntries)
+	partitionedServiceEntries, err := partitionServiceEntriesByLabel(labelKey, serviceEntries)
 	if err != nil {
 		return nil, err
 	}
-	partitionedVirtualServices, err := partitionVirtualServicesByLabel(labelKey, gvk, virtualServices)
+	partitionedVirtualServices, err := partitionVirtualServicesByLabel(labelKey, virtualServices)
 	if err != nil {
 		return nil, err
 	}
-	partitionedSidecars, err := partitionSidecarsByLabel(labelKey, gvk, sidecars)
+	partitionedSidecars, err := partitionSidecarsByLabel(labelKey, sidecars)
 	if err != nil {
 		return nil, err
 	}
-	partitionedAuthorizationPolicies, err := partitionAuthorizationPoliciesByLabel(labelKey, gvk, authorizationPolicies)
+	partitionedAuthorizationPolicies, err := partitionAuthorizationPoliciesByLabel(labelKey, authorizationPolicies)
 	if err != nil {
 		return nil, err
 	}
-	partitionedRateLimitConfigs, err := partitionRateLimitConfigsByLabel(labelKey, gvk, rateLimitConfigs)
+	partitionedRateLimitConfigs, err := partitionRateLimitConfigsByLabel(labelKey, rateLimitConfigs)
 	if err != nil {
 		return nil, err
 	}
@@ -602,16 +598,21 @@ func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.Gr
 	}
 }
 
-func partitionIssuedCertificatesByLabel(labelKey string, gvk schema.GroupVersionKind, set certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet) ([]LabeledIssuedCertificateSet, error) {
+func partitionIssuedCertificatesByLabel(labelKey string, set certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet) ([]LabeledIssuedCertificateSet, error) {
 	setsByLabel := map[string]certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "IssuedCertificate",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -646,16 +647,21 @@ func partitionIssuedCertificatesByLabel(labelKey string, gvk schema.GroupVersion
 	return partitionedIssuedCertificates, nil
 }
 
-func partitionPodBounceDirectivesByLabel(labelKey string, gvk schema.GroupVersionKind, set certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet) ([]LabeledPodBounceDirectiveSet, error) {
+func partitionPodBounceDirectivesByLabel(labelKey string, set certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet) ([]LabeledPodBounceDirectiveSet, error) {
 	setsByLabel := map[string]certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "certificates.mesh.gloo.solo.io",
+			Version: "v1",
+			Kind:    "PodBounceDirective",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -690,16 +696,21 @@ func partitionPodBounceDirectivesByLabel(labelKey string, gvk schema.GroupVersio
 	return partitionedPodBounceDirectives, nil
 }
 
-func partitionXdsConfigsByLabel(labelKey string, gvk schema.GroupVersionKind, set xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.XdsConfigSet) ([]LabeledXdsConfigSet, error) {
+func partitionXdsConfigsByLabel(labelKey string, set xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.XdsConfigSet) ([]LabeledXdsConfigSet, error) {
 	setsByLabel := map[string]xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.XdsConfigSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "xds.agent.enterprise.mesh.gloo.solo.io",
+			Version: "v1beta1",
+			Kind:    "XdsConfig",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -734,16 +745,21 @@ func partitionXdsConfigsByLabel(labelKey string, gvk schema.GroupVersionKind, se
 	return partitionedXdsConfigs, nil
 }
 
-func partitionDestinationRulesByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.DestinationRuleSet) ([]LabeledDestinationRuleSet, error) {
+func partitionDestinationRulesByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.DestinationRuleSet) ([]LabeledDestinationRuleSet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.DestinationRuleSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "DestinationRule",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -778,16 +794,21 @@ func partitionDestinationRulesByLabel(labelKey string, gvk schema.GroupVersionKi
 	return partitionedDestinationRules, nil
 }
 
-func partitionEnvoyFiltersByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.EnvoyFilterSet) ([]LabeledEnvoyFilterSet, error) {
+func partitionEnvoyFiltersByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.EnvoyFilterSet) ([]LabeledEnvoyFilterSet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.EnvoyFilterSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "EnvoyFilter",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -822,16 +843,21 @@ func partitionEnvoyFiltersByLabel(labelKey string, gvk schema.GroupVersionKind, 
 	return partitionedEnvoyFilters, nil
 }
 
-func partitionGatewaysByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.GatewaySet) ([]LabeledGatewaySet, error) {
+func partitionGatewaysByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.GatewaySet) ([]LabeledGatewaySet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.GatewaySet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "Gateway",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -866,16 +892,21 @@ func partitionGatewaysByLabel(labelKey string, gvk schema.GroupVersionKind, set 
 	return partitionedGateways, nil
 }
 
-func partitionServiceEntriesByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.ServiceEntrySet) ([]LabeledServiceEntrySet, error) {
+func partitionServiceEntriesByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.ServiceEntrySet) ([]LabeledServiceEntrySet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.ServiceEntrySet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "ServiceEntry",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -910,16 +941,21 @@ func partitionServiceEntriesByLabel(labelKey string, gvk schema.GroupVersionKind
 	return partitionedServiceEntries, nil
 }
 
-func partitionVirtualServicesByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.VirtualServiceSet) ([]LabeledVirtualServiceSet, error) {
+func partitionVirtualServicesByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.VirtualServiceSet) ([]LabeledVirtualServiceSet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.VirtualServiceSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "VirtualService",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -954,16 +990,21 @@ func partitionVirtualServicesByLabel(labelKey string, gvk schema.GroupVersionKin
 	return partitionedVirtualServices, nil
 }
 
-func partitionSidecarsByLabel(labelKey string, gvk schema.GroupVersionKind, set networking_istio_io_v1alpha3_sets.SidecarSet) ([]LabeledSidecarSet, error) {
+func partitionSidecarsByLabel(labelKey string, set networking_istio_io_v1alpha3_sets.SidecarSet) ([]LabeledSidecarSet, error) {
 	setsByLabel := map[string]networking_istio_io_v1alpha3_sets.SidecarSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "networking.istio.io",
+			Version: "v1alpha3",
+			Kind:    "Sidecar",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -998,16 +1039,21 @@ func partitionSidecarsByLabel(labelKey string, gvk schema.GroupVersionKind, set 
 	return partitionedSidecars, nil
 }
 
-func partitionAuthorizationPoliciesByLabel(labelKey string, gvk schema.GroupVersionKind, set security_istio_io_v1beta1_sets.AuthorizationPolicySet) ([]LabeledAuthorizationPolicySet, error) {
+func partitionAuthorizationPoliciesByLabel(labelKey string, set security_istio_io_v1beta1_sets.AuthorizationPolicySet) ([]LabeledAuthorizationPolicySet, error) {
 	setsByLabel := map[string]security_istio_io_v1beta1_sets.AuthorizationPolicySet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "security.istio.io",
+			Version: "v1beta1",
+			Kind:    "AuthorizationPolicy",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -1042,16 +1088,21 @@ func partitionAuthorizationPoliciesByLabel(labelKey string, gvk schema.GroupVers
 	return partitionedAuthorizationPolicies, nil
 }
 
-func partitionRateLimitConfigsByLabel(labelKey string, gvk schema.GroupVersionKind, set ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet) ([]LabeledRateLimitConfigSet, error) {
+func partitionRateLimitConfigsByLabel(labelKey string, set ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet) ([]LabeledRateLimitConfigSet, error) {
 	setsByLabel := map[string]ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet{}
 
 	for _, obj := range set.List() {
+		objGVK := schema.GroupVersionKind{
+			Group:   "ratelimit.solo.io",
+			Version: "v1alpha1",
+			Kind:    "RateLimitConfig",
+		}
 		if obj.Labels == nil {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 		labelValue := obj.Labels[labelKey]
 		if labelValue == "" {
-			return nil, MissingRequiredLabelError(labelKey, gvk, obj)
+			return nil, MissingRequiredLabelError(labelKey, objGVK, obj)
 		}
 
 		setForValue, ok := setsByLabel[labelValue]
@@ -1135,61 +1186,105 @@ func (s snapshot) MarshalJSON() ([]byte, error) {
 
 	issuedCertificateSet := certificates_mesh_gloo_solo_io_v1_sets.NewIssuedCertificateSet()
 	for _, set := range s.issuedCertificates {
-		issuedCertificateSet = issuedCertificateSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			issuedCertificateSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1.IssuedCertificate))
+		}
 	}
 	snapshotMap["issuedCertificates"] = issuedCertificateSet.List()
 	podBounceDirectiveSet := certificates_mesh_gloo_solo_io_v1_sets.NewPodBounceDirectiveSet()
 	for _, set := range s.podBounceDirectives {
-		podBounceDirectiveSet = podBounceDirectiveSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			podBounceDirectiveSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1.PodBounceDirective))
+		}
 	}
 	snapshotMap["podBounceDirectives"] = podBounceDirectiveSet.List()
 
 	xdsConfigSet := xds_agent_enterprise_mesh_gloo_solo_io_v1beta1_sets.NewXdsConfigSet()
 	for _, set := range s.xdsConfigs {
-		xdsConfigSet = xdsConfigSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			xdsConfigSet.Insert(obj.(*xds_agent_enterprise_mesh_gloo_solo_io_v1beta1.XdsConfig))
+		}
 	}
 	snapshotMap["xdsConfigs"] = xdsConfigSet.List()
 
 	destinationRuleSet := networking_istio_io_v1alpha3_sets.NewDestinationRuleSet()
 	for _, set := range s.destinationRules {
-		destinationRuleSet = destinationRuleSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			destinationRuleSet.Insert(obj.(*networking_istio_io_v1alpha3.DestinationRule))
+		}
 	}
 	snapshotMap["destinationRules"] = destinationRuleSet.List()
 	envoyFilterSet := networking_istio_io_v1alpha3_sets.NewEnvoyFilterSet()
 	for _, set := range s.envoyFilters {
-		envoyFilterSet = envoyFilterSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			envoyFilterSet.Insert(obj.(*networking_istio_io_v1alpha3.EnvoyFilter))
+		}
 	}
 	snapshotMap["envoyFilters"] = envoyFilterSet.List()
 	gatewaySet := networking_istio_io_v1alpha3_sets.NewGatewaySet()
 	for _, set := range s.gateways {
-		gatewaySet = gatewaySet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			gatewaySet.Insert(obj.(*networking_istio_io_v1alpha3.Gateway))
+		}
 	}
 	snapshotMap["gateways"] = gatewaySet.List()
 	serviceEntrySet := networking_istio_io_v1alpha3_sets.NewServiceEntrySet()
 	for _, set := range s.serviceEntries {
-		serviceEntrySet = serviceEntrySet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			serviceEntrySet.Insert(obj.(*networking_istio_io_v1alpha3.ServiceEntry))
+		}
 	}
 	snapshotMap["serviceEntries"] = serviceEntrySet.List()
 	virtualServiceSet := networking_istio_io_v1alpha3_sets.NewVirtualServiceSet()
 	for _, set := range s.virtualServices {
-		virtualServiceSet = virtualServiceSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			virtualServiceSet.Insert(obj.(*networking_istio_io_v1alpha3.VirtualService))
+		}
 	}
 	snapshotMap["virtualServices"] = virtualServiceSet.List()
 	sidecarSet := networking_istio_io_v1alpha3_sets.NewSidecarSet()
 	for _, set := range s.sidecars {
-		sidecarSet = sidecarSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			sidecarSet.Insert(obj.(*networking_istio_io_v1alpha3.Sidecar))
+		}
 	}
 	snapshotMap["sidecars"] = sidecarSet.List()
 
 	authorizationPolicySet := security_istio_io_v1beta1_sets.NewAuthorizationPolicySet()
 	for _, set := range s.authorizationPolicies {
-		authorizationPolicySet = authorizationPolicySet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			authorizationPolicySet.Insert(obj.(*security_istio_io_v1beta1.AuthorizationPolicy))
+		}
 	}
 	snapshotMap["authorizationPolicies"] = authorizationPolicySet.List()
 
 	rateLimitConfigSet := ratelimit_solo_io_v1alpha1_sets.NewRateLimitConfigSet()
 	for _, set := range s.rateLimitConfigs {
-		rateLimitConfigSet = rateLimitConfigSet.Union(set.Set())
+		for _, obj := range set.Set().UnsortedList() {
+			// redact secret data from the snapshot
+			obj := snapshotutils.RedactSecretData(obj)
+			rateLimitConfigSet.Insert(obj.(*ratelimit_solo_io_v1alpha1.RateLimitConfig))
+		}
 	}
 	snapshotMap["rateLimitConfigs"] = rateLimitConfigSet.List()
 
@@ -2106,7 +2201,7 @@ type Builder interface {
 	GetRateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimitConfigSet
 
 	// build the collected outputs into a label-partitioned snapshot
-	BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error)
+	BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error)
 
 	// build the collected outputs into a snapshot with a single partition
 	BuildSinglePartitionedSnapshot(snapshotLabels map[string]string) (Snapshot, error)
@@ -2258,11 +2353,10 @@ func (b *builder) GetRateLimitConfigs() ratelimit_solo_io_v1alpha1_sets.RateLimi
 	return b.rateLimitConfigs
 }
 
-func (b *builder) BuildLabelPartitionedSnapshot(labelKey string, gvk schema.GroupVersionKind) (Snapshot, error) {
+func (b *builder) BuildLabelPartitionedSnapshot(labelKey string) (Snapshot, error) {
 	return NewLabelPartitionedSnapshot(
 		b.name,
 		labelKey,
-		gvk,
 
 		b.issuedCertificates,
 		b.podBounceDirectives,

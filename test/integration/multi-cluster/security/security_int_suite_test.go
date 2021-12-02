@@ -31,7 +31,6 @@ func TestMain(m *testing.M) {
 		fmt.Println("skipping E2E Integration tests")
 		return
 	}
-	licenseKey := os.Getenv("GLOO_MESH_LICENSE_KEY")
 	// get kube settings from command line
 	config.Parse()
 	kubeSettings, _ := kube.NewSettingsFromCommandLine()
@@ -49,8 +48,7 @@ func TestMain(m *testing.M) {
 		Setup(gloo_mesh.Deploy(&deploymentCtx, &gloo_mesh.Config{
 			ClusterKubeConfigs:                  clusterKubeConfigs,
 			DeployControlPlaneToManagementPlane: true,
-		},
-			licenseKey)).
+		})).
 		Setup(echo2.DeployEchos(&deploymentCtx)).
 		Run()
 }

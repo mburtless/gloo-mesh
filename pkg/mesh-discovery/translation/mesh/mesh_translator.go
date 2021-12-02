@@ -37,7 +37,7 @@ func (t *translator) TranslateMeshes(in input.DiscoveryInputSnapshot, settings *
 	meshSet := v1sets.NewMeshSet()
 	meshes, err := t.meshDetector.DetectMeshes(in, settings)
 	if err != nil {
-		contextutils.LoggerFrom(t.ctx).Warnw("ecnountered error discovering meshes", "err", err)
+		contextutils.LoggerFrom(t.ctx).Warnw("encountered error discovering meshes", "err", err)
 	}
 	for _, mesh := range meshes {
 		contextutils.LoggerFrom(t.ctx).Debugf("detected mesh %v", sets.Key(mesh))

@@ -1,0 +1,11 @@
+NAMESPACE   NAME                                               MESH
+gloo-mesh   details-bookinfo-mgmt-cluster                      gloo-mesh.istiod-istio-system-mgmt-cluster
+gloo-mesh   details-bookinfo-remote-cluster                    gloo-mesh.istiod-istio-system-remote-cluster
+gloo-mesh   istio-ingressgateway-istio-system-mgmt-cluster     gloo-mesh.istiod-istio-system-mgmt-cluster
+gloo-mesh   istio-ingressgateway-istio-system-remote-cluster   gloo-mesh.istiod-istio-system-remote-cluster
+gloo-mesh   productpage-bookinfo-mgmt-cluster                  gloo-mesh.istiod-istio-system-mgmt-cluster
+gloo-mesh   productpage-bookinfo-remote-cluster                gloo-mesh.istiod-istio-system-remote-cluster
+gloo-mesh   ratings-bookinfo-mgmt-cluster                      gloo-mesh.istiod-istio-system-mgmt-cluster
+gloo-mesh   ratings-bookinfo-remote-cluster                    gloo-mesh.istiod-istio-system-remote-cluster
+gloo-mesh   reviews-bookinfo-mgmt-cluster                      gloo-mesh.istiod-istio-system-mgmt-cluster
+gloo-mesh   reviews-bookinfo-remote-cluster                    gloo-mesh.istiod-istio-system-remote-cluster

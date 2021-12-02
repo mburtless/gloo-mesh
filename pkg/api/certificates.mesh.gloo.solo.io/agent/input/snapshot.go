@@ -24,6 +24,8 @@ import (
 	"context"
 	"encoding/json"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/resource"
 	"github.com/solo-io/skv2/pkg/verifier"
@@ -48,7 +50,6 @@ import (
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var SnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "certificates.mesh.gloo.solo.io",
 		Version: "v1",
@@ -64,7 +65,6 @@ var SnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "PodBounceDirective",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "",
 		Version: "v1",
@@ -277,35 +277,35 @@ func NewSnapshotFromGeneric(
 	)
 }
 
-func (s snapshot) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
+func (s *snapshot) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
 	return s.issuedCertificates
 }
 
-func (s snapshot) CertificateRequests() certificates_mesh_gloo_solo_io_v1_sets.CertificateRequestSet {
+func (s *snapshot) CertificateRequests() certificates_mesh_gloo_solo_io_v1_sets.CertificateRequestSet {
 	return s.certificateRequests
 }
 
-func (s snapshot) PodBounceDirectives() certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet {
+func (s *snapshot) PodBounceDirectives() certificates_mesh_gloo_solo_io_v1_sets.PodBounceDirectiveSet {
 	return s.podBounceDirectives
 }
 
-func (s snapshot) Secrets() v1_sets.SecretSet {
+func (s *snapshot) Secrets() v1_sets.SecretSet {
 	return s.secrets
 }
 
-func (s snapshot) ServiceAccounts() v1_sets.ServiceAccountSet {
+func (s *snapshot) ServiceAccounts() v1_sets.ServiceAccountSet {
 	return s.serviceAccounts
 }
 
-func (s snapshot) ConfigMaps() v1_sets.ConfigMapSet {
+func (s *snapshot) ConfigMaps() v1_sets.ConfigMapSet {
 	return s.configMaps
 }
 
-func (s snapshot) Pods() v1_sets.PodSet {
+func (s *snapshot) Pods() v1_sets.PodSet {
 	return s.pods
 }
 
-func (s snapshot) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts SyncStatusOptions) error {
+func (s *snapshot) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts SyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -348,7 +348,7 @@ func (s snapshot) SyncStatusesMultiCluster(ctx context.Context, mcClient multicl
 	return errs
 }
 
-func (s snapshot) SyncStatuses(ctx context.Context, c client.Client, opts SyncStatusOptions) error {
+func (s *snapshot) SyncStatuses(ctx context.Context, c client.Client, opts SyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -376,20 +376,63 @@ func (s snapshot) SyncStatuses(ctx context.Context, c client.Client, opts SyncSt
 	return errs
 }
 
-func (s snapshot) MarshalJSON() ([]byte, error) {
+func (s *snapshot) MarshalJSON() ([]byte, error) {
 	snapshotMap := map[string]interface{}{"name": s.name}
 
-	snapshotMap["issuedCertificates"] = s.issuedCertificates.List()
-	snapshotMap["certificateRequests"] = s.certificateRequests.List()
-	snapshotMap["podBounceDirectives"] = s.podBounceDirectives.List()
-	snapshotMap["secrets"] = s.secrets.List()
-	snapshotMap["serviceAccounts"] = s.serviceAccounts.List()
-	snapshotMap["configMaps"] = s.configMaps.List()
-	snapshotMap["pods"] = s.pods.List()
+	issuedCertificateSet := certificates_mesh_gloo_solo_io_v1_sets.NewIssuedCertificateSet()
+	for _, obj := range s.issuedCertificates.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		issuedCertificateSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.IssuedCertificate))
+	}
+	snapshotMap["issuedCertificates"] = issuedCertificateSet.List()
+	certificateRequestSet := certificates_mesh_gloo_solo_io_v1_sets.NewCertificateRequestSet()
+	for _, obj := range s.certificateRequests.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		certificateRequestSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.CertificateRequest))
+	}
+	snapshotMap["certificateRequests"] = certificateRequestSet.List()
+	podBounceDirectiveSet := certificates_mesh_gloo_solo_io_v1_sets.NewPodBounceDirectiveSet()
+	for _, obj := range s.podBounceDirectives.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		podBounceDirectiveSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.PodBounceDirective))
+	}
+	snapshotMap["podBounceDirectives"] = podBounceDirectiveSet.List()
+
+	secretSet := v1_sets.NewSecretSet()
+	for _, obj := range s.secrets.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		secretSet.Insert(obj.(*v1_types.Secret))
+	}
+	snapshotMap["secrets"] = secretSet.List()
+	serviceAccountSet := v1_sets.NewServiceAccountSet()
+	for _, obj := range s.serviceAccounts.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		serviceAccountSet.Insert(obj.(*v1_types.ServiceAccount))
+	}
+	snapshotMap["serviceAccounts"] = serviceAccountSet.List()
+	configMapSet := v1_sets.NewConfigMapSet()
+	for _, obj := range s.configMaps.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		configMapSet.Insert(obj.(*v1_types.ConfigMap))
+	}
+	snapshotMap["configMaps"] = configMapSet.List()
+	podSet := v1_sets.NewPodSet()
+	for _, obj := range s.pods.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		podSet.Insert(obj.(*v1_types.Pod))
+	}
+	snapshotMap["pods"] = podSet.List()
 	return json.Marshal(snapshotMap)
 }
 
-func (s snapshot) Clone() Snapshot {
+func (s *snapshot) Clone() Snapshot {
 	return &snapshot{
 		name: s.name,
 
@@ -403,7 +446,7 @@ func (s snapshot) Clone() Snapshot {
 	}
 }
 
-func (s snapshot) Generic() resource.ClusterSnapshot {
+func (s *snapshot) Generic() resource.ClusterSnapshot {
 	clusterSnapshots := resource.ClusterSnapshot{}
 	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
 		clusterSnapshots.Insert(cluster, gvk, obj)
@@ -413,7 +456,7 @@ func (s snapshot) Generic() resource.ClusterSnapshot {
 }
 
 // convert this snapshot to its generic form
-func (s snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+func (s *snapshot) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
 
 	for _, obj := range s.issuedCertificates.List() {
 		cluster := obj.GetClusterName()

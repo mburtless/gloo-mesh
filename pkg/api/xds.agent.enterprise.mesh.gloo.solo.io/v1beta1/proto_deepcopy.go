@@ -6,16 +6,27 @@ package v1beta1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the XdsConfig.Spec
 func (in *XdsConfigSpec) DeepCopyInto(out *XdsConfigSpec) {
-	p := proto.Clone(in).(*XdsConfigSpec)
+	var p *XdsConfigSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*XdsConfigSpec)
+	} else {
+		p = proto.Clone(in).(*XdsConfigSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the XdsConfig.Status
 func (in *XdsConfigStatus) DeepCopyInto(out *XdsConfigStatus) {
-	p := proto.Clone(in).(*XdsConfigStatus)
+	var p *XdsConfigStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*XdsConfigStatus)
+	} else {
+		p = proto.Clone(in).(*XdsConfigStatus)
+	}
 	*out = *p
 }

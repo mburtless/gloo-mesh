@@ -6,28 +6,49 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the Role.Spec
 func (in *RoleSpec) DeepCopyInto(out *RoleSpec) {
-	p := proto.Clone(in).(*RoleSpec)
+	var p *RoleSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*RoleSpec)
+	} else {
+		p = proto.Clone(in).(*RoleSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Role.Status
 func (in *RoleStatus) DeepCopyInto(out *RoleStatus) {
-	p := proto.Clone(in).(*RoleStatus)
+	var p *RoleStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*RoleStatus)
+	} else {
+		p = proto.Clone(in).(*RoleStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the RoleBinding.Spec
 func (in *RoleBindingSpec) DeepCopyInto(out *RoleBindingSpec) {
-	p := proto.Clone(in).(*RoleBindingSpec)
+	var p *RoleBindingSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*RoleBindingSpec)
+	} else {
+		p = proto.Clone(in).(*RoleBindingSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the RoleBinding.Status
 func (in *RoleBindingStatus) DeepCopyInto(out *RoleBindingStatus) {
-	p := proto.Clone(in).(*RoleBindingStatus)
+	var p *RoleBindingStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*RoleBindingStatus)
+	} else {
+		p = proto.Clone(in).(*RoleBindingStatus)
+	}
 	*out = *p
 }

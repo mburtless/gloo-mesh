@@ -6,28 +6,49 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the Settings.Spec
 func (in *SettingsSpec) DeepCopyInto(out *SettingsSpec) {
-	p := proto.Clone(in).(*SettingsSpec)
+	var p *SettingsSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*SettingsSpec)
+	} else {
+		p = proto.Clone(in).(*SettingsSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Settings.Status
 func (in *SettingsStatus) DeepCopyInto(out *SettingsStatus) {
-	p := proto.Clone(in).(*SettingsStatus)
+	var p *SettingsStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*SettingsStatus)
+	} else {
+		p = proto.Clone(in).(*SettingsStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Dashboard.Spec
 func (in *DashboardSpec) DeepCopyInto(out *DashboardSpec) {
-	p := proto.Clone(in).(*DashboardSpec)
+	var p *DashboardSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*DashboardSpec)
+	} else {
+		p = proto.Clone(in).(*DashboardSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the Dashboard.Status
 func (in *DashboardStatus) DeepCopyInto(out *DashboardStatus) {
-	p := proto.Clone(in).(*DashboardStatus)
+	var p *DashboardStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*DashboardStatus)
+	} else {
+		p = proto.Clone(in).(*DashboardStatus)
+	}
 	*out = *p
 }

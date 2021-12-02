@@ -29,6 +29,8 @@ import (
 	"context"
 	"encoding/json"
 
+	snapshotutils "github.com/solo-io/skv2/contrib/pkg/snapshot"
+
 	"github.com/solo-io/go-utils/contextutils"
 	"github.com/solo-io/skv2/pkg/resource"
 	"github.com/solo-io/skv2/pkg/verifier"
@@ -61,19 +63,16 @@ import (
 
 // SnapshotGVKs is a list of the GVKs included in this snapshot
 var DiscoveryInputSnapshotGVKs = []schema.GroupVersionKind{
-
 	schema.GroupVersionKind{
 		Group:   "certificates.mesh.gloo.solo.io",
 		Version: "v1",
 		Kind:    "IssuedCertificate",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "appmesh.k8s.aws",
 		Version: "v1beta2",
 		Kind:    "Mesh",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "",
 		Version: "v1",
@@ -104,7 +103,6 @@ var DiscoveryInputSnapshotGVKs = []schema.GroupVersionKind{
 		Version: "v1",
 		Kind:    "Node",
 	},
-
 	schema.GroupVersionKind{
 		Group:   "apps",
 		Version: "v1",
@@ -419,55 +417,55 @@ func NewDiscoveryInputSnapshotFromGeneric(
 	)
 }
 
-func (s snapshotDiscoveryInput) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
+func (s *snapshotDiscoveryInput) IssuedCertificates() certificates_mesh_gloo_solo_io_v1_sets.IssuedCertificateSet {
 	return s.issuedCertificates
 }
 
-func (s snapshotDiscoveryInput) Meshes() appmesh_k8s_aws_v1beta2_sets.MeshSet {
+func (s *snapshotDiscoveryInput) Meshes() appmesh_k8s_aws_v1beta2_sets.MeshSet {
 	return s.meshes
 }
 
-func (s snapshotDiscoveryInput) ConfigMaps() v1_sets.ConfigMapSet {
+func (s *snapshotDiscoveryInput) ConfigMaps() v1_sets.ConfigMapSet {
 	return s.configMaps
 }
 
-func (s snapshotDiscoveryInput) Services() v1_sets.ServiceSet {
+func (s *snapshotDiscoveryInput) Services() v1_sets.ServiceSet {
 	return s.services
 }
 
-func (s snapshotDiscoveryInput) Pods() v1_sets.PodSet {
+func (s *snapshotDiscoveryInput) Pods() v1_sets.PodSet {
 	return s.pods
 }
 
-func (s snapshotDiscoveryInput) Endpoints() v1_sets.EndpointsSet {
+func (s *snapshotDiscoveryInput) Endpoints() v1_sets.EndpointsSet {
 	return s.endpoints
 }
 
-func (s snapshotDiscoveryInput) Namespaces() v1_sets.NamespaceSet {
+func (s *snapshotDiscoveryInput) Namespaces() v1_sets.NamespaceSet {
 	return s.namespaces
 }
 
-func (s snapshotDiscoveryInput) Nodes() v1_sets.NodeSet {
+func (s *snapshotDiscoveryInput) Nodes() v1_sets.NodeSet {
 	return s.nodes
 }
 
-func (s snapshotDiscoveryInput) Deployments() apps_v1_sets.DeploymentSet {
+func (s *snapshotDiscoveryInput) Deployments() apps_v1_sets.DeploymentSet {
 	return s.deployments
 }
 
-func (s snapshotDiscoveryInput) ReplicaSets() apps_v1_sets.ReplicaSetSet {
+func (s *snapshotDiscoveryInput) ReplicaSets() apps_v1_sets.ReplicaSetSet {
 	return s.replicaSets
 }
 
-func (s snapshotDiscoveryInput) DaemonSets() apps_v1_sets.DaemonSetSet {
+func (s *snapshotDiscoveryInput) DaemonSets() apps_v1_sets.DaemonSetSet {
 	return s.daemonSets
 }
 
-func (s snapshotDiscoveryInput) StatefulSets() apps_v1_sets.StatefulSetSet {
+func (s *snapshotDiscoveryInput) StatefulSets() apps_v1_sets.StatefulSetSet {
 	return s.statefulSets
 }
 
-func (s snapshotDiscoveryInput) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts DiscoveryInputSyncStatusOptions) error {
+func (s *snapshotDiscoveryInput) SyncStatusesMultiCluster(ctx context.Context, mcClient multicluster.Client, opts DiscoveryInputSyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -486,7 +484,7 @@ func (s snapshotDiscoveryInput) SyncStatusesMultiCluster(ctx context.Context, mc
 	return errs
 }
 
-func (s snapshotDiscoveryInput) SyncStatuses(ctx context.Context, c client.Client, opts DiscoveryInputSyncStatusOptions) error {
+func (s *snapshotDiscoveryInput) SyncStatuses(ctx context.Context, c client.Client, opts DiscoveryInputSyncStatusOptions) error {
 	var errs error
 
 	if opts.IssuedCertificate {
@@ -500,25 +498,100 @@ func (s snapshotDiscoveryInput) SyncStatuses(ctx context.Context, c client.Clien
 	return errs
 }
 
-func (s snapshotDiscoveryInput) MarshalJSON() ([]byte, error) {
+func (s *snapshotDiscoveryInput) MarshalJSON() ([]byte, error) {
 	snapshotMap := map[string]interface{}{"name": s.name}
 
-	snapshotMap["issuedCertificates"] = s.issuedCertificates.List()
-	snapshotMap["meshes"] = s.meshes.List()
-	snapshotMap["configMaps"] = s.configMaps.List()
-	snapshotMap["services"] = s.services.List()
-	snapshotMap["pods"] = s.pods.List()
-	snapshotMap["endpoints"] = s.endpoints.List()
-	snapshotMap["namespaces"] = s.namespaces.List()
-	snapshotMap["nodes"] = s.nodes.List()
-	snapshotMap["deployments"] = s.deployments.List()
-	snapshotMap["replicaSets"] = s.replicaSets.List()
-	snapshotMap["daemonSets"] = s.daemonSets.List()
-	snapshotMap["statefulSets"] = s.statefulSets.List()
+	issuedCertificateSet := certificates_mesh_gloo_solo_io_v1_sets.NewIssuedCertificateSet()
+	for _, obj := range s.issuedCertificates.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		issuedCertificateSet.Insert(obj.(*certificates_mesh_gloo_solo_io_v1_types.IssuedCertificate))
+	}
+	snapshotMap["issuedCertificates"] = issuedCertificateSet.List()
+
+	meshSet := appmesh_k8s_aws_v1beta2_sets.NewMeshSet()
+	for _, obj := range s.meshes.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		meshSet.Insert(obj.(*appmesh_k8s_aws_v1beta2_types.Mesh))
+	}
+	snapshotMap["meshes"] = meshSet.List()
+
+	configMapSet := v1_sets.NewConfigMapSet()
+	for _, obj := range s.configMaps.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		configMapSet.Insert(obj.(*v1_types.ConfigMap))
+	}
+	snapshotMap["configMaps"] = configMapSet.List()
+	serviceSet := v1_sets.NewServiceSet()
+	for _, obj := range s.services.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		serviceSet.Insert(obj.(*v1_types.Service))
+	}
+	snapshotMap["services"] = serviceSet.List()
+	podSet := v1_sets.NewPodSet()
+	for _, obj := range s.pods.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		podSet.Insert(obj.(*v1_types.Pod))
+	}
+	snapshotMap["pods"] = podSet.List()
+	endpointsSet := v1_sets.NewEndpointsSet()
+	for _, obj := range s.endpoints.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		endpointsSet.Insert(obj.(*v1_types.Endpoints))
+	}
+	snapshotMap["endpoints"] = endpointsSet.List()
+	namespaceSet := v1_sets.NewNamespaceSet()
+	for _, obj := range s.namespaces.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		namespaceSet.Insert(obj.(*v1_types.Namespace))
+	}
+	snapshotMap["namespaces"] = namespaceSet.List()
+	nodeSet := v1_sets.NewNodeSet()
+	for _, obj := range s.nodes.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		nodeSet.Insert(obj.(*v1_types.Node))
+	}
+	snapshotMap["nodes"] = nodeSet.List()
+
+	deploymentSet := apps_v1_sets.NewDeploymentSet()
+	for _, obj := range s.deployments.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		deploymentSet.Insert(obj.(*apps_v1_types.Deployment))
+	}
+	snapshotMap["deployments"] = deploymentSet.List()
+	replicaSetSet := apps_v1_sets.NewReplicaSetSet()
+	for _, obj := range s.replicaSets.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		replicaSetSet.Insert(obj.(*apps_v1_types.ReplicaSet))
+	}
+	snapshotMap["replicaSets"] = replicaSetSet.List()
+	daemonSetSet := apps_v1_sets.NewDaemonSetSet()
+	for _, obj := range s.daemonSets.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		daemonSetSet.Insert(obj.(*apps_v1_types.DaemonSet))
+	}
+	snapshotMap["daemonSets"] = daemonSetSet.List()
+	statefulSetSet := apps_v1_sets.NewStatefulSetSet()
+	for _, obj := range s.statefulSets.UnsortedList() {
+		// redact secret data from the snapshot
+		obj := snapshotutils.RedactSecretData(obj)
+		statefulSetSet.Insert(obj.(*apps_v1_types.StatefulSet))
+	}
+	snapshotMap["statefulSets"] = statefulSetSet.List()
 	return json.Marshal(snapshotMap)
 }
 
-func (s snapshotDiscoveryInput) Clone() DiscoveryInputSnapshot {
+func (s *snapshotDiscoveryInput) Clone() DiscoveryInputSnapshot {
 	return &snapshotDiscoveryInput{
 		name: s.name,
 
@@ -537,7 +610,7 @@ func (s snapshotDiscoveryInput) Clone() DiscoveryInputSnapshot {
 	}
 }
 
-func (s snapshotDiscoveryInput) Generic() resource.ClusterSnapshot {
+func (s *snapshotDiscoveryInput) Generic() resource.ClusterSnapshot {
 	clusterSnapshots := resource.ClusterSnapshot{}
 	s.ForEachObject(func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject) {
 		clusterSnapshots.Insert(cluster, gvk, obj)
@@ -547,7 +620,7 @@ func (s snapshotDiscoveryInput) Generic() resource.ClusterSnapshot {
 }
 
 // convert this snapshot to its generic form
-func (s snapshotDiscoveryInput) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
+func (s *snapshotDiscoveryInput) ForEachObject(handleObject func(cluster string, gvk schema.GroupVersionKind, obj resource.TypedObject)) {
 
 	for _, obj := range s.issuedCertificates.List() {
 		cluster := obj.GetClusterName()

@@ -2,10 +2,12 @@ package tests
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/golang/protobuf/proto"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	"github.com/solo-io/external-apis/pkg/api/istio/networking.istio.io/v1alpha3"
 	commonv1 "github.com/solo-io/gloo-mesh/pkg/api/common.mesh.gloo.solo.io/v1"
 	discoveryv1 "github.com/solo-io/gloo-mesh/pkg/api/discovery.mesh.gloo.solo.io/v1"
@@ -165,21 +167,21 @@ func ConflictDetectionTest() {
 			}, "60s", "1s").ShouldNot(HaveOccurred())
 
 			// output VS should not exist on remote cluster
-			Eventually(func() bool {
+			Eventually(func() error {
 				_, err = getVirtualService(remoteClient, &skv2corev1.ObjectRef{
 					Name:      "reviews",
 					Namespace: BookinfoNamespace,
 				})
-				return errors.IsNotFound(err)
-			}, "5s", "1s").Should(BeTrue(), "expected err %v to be IsNotFound", err)
+				return err
+			}, "5s", "1s").Should(BeNotFoundErr())
 			// output VS should not exist on remote cluster
-			Consistently(func() bool {
+			Consistently(func() error {
 				_, err = getVirtualService(remoteClient, &skv2corev1.ObjectRef{
 					Name:      "reviews",
 					Namespace: BookinfoNamespace,
 				})
-				return errors.IsNotFound(err)
-			}, "5s", "1s").Should(BeTrue(), "expected err %v to be IsNotFound", err)
+				return err
+			}, "5s", "1s").Should(BeNotFoundErr())
 
 			// output VS should exist on mgmt cluster
 			Eventually(func() error {
@@ -228,13 +230,13 @@ func ConflictDetectionTest() {
 			Expect(err).NotTo(HaveOccurred())
 
 			// eventually the default translated DestinationRule should be deleted
-			Eventually(func() bool {
+			Eventually(func() error {
 				_, err = getDestinationRule(remoteClient, &skv2corev1.ObjectRef{
 					Name:      "reviews",
 					Namespace: BookinfoNamespace,
 				})
-				return errors.IsNotFound(err)
-			}, "60s", "1s").Should(BeTrue(), "expected err %v to be IsNotFound", err)
+				return err
+			}, "60s", "1s").Should(BeNotFoundErr())
 		})
 
 		By("cleaning up the user DestinationRule", func() {
@@ -296,4 +298,27 @@ func deleteDestinationRule(remoteClient client.Client, ref *skv2corev1.ObjectRef
 		Name:      ref.Name,
 		Namespace: ref.Namespace,
 	})
+}
+
+func BeNotFoundErr() types.GomegaMatcher {
+	return &notFoundErrMatcher{}
+}
+
+type notFoundErrMatcher struct{}
+
+func (matcher *notFoundErrMatcher) Match(actual interface{}) (success bool, err error) {
+	err, ok := actual.(error)
+	if !ok {
+		return false, fmt.Errorf("BeNotFoundErr matcher expects an error, got %T", actual)
+	}
+
+	return errors.IsNotFound(err), nil
+}
+
+func (matcher *notFoundErrMatcher) FailureMessage(actual interface{}) (message string) {
+	return fmt.Sprintf("expected err \n\t%v\n to be IsNotFound", actual)
+}
+
+func (matcher *notFoundErrMatcher) NegatedFailureMessage(actual interface{}) (message string) {
+	return fmt.Sprintf("Expected\n\t%#v\nnot to be IsNotFound", actual)
 }

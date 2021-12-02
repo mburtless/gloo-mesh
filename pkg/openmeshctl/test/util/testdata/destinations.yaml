@@ -1,0 +1,636 @@
+apiVersion: discovery.mesh.gloo.solo.io/v1
+kind: DestinationList
+items:
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"details","service":"details"},"name":"details","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"details"}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 5
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: details-bookinfo-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494594"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/details-bookinfo-mgmt-cluster
+    uid: 22c54906-92e0-453e-a261-7f8e3a34a9b2
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.7
+          labels:
+            app: details
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: details
+        service: details
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: mgmt.cluster
+        name: details
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: details
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: details.bookinfo.svc.cluster.local
+    observedGeneration: 5
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"details","service":"details"},"name":"details","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"details"}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: details-bookinfo-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494595"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/details-bookinfo-remote-cluster
+    uid: a04130da-b108-43eb-93a4-3ae522736e97
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.7
+          labels:
+            app: details
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: details
+        service: details
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: remote.cluster
+        name: details
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: details
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: details.bookinfo.svc.cluster.local
+    observedGeneration: 1
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"istio-ingressgateway","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istio-ingressgateway","namespace":"istio-system"},"spec":{"ports":[{"name":"http2","port":80,"protocol":"TCP","targetPort":8080},{"name":"https","port":443,"protocol":"TCP","targetPort":8443},{"name":"tls","nodePort":32001,"port":15443,"protocol":"TCP","targetPort":15443}],"selector":{"app":"istio-ingressgateway","istio":"ingressgateway"},"type":"NodePort"}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 6
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: istio-ingressgateway-istio-system-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494596"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/istio-ingressgateway-istio-system-mgmt-cluster
+    uid: 5b563ac4-93bd-4e03-9308-c0281573f143
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.3
+          labels:
+            app: istio-ingressgateway
+            chart: gateways
+            heritage: Tiller
+            install.operator.istio.io/owning-resource: unknown
+            istio: ingressgateway
+            istio.io/rev: default
+            operator.istio.io/component: IngressGateways
+            release: istio
+            service.istio.io/canonical-name: istio-ingressgateway
+            service.istio.io/canonical-revision: latest
+            sidecar.istio.io/inject: "false"
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http2
+          port: 8080
+          protocol: TCP
+        - name: tls
+          port: 15443
+          protocol: TCP
+        - name: https
+          port: 8443
+          protocol: TCP
+      externalAddresses:
+      - ip: 172.18.0.3
+      labels:
+        app: istio-ingressgateway
+        install.operator.istio.io/owning-resource: example-istiooperator
+        install.operator.istio.io/owning-resource-namespace: istio-system
+        istio: ingressgateway
+        istio.io/rev: default
+        operator.istio.io/component: IngressGateways
+        operator.istio.io/managed: Reconcile
+        operator.istio.io/version: 1.10.4
+        release: istio
+      ports:
+      - name: http2
+        nodePort: 30041
+        port: 80
+        protocol: TCP
+        targetPortNumber: 8080
+      - name: https
+        nodePort: 31008
+        port: 443
+        protocol: TCP
+        targetPortNumber: 8443
+      - name: tls
+        nodePort: 32001
+        port: 15443
+        protocol: TCP
+        targetPortNumber: 15443
+      ref:
+        clusterName: mgmt.cluster
+        name: istio-ingressgateway
+        namespace: istio-system
+      region: us-east-1
+      serviceType: NODE_PORT
+      workloadSelectorLabels:
+        app: istio-ingressgateway
+        istio: ingressgateway
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: istio-ingressgateway.istio-system.svc.cluster.local
+    observedGeneration: 6
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"istio-ingressgateway","install.operator.istio.io/owning-resource":"example-istiooperator","install.operator.istio.io/owning-resource-namespace":"istio-system","istio":"ingressgateway","istio.io/rev":"default","operator.istio.io/component":"IngressGateways","operator.istio.io/managed":"Reconcile","operator.istio.io/version":"1.10.4","release":"istio"},"name":"istio-ingressgateway","namespace":"istio-system"},"spec":{"ports":[{"name":"http2","port":80,"protocol":"TCP","targetPort":8080},{"name":"https","port":443,"protocol":"TCP","targetPort":8443},{"name":"tls","nodePort":32000,"port":15443,"protocol":"TCP","targetPort":15443}],"selector":{"app":"istio-ingressgateway","istio":"ingressgateway"},"type":"NodePort"}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: istio-ingressgateway-istio-system-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494597"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/istio-ingressgateway-istio-system-remote-cluster
+    uid: 7bf1c04e-5cbd-4beb-8ca9-b762b7fa78c7
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.6
+          labels:
+            app: istio-ingressgateway
+            chart: gateways
+            heritage: Tiller
+            install.operator.istio.io/owning-resource: unknown
+            istio: ingressgateway
+            istio.io/rev: default
+            operator.istio.io/component: IngressGateways
+            release: istio
+            service.istio.io/canonical-name: istio-ingressgateway
+            service.istio.io/canonical-revision: latest
+            sidecar.istio.io/inject: "false"
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http2
+          port: 8080
+          protocol: TCP
+        - name: tls
+          port: 15443
+          protocol: TCP
+        - name: https
+          port: 8443
+          protocol: TCP
+      externalAddresses:
+      - ip: 172.18.0.3
+      labels:
+        app: istio-ingressgateway
+        install.operator.istio.io/owning-resource: example-istiooperator
+        install.operator.istio.io/owning-resource-namespace: istio-system
+        istio: ingressgateway
+        istio.io/rev: default
+        operator.istio.io/component: IngressGateways
+        operator.istio.io/managed: Reconcile
+        operator.istio.io/version: 1.10.4
+        release: istio
+      ports:
+      - name: http2
+        nodePort: 30222
+        port: 80
+        protocol: TCP
+        targetPortNumber: 8080
+      - name: https
+        nodePort: 32743
+        port: 443
+        protocol: TCP
+        targetPortNumber: 8443
+      - name: tls
+        nodePort: 32000
+        port: 15443
+        protocol: TCP
+        targetPortNumber: 15443
+      ref:
+        clusterName: remote.cluster
+        name: istio-ingressgateway
+        namespace: istio-system
+      region: us-east-1
+      serviceType: NODE_PORT
+      workloadSelectorLabels:
+        app: istio-ingressgateway
+        istio: ingressgateway
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: istio-ingressgateway.istio-system.svc.cluster.local
+    observedGeneration: 1
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"productpage","service":"productpage"},"name":"productpage","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"productpage"}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 11
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: productpage-bookinfo-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494598"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/productpage-bookinfo-mgmt-cluster
+    uid: 9775bb89-e071-4756-a087-11ddaa67298b
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.12
+          labels:
+            app: productpage
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: productpage
+        service: productpage
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: mgmt.cluster
+        name: productpage
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: productpage
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: productpage.bookinfo.svc.cluster.local
+    observedGeneration: 11
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"productpage","service":"productpage"},"name":"productpage","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"productpage"}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: productpage-bookinfo-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494599"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/productpage-bookinfo-remote-cluster
+    uid: b8706ad1-cf47-4ab2-8723-1a8795b5a23a
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.9
+          labels:
+            app: productpage
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: productpage
+        service: productpage
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: remote.cluster
+        name: productpage
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: productpage
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: productpage.bookinfo.svc.cluster.local
+    observedGeneration: 1
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"ratings","service":"ratings"},"name":"ratings","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"ratings"}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 5
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: ratings-bookinfo-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494601"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/ratings-bookinfo-mgmt-cluster
+    uid: a89b0f6b-73c9-4a73-905b-91f980c13f09
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.8
+          labels:
+            app: ratings
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: ratings
+        service: ratings
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: mgmt.cluster
+        name: ratings
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: ratings
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: ratings.bookinfo.svc.cluster.local
+    observedGeneration: 5
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"ratings","service":"ratings"},"name":"ratings","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"ratings"}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: ratings-bookinfo-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494602"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/ratings-bookinfo-remote-cluster
+    uid: 0bc0790a-e2f4-4ea5-90e9-58a815f2f0ac
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.8
+          labels:
+            app: ratings
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: ratings
+        service: ratings
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: remote.cluster
+        name: ratings
+        namespace: bookinfo
+      region: us-east-1
+      workloadSelectorLabels:
+        app: ratings
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: ratings.bookinfo.svc.cluster.local
+    observedGeneration: 1
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"reviews","service":"reviews"},"name":"reviews","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"reviews"}}}
+    creationTimestamp: "2021-08-31T21:00:36Z"
+    generation: 9
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: mgmt.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-mgmt-cluster
+    name: reviews-bookinfo-mgmt-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494604"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/reviews-bookinfo-mgmt-cluster
+    uid: 1605780e-7d89-4d05-8ceb-dbd39077672b
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.4
+          labels:
+            app: reviews
+            version: v2
+          subLocality:
+            zone: us-east-1c
+        - ipAddress: 10.244.0.5
+          labels:
+            app: reviews
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        - ipAddress: 10.244.0.6
+          labels:
+            app: reviews
+            version: v3
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: reviews
+        service: reviews
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: mgmt.cluster
+        name: reviews
+        namespace: bookinfo
+      region: us-east-1
+      subsets:
+        version:
+          values:
+          - v1
+          - v2
+          - v3
+      workloadSelectorLabels:
+        app: reviews
+    mesh:
+      name: istiod-istio-system-mgmt-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: reviews.bookinfo.svc.cluster.local
+    observedGeneration: 9
+    requiredSubsets:
+    - observedGeneration: 2
+    - observedGeneration: 2
+- apiVersion: discovery.mesh.gloo.solo.io/v1
+  kind: Destination
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"reviews","service":"reviews"},"name":"reviews","namespace":"bookinfo"},"spec":{"ports":[{"name":"http","port":9080}],"selector":{"app":"reviews"}}}
+    creationTimestamp: "2021-08-31T21:01:21Z"
+    generation: 1
+    labels:
+      cluster.discovery.mesh.gloo.solo.io: remote.cluster
+      cluster.multicluster.solo.io: ""
+      owner.discovery.mesh.gloo.solo.io: gloo-mesh-remote-cluster
+    name: reviews-bookinfo-remote-cluster
+    namespace: gloo-mesh
+    resourceVersion: "2494605"
+    selfLink: /apis/discovery.mesh.gloo.solo.io/v1/namespaces/gloo-mesh/destinations/reviews-bookinfo-remote-cluster
+    uid: 37452b05-6bd8-4e81-bed4-744fabf5eae3
+  spec:
+    kubeService:
+      endpointSubsets:
+      - endpoints:
+        - ipAddress: 10.244.0.10
+          labels:
+            app: reviews
+            version: v2
+          subLocality:
+            zone: us-east-1c
+        - ipAddress: 10.244.0.11
+          labels:
+            app: reviews
+            version: v1
+          subLocality:
+            zone: us-east-1c
+        - ipAddress: 10.244.0.12
+          labels:
+            app: reviews
+            version: v3
+          subLocality:
+            zone: us-east-1c
+        ports:
+        - name: http
+          port: 9080
+          protocol: TCP
+      labels:
+        app: reviews
+        service: reviews
+      ports:
+      - name: http
+        port: 9080
+        protocol: TCP
+        targetPortNumber: 9080
+      ref:
+        clusterName: remote.cluster
+        name: reviews
+        namespace: bookinfo
+      region: us-east-1
+      subsets:
+        version:
+          values:
+          - v1
+          - v2
+          - v3
+      workloadSelectorLabels:
+        app: reviews
+    mesh:
+      name: istiod-istio-system-remote-cluster
+      namespace: gloo-mesh
+  status:
+    localFqdn: reviews.bookinfo.svc.cluster.local
+    observedGeneration: 1

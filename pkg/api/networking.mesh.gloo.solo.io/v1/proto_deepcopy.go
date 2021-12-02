@@ -6,40 +6,71 @@ package v1
 
 import (
 	proto "github.com/golang/protobuf/proto"
+	"github.com/solo-io/protoc-gen-ext/pkg/clone"
 )
 
 // DeepCopyInto for the TrafficPolicy.Spec
 func (in *TrafficPolicySpec) DeepCopyInto(out *TrafficPolicySpec) {
-	p := proto.Clone(in).(*TrafficPolicySpec)
+	var p *TrafficPolicySpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*TrafficPolicySpec)
+	} else {
+		p = proto.Clone(in).(*TrafficPolicySpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the TrafficPolicy.Status
 func (in *TrafficPolicyStatus) DeepCopyInto(out *TrafficPolicyStatus) {
-	p := proto.Clone(in).(*TrafficPolicyStatus)
+	var p *TrafficPolicyStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*TrafficPolicyStatus)
+	} else {
+		p = proto.Clone(in).(*TrafficPolicyStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the AccessPolicy.Spec
 func (in *AccessPolicySpec) DeepCopyInto(out *AccessPolicySpec) {
-	p := proto.Clone(in).(*AccessPolicySpec)
+	var p *AccessPolicySpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*AccessPolicySpec)
+	} else {
+		p = proto.Clone(in).(*AccessPolicySpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the AccessPolicy.Status
 func (in *AccessPolicyStatus) DeepCopyInto(out *AccessPolicyStatus) {
-	p := proto.Clone(in).(*AccessPolicyStatus)
+	var p *AccessPolicyStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*AccessPolicyStatus)
+	} else {
+		p = proto.Clone(in).(*AccessPolicyStatus)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the VirtualMesh.Spec
 func (in *VirtualMeshSpec) DeepCopyInto(out *VirtualMeshSpec) {
-	p := proto.Clone(in).(*VirtualMeshSpec)
+	var p *VirtualMeshSpec
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*VirtualMeshSpec)
+	} else {
+		p = proto.Clone(in).(*VirtualMeshSpec)
+	}
 	*out = *p
 }
 
 // DeepCopyInto for the VirtualMesh.Status
 func (in *VirtualMeshStatus) DeepCopyInto(out *VirtualMeshStatus) {
-	p := proto.Clone(in).(*VirtualMeshStatus)
+	var p *VirtualMeshStatus
+	if h, ok := interface{}(in).(clone.Cloner); ok {
+		p = h.Clone().(*VirtualMeshStatus)
+	} else {
+		p = proto.Clone(in).(*VirtualMeshStatus)
+	}
 	*out = *p
 }
