@@ -1,0 +1,4 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Adds a sandbox environment for trying out the various Gloo Mesh guides.
+    issueLink: https://github.com/solo-io/gloo-mesh/issues/1889
