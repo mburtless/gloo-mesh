@@ -1,0 +1,39 @@
+name: Docs Issue
+description: Fix our docs or add new information
+labels: ["Type: Docs"]
+body:
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Which version of the Gloo Mesh docs does this affect?
+      options:
+        - main
+        - 1.2.x (latest stable)
+        - 1.1.x
+    validations:
+      required: true
+  - type: textarea
+    id: change-details
+    attributes:
+      label: Describe the requested changes
+      placeholder: List the desired changes to be made to the Gloo Mesh docs.
+  - type: textarea
+    id: docs-links
+    attributes:
+      label: Link to any relevant existing docs
+      placeholder: |
+        1. https://docs.solo.io/gloo-mesh/latest...
+        2. ...
+  - type: textarea
+    id: browser-details
+    attributes:
+      label: Browser Information
+      placeholder: 
+        If the change isn't related to content, please include your browser version and any other relevant information 
+        (e.g., browser zoom) to help us reproduce docs-related bugs.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      placeholder: Add any other context or screenshots about the feature request here.
