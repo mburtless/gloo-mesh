@@ -1,0 +1,5 @@
+changelog:
+  - type: NON_USER_FACING
+    issueLink: https://github.com/solo-io/gloo-mesh-enterprise/issues/6486
+    description: Fix meshctl install script to correctly get latest version instead of 2.0.24.
+    resolvesIssue: false

@@ -14,7 +14,7 @@ else
 fi
 
 if [ -z "${GLOO_MESH_VERSION:-}" ]; then
-  GLOO_MESH_VERSIONS=$(curl -s https://storage.googleapis.com/storage/v1/b/meshctl/o | any_python -c "import sys; from distutils.version import StrictVersion, LooseVersion; from json import loads as l; obj = l(sys.stdin.read()); items = obj['items'];  all_releases = [release['name'].split('/')[0] for release in items]; releases = []; [releases.append(n) for n in all_releases if n not in releases]; filtered_releases = list(filter(lambda release_string: len(release_string) > 0 and StrictVersion.version_re.match(release_string[1:]) != None, releases)); filtered_releases.sort(key=LooseVersion, reverse=True); print('\n'.join(filtered_releases))")
+  GLOO_MESH_VERSIONS=$(curl -s https://storage.googleapis.com/storage/v1/b/meshctl/o?pageToken=CiB2Mi4xLjAtYmV0YTIvbWVzaGN0bC1saW51eC1hbWQ2NA | any_python -c "import sys; from distutils.version import StrictVersion, LooseVersion; from json import loads as l; obj = l(sys.stdin.read()); items = obj['items'];  all_releases = [release['name'].split('/')[0] for release in items]; releases = []; [releases.append(n) for n in all_releases if n not in releases]; filtered_releases = list(filter(lambda release_string: len(release_string) > 0 and StrictVersion.version_re.match(release_string[1:]) != None, releases)); filtered_releases.sort(key=LooseVersion, reverse=True); print('\n'.join(filtered_releases))")
 else
   GLOO_MESH_VERSIONS="${GLOO_MESH_VERSION}"
 fi
@@ -25,10 +25,18 @@ else
   OS=linux
 fi
 
+if [  "$(uname -m)" = "aarch64" ]; then
+	GOARCH=arm64
+elif [ "$(uname -m)" = "arm64" ]; then
+	GOARCH=arm64
+else
+	GOARCH=amd64
+fi
+
 for gloo_mesh_version in $GLOO_MESH_VERSIONS; do
 
 tmp=$(mktemp -d /tmp/gloo_mesh.XXXXXX)
-filename="meshctl-${OS}-amd64"
+filename="meshctl-${OS}-${GOARCH}"
 url="https://storage.googleapis.com/meshctl/${gloo_mesh_version}/${filename}"
 
 if curl -f ${url} >/dev/null 2>&1; then
