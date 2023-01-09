@@ -1,0 +1,3 @@
+changelog:
+  - type: NON_USER_FACING
+    description: Adds make target for darwin-arm64 build of meshctl so users on Apple Silicon can build and natively run meshctl.
