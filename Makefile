@@ -195,6 +195,11 @@ meshctl-darwin-amd64: $(OUTDIR)/meshctl-darwin-amd64
 $(OUTDIR)/meshctl-darwin-amd64: $(SOURCES)
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin packr build -ldflags=$(LDFLAGS) -gcflags=$(GCFLAGS) -o $@ cmd/meshctl/main.go
 
+.PHONY: meshctl-darwin-arm64
+meshctl-darwin-arm64: $(OUTDIR)/meshctl-darwin-arm64
+$(OUTDIR)/meshctl-darwin-arm64: $(SOURCES)
+	CGO_ENABLED=0 GOARCH=arm64 GOOS=darwin packr build -ldflags=$(LDFLAGS) -gcflags=$(GCFLAGS) -o $@ cmd/meshctl/main.go
+
 .PHONY: meshctl-windows-amd64
 meshctl-windows-amd64: $(OUTDIR)/meshctl-windows-amd64.exe
 $(OUTDIR)/meshctl-windows-amd64.exe: $(SOURCES)
